@@ -45,16 +45,18 @@ def moveToCoordinate(car, target, delta):
 
 if __name__ == "__main__":
     # read path from file and store information in a list of [x, y] values 
-    filename = "PathCoordsNoDupes.txt"
+    filename = "Path/PathCoordsNoDupes.txt"
     path = []
 
     with open(filename, "r") as file:
         path = file.readlines()
         path = [parseCoordFromLine(line) for line in path]
 
+    delta = 3 # hardcoded will need to be defined later on
+
     # initialise car objects
     car1 = Car("Car1", "10.172.10.3:80/")
-    car2 = Car("Car1", "10.172.10.4:80/")
+    car2 = Car("Car2", "10.172.10.4:80/")
 
     # set up server
     localIP = "127.0.0.1"
@@ -65,12 +67,14 @@ if __name__ == "__main__":
     UDPServerSocket.bind((localIP, localPort))
     print("UDP server up and listening")
     
+
     while(True):
+        # TODO maybe add a way to check that all the values are valid without crashing the program
         getCoordForCar(car1)
         getCoordForCar(car2)
         print(f"Received coords ({car1.x}, {car1.y}) for {car1.name} and ({car2.x}, {car2.y}) for {car2.name}")
-        moveToCoordinate(car1, path[car1.index])
-        moveToCoordinate(car2, path[car2.index])
+        moveToCoordinate(car1, path[car1.index], delta)
+        moveToCoordinate(car2, path[car2.index], delta)
 
 
         
