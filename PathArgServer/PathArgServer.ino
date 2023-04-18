@@ -86,31 +86,36 @@ void setup(void) {
     digitalWrite(4, HIGH);
     digitalWrite(5, LOW);
     myservo.write(180);
-    coord_x -= DISTANCE
+    coord_x -= DISTANCE;
     coord_y += DISTANCE;
+    sendCoords();
   });
 
     server.on(("/FR"), []() {
     digitalWrite(4, HIGH);
     digitalWrite(5, LOW);
     myservo.write(0);
-    coord_x += DISTANCE
+    coord_x += DISTANCE;
     coord_y += DISTANCE;
+    sendCoords();
+
   });
 
-    server.on(("/R"), []() {
+    server.on(("/B"), []() {
     digitalWrite(4, LOW);
     digitalWrite(5, HIGH);
     myservo.write(90);
-   
+    coord_y += DISTANCE;
+    sendCoords();
   });
 
     server.on(("/BL"), []() {
     digitalWrite(4, LOW);
     digitalWrite(5, HIGH);
     myservo.write(180);
-    coord_x -= DISTANCE
+    coord_x -= DISTANCE;
     coord_y -= DISTANCE;
+    sendCoords();
   });
 
     server.on(("/BR"), []() {
@@ -119,12 +124,14 @@ void setup(void) {
     myservo.write(0);
     coord_x += DISTANCE
     coord_y -= DISTANCE;
+    sendCoords();
   });
   
     server.on(("/S"), []() {
     digitalWrite(4, LOW);
     digitalWrite(5, LOW);
     myservo.write(90);
+    sendCoords();
   });
 
 

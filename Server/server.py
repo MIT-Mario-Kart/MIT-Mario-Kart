@@ -28,17 +28,17 @@ def moveToCoordinate(car, target, delta):
 
     server_path = ""
     if distY > 0:
-        server_path += "f"
+        server_path += "F"
     elif distY < 0:
-        server_path += "b"
+        server_path += "B"
 
     if distX > 0:
-        server_path += "r"
+        server_path += "R"
     elif distX < 0:
-        server_path += "l" 
+        server_path += "L" 
 
     if server_path == "":
-        server_path = "s"
+        server_path = "S"
 
     r = requests.get(url=car.server+server_path)
     print(r.json())
@@ -56,7 +56,7 @@ if __name__ == "__main__":
 
     # initialise car objects
     car1 = Car("Car1", "10.172.10.3:80/")
-    car2 = Car("Car2", "10.172.10.4:80/")
+    # car2 = Car("Car2", "10.172.10.4:80/")
 
     # set up server
     localIP = "127.0.0.1"
