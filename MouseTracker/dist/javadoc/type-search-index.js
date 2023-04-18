@@ -1,0 +1,1 @@
+typeSearchIndex = [{"l":"All Classes and Interfaces","u":"allclasses-index.html"},{"p":"events","l":"BlankArea"},{"p":"events","l":"MouseEventDemo"},{"p":"events","l":"MouseMotionEventDemo"}];updateSearchResults();
