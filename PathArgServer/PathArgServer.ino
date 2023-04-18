@@ -2,15 +2,19 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
+#include <WiFiUdp.h>
 
 #include <uri/UriBraces.h>
 #include <uri/UriRegex.h>
 #include <Servo.h>
 
 #ifndef STASSID
-#define STASSID "Dan the Pol"
-#define STAPSK "RETR0ProkT765"
+#define STASSID "IP"
+#define STAPSK "PASS"
 #endif
+
+#define UDP_SERVER_IP "10.172.10.2"
+#define UDP_PORT 8888
 
 #define START_X 0
 #define START_Y 0
@@ -34,11 +38,14 @@
 #define REVERSE_RIGHT "/RR"
 #define STOP "/S"
 
+#define DISTANCE 1
+
 const char *ssid = STASSID;
 const char *password = STAPSK;
 
 Servo myservo;
 ESP8266WebServer server(80);
+WiFiUDP UDP;
 
 int coord_x = START_X;
 int coord_y = START_Y;
@@ -72,21 +79,23 @@ void setup(void) {
     digitalWrite(4, HIGH);
     digitalWrite(5, LOW);
     myservo.write(90);
-   
+    coord_y += DISTANCE;
   });
 
     server.on(("/FL"), []() {
     digitalWrite(4, HIGH);
     digitalWrite(5, LOW);
     myservo.write(180);
-   
+    coord_x -= DISTANCE
+    coord_y += DISTANCE;
   });
 
     server.on(("/FR"), []() {
     digitalWrite(4, HIGH);
     digitalWrite(5, LOW);
     myservo.write(0);
-   
+    coord_x += DISTANCE
+    coord_y += DISTANCE;
   });
 
     server.on(("/R"), []() {
@@ -96,25 +105,26 @@ void setup(void) {
    
   });
 
-    server.on(("/RL"), []() {
+    server.on(("/BL"), []() {
     digitalWrite(4, LOW);
     digitalWrite(5, HIGH);
     myservo.write(180);
-   
+    coord_x -= DISTANCE
+    coord_y -= DISTANCE;
   });
 
-    server.on(("/RR"), []() {
+    server.on(("/BR"), []() {
     digitalWrite(4, LOW);
     digitalWrite(5, HIGH);
     myservo.write(0);
-   
+    coord_x += DISTANCE
+    coord_y -= DISTANCE;
   });
   
     server.on(("/S"), []() {
     digitalWrite(4, LOW);
     digitalWrite(5, LOW);
     myservo.write(90);
-   
   });
 
 
@@ -125,3 +135,9 @@ void setup(void) {
 void loop(void) {
   server.handleClient();
 }
+
+void sendCoords() {
+    UDP.beginPacket(UDP_SERVER_IP, UDP_PORT);
+    UDP.write("%d, %d", coord_x, coord_y);
+    UDP.endPacket();
+    }
