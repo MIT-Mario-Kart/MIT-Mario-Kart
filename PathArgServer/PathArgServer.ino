@@ -9,11 +9,11 @@
 #include <Servo.h>
 
 #ifndef STASSID
-#define STASSID "IP"
-#define STAPSK "PASS"
+#define STASSID "Rok’s iPhone"
+#define STAPSK "babalilo"
 #endif
 
-#define UDP_SERVER_IP "10.172.10.2"
+// #define UDP_SERVER_IP "172.20.10.2"
 #define UDP_PORT 8888
 
 #define START_X 0
@@ -46,10 +46,14 @@ const char *password = STAPSK;
 Servo myservo;
 ESP8266WebServer server(80);
 WiFiUDP UDP;
-
+char packet[255];
+uint16_t SERVER_PORT;
+IPAddress SERVER_IP;
 int coord_x = START_X;
 int coord_y = START_Y;
 int dir = START_ORIENTATION;
+int init_val = 1;
+int interaction_index = 0;
 
 void setup(void) {
   pinMode(PIN_D2_FORWARD,OUTPUT); // D2 F
@@ -80,6 +84,8 @@ void setup(void) {
     digitalWrite(5, LOW);
     myservo.write(90);
     coord_y += DISTANCE;
+    interaction_index += 1;
+    handleRoot();
   });
 
     server.on(("/FL"), []() {
@@ -88,7 +94,8 @@ void setup(void) {
     myservo.write(180);
     coord_x -= DISTANCE;
     coord_y += DISTANCE;
-    sendCoords();
+    interaction_index += 1;
+    handleRoot();
   });
 
     server.on(("/FR"), []() {
@@ -97,8 +104,8 @@ void setup(void) {
     myservo.write(0);
     coord_x += DISTANCE;
     coord_y += DISTANCE;
-    sendCoords();
-
+    interaction_index += 1;
+    handleRoot();
   });
 
     server.on(("/B"), []() {
@@ -106,7 +113,8 @@ void setup(void) {
     digitalWrite(5, HIGH);
     myservo.write(90);
     coord_y += DISTANCE;
-    sendCoords();
+    interaction_index += 1;
+    handleRoot();
   });
 
     server.on(("/BL"), []() {
@@ -115,36 +123,76 @@ void setup(void) {
     myservo.write(180);
     coord_x -= DISTANCE;
     coord_y -= DISTANCE;
-    sendCoords();
+    interaction_index += 1;
+    handleRoot();
   });
 
     server.on(("/BR"), []() {
     digitalWrite(4, LOW);
     digitalWrite(5, HIGH);
     myservo.write(0);
-    coord_x += DISTANCE
+    coord_x += DISTANCE;
     coord_y -= DISTANCE;
-    sendCoords();
+    interaction_index += 1;
+    handleRoot();
   });
   
     server.on(("/S"), []() {
     digitalWrite(4, LOW);
     digitalWrite(5, LOW);
     myservo.write(90);
-    sendCoords();
+    interaction_index += 1;
+    handleRoot();
   });
 
 
   server.begin();
   Serial.println("HTTP server started");
+  
+  UDP.begin(UDP_PORT);
+  Serial.print("Listening on UDP port ");
+  Serial.println(UDP_PORT);
 }
 
 void loop(void) {
   server.handleClient();
+  // If packet received...
+  int packetSize = UDP.parsePacket();
+  if (packetSize) {
+    Serial.print("Received packet! Size: ");
+    Serial.println(packetSize); 
+    int len = UDP.read(packet, 255);
+    if (len > 0)
+    {
+      packet[len] = '\0';
+    }
+    Serial.print("Packet received: ");
+    Serial.println(packet);
+    if (init_val) {
+      SERVER_IP = UDP.remoteIP();
+      SERVER_PORT = UDP.remotePort();
+      init_val = 1;
+    }
+  } 
+  sendCoords();
 }
 
 void sendCoords() {
-    UDP.beginPacket(UDP_SERVER_IP, UDP_PORT);
-    UDP.write("%d, %d", coord_x, coord_y);
+    UDP.beginPacket(SERVER_IP, SERVER_PORT);//send ip to server
+    char s[50];
+    sprintf(s, "%d, %d, %d", interaction_index, coord_x, coord_y);
+    Serial.println(s);
+    UDP.write(s);
     UDP.endPacket();
     }
+
+void handleRoot() {
+  char* html_body =  
+  "  <html> "
+ "  <body> "
+ "  </body> "
+
+ "  </html>";
+
+  server.send(200, "text/html", html_body);
+}
