@@ -12,13 +12,8 @@
 #include <stdlib.h>
 
 #ifndef STASSID
-<<<<<<< HEAD
 #define STASSID ""
 #define STAPSK ""
-=======
-#define STASSID "IP"
-#define STAPSK "PASS"
->>>>>>> 6d14398 (Updated with Rokhaya's code)
 #endif
 
 #define UDP_SERVER_IP "10.172.10.2"
@@ -51,6 +46,9 @@ void move(void);
 void send_coords(void);
 
 #define DISTANCE 1
+
+void move(void);
+void send_coords(void);
 
 const char *ssid = STASSID;
 const char *password = STAPSK;
@@ -300,8 +298,28 @@ void move_forwards(void) {
     velocity_x = fmin(MAX_VELOCITY, velocity_x - VELOCITY_UNIT * sin(dir));
 }
 
-void sendCoords() {
+void send_coords() {
+
+    char coords[2*sizeof(float) + 3];
+    sprintf(coords, "%f, %f", coord_x, coord_y);
+  
     UDP.beginPacket(UDP_SERVER_IP, UDP_PORT);
-    UDP.write("%d, %d", coord_x, coord_y);
+    UDP.write(coords);
     UDP.endPacket();
+
+    printf("Current coords: %s\n", coords);
     }
+
+void move_forwards(void) {
+
+  coord_x += DISTANCE * cos(dir);
+  coord_y += DISTANCE * sin(dir);
+
+}
+
+void move_backwards(void) {
+
+  coord_x += DISTANCE * cos(dir);
+  coord_y -= DISTANCE * sin(dir);
+
+}
