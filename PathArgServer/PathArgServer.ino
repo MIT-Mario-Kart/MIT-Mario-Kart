@@ -9,11 +9,11 @@
 #include <Servo.h>
 
 #ifndef STASSID
-#define STASSID "Rok’s iPhone"
-#define STAPSK "babalilo"
+#define STASSID "IP"
+#define STAPSK "PASS"
 #endif
 
-// #define UDP_SERVER_IP "172.20.10.2"
+#define UDP_SERVER_IP "10.172.10.2"
 #define UDP_PORT 8888
 
 #define START_X 0
