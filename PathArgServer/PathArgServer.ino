@@ -36,6 +36,14 @@
 #define REVERSE_LEFT -2
 #define REVERSE_RIGHT -3
 
+#define FORWARD 1
+#define FORWARD_LEFT 2
+#define FORWARD_RIGHT 3
+#define REVERSE -1
+#define REVERSE_RIGHT -3
+#define REVERSE_LEFT -2
+#define STOP 0
+
 #define PIN_D2_FORWARD 4
 #define PIN_D1_REVERSE 5
 #define SERVO_PIN 15
@@ -298,9 +306,12 @@ void move_forwards(void) {
     velocity_x = fmin(MAX_VELOCITY, velocity_x - VELOCITY_UNIT * sin(dir));
 }
 
+
+
 void send_coords() {
 
-    char coords[2*sizeof(float) + 3];
+    // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
+    char coords[19];
     sprintf(coords, "%f, %f", coord_x, coord_y);
   
     UDP.beginPacket(UDP_SERVER_IP, UDP_PORT);
@@ -308,18 +319,60 @@ void send_coords() {
     UDP.endPacket();
 
     printf("Current coords: %s\n", coords);
-    }
-
-void move_forwards(void) {
-
-  coord_x += DISTANCE * cos(dir);
-  coord_y += DISTANCE * sin(dir);
-
 }
 
-void move_backwards(void) {
 
-  coord_x += DISTANCE * cos(dir);
-  coord_y -= DISTANCE * sin(dir);
+
+void update_movements(int next_move_dir) {
+
+    if(next_move_dir == FORWARD) {
+
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * cos(dir));
+
+    } else if(next_move_dir == FORWARD_LEFT) {
+
+        dir += TURNING_ANGLE;
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * cos(dir)); 
+
+    } else if(next_move_dir == FORWARD_RIGHT) {
+
+        dir -= TURNING_ANGLE;
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * cos(dir));
+
+    } else if(next_move_dir == REVERSE) {
+
+        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * cos(dir));
+
+    } else if(next_move_dir == REVERSE_LEFT) {
+
+        dir += TURNING_ANGLE;
+        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * cos(dir));
+
+    } else if(next_move_dir == REVERSE_RIGHT) {
+
+        dir -= TURNING_ANGLE;
+        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * cos(dir));
+
+    } else if(next_move_dir == STOP) {
+
+        // Assuming that stopping takes ~ 3x less time than accelerating
+        velocity_x = fmax(0, velocity_x - 3*VELOCITY_UNIT);
+        velocity_y = fmax(0, velocity_y - 3*VELOCITY_UNIT);
+
+        coord_x += velocity_x;
+        coord_y += velocity_y;
+
+        return;
+
+    } else {
+        printf("Invalid dir\n");
+        return;
+    }
+
+    // velocity_x update will be the same for each direction
+    velocity_x = fmin(MAX_VELOCITY, velocity_x - VELOCITY_UNIT * sin(dir));
+
+    coord_x += velocity_x;
+    coord_y += velocity_y;
 
 }
