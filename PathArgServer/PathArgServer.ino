@@ -21,24 +21,20 @@
 
 #define START_X 0
 #define START_Y 0
+#define START_ORIENTATION M_PI/2          // 90 deg = facing forwards on trig circle
+#define ANGLE_UNIT M_PI/100               // ~ 1.8 deg
+#define MAX_ORIENTATION M_PI
+#define MIN_ORIENTATION -MAX_ORIENTATION // -180 deg <= orientation <= 180 deg
+#define VELOCITY_UNIT 0.1
+#define MAX_VELOCITY 2
 
-#define START_ORIENTATION 0
-#define ORIENTATION_NAME "ORIENTATION"
-#define TURNING_ANGLE 0.0873 // ~ 5 degrees
-#define VELOCITY_UNIT 1 
-#define MAX_VELOCITY 3
-#define START_X_NAME "START_X"
-#define START_Y_NAME "START_Y"
-#define X_NAME "X"
-#define Y_NAME "Y"
-
+#define STOP 0
 #define FORWARD 1
 #define FORWARD_LEFT 2
 #define FORWARD_RIGHT 3
 #define REVERSE -1
-#define REVERSE_RIGHT -3
 #define REVERSE_LEFT -2
-#define STOP 0
+#define REVERSE_RIGHT -3
 
 #define PIN_D2_FORWARD 4
 #define PIN_D1_REVERSE 5
@@ -61,11 +57,12 @@ uint16_t SERVER_PORT;
 IPAddress SERVER_IP;
 int init_val = 1;
 int interaction_index = 0;
-float coord_x = START_X;
-float coord_y = START_Y;
-float dir = START_ORIENTATION;
-float velocity_x = 0;
-float velocity_y = 0;
+// Using doubles for extra precision (lol)
+double coord_x = START_X;
+double coord_y = START_Y;
+double dir = START_ORIENTATION;
+double velocity_x = 0;
+double velocity_y = 0;
 
 void setup(void) {
   pinMode(PIN_D2_FORWARD,OUTPUT); // D2 F
@@ -217,48 +214,54 @@ void send_coords() {
     char coords[30];
     sprintf(coords, "%d, %f, %f", interaction_index, coord_x, coord_y);
   
-    UDP.beginPacket(UDP_SERVER_IP, UDP_PORT); // send ip to server
+    UDP.beginPacket(SERVER_IP, SERVER_PORT); // send ip to server
     UDP.write(coords);
     UDP.endPacket();
-
-    printf("Current coords: %s\n", coords);
 }
 
 
 
 void update_movements(int next_move_dir) {
 
-    if(next_move_dir == FORWARD) {
+    if(FORWARD == next_move_dir) {
 
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * cos(dir));
+        // No orientation update
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == FORWARD_LEFT) {
+    } else if(FORWARD_LEFT == next_move_dir) {
 
-        dir += TURNING_ANGLE;
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * cos(dir)); 
+        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == FORWARD_RIGHT) {
+    } else if(FORWARD_RIGHT == next_move_dir) {
 
-        dir -= TURNING_ANGLE;
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * cos(dir));
+        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == REVERSE) {
+    } else if(REVERSE == next_move_dir) {
 
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * cos(dir));
+        // No orientation update
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == REVERSE_LEFT) {
+    } else if(REVERSE_LEFT == next_move_dir) {
 
-        dir += TURNING_ANGLE;
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * cos(dir));
+        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);;
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == REVERSE_RIGHT) {
+    } else if(REVERSE_RIGHT == next_move_dir) {
 
-        dir -= TURNING_ANGLE;
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * cos(dir));
+        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == STOP) {
+    } else if(STOP == next_move_dir) {
 
-        // Assuming that stopping takes ~ 3x less time than accelerating
+        // Assuming that stopping takes ~ 3x less time than accelerating (TODO: calibration)
         velocity_x = fmax(0, velocity_x - 3*VELOCITY_UNIT);
         velocity_y = fmax(0, velocity_y - 3*VELOCITY_UNIT);
 
@@ -268,11 +271,10 @@ void update_movements(int next_move_dir) {
         return;
 
     } else {
-        printf("Invalid dir\n");
+        Serial.println("Invalid direction\n");
         return;
     }
-
-<<<<<<< HEAD
+    
 void handleRoot() {
   char* html_body =  
   "  <html> "
@@ -285,12 +287,6 @@ void handleRoot() {
 }
 
 void move_forwards(void) {
-=======
     // velocity_x update will be the same for each direction
     velocity_x = fmin(MAX_VELOCITY, velocity_x - VELOCITY_UNIT * sin(dir));
->>>>>>> 997cd7c (V1 of PathArgServer with direction)
-
-    coord_x += velocity_x;
-    coord_y += velocity_y;
-
 }
