@@ -40,9 +40,8 @@
 #define FORWARD_LEFT 2
 #define FORWARD_RIGHT 3
 #define REVERSE -1
-#define REVERSE_RIGHT -3
 #define REVERSE_LEFT -2
-#define STOP 0
+#define REVERSE_RIGHT -3
 
 #define PIN_D2_FORWARD 4
 #define PIN_D1_REVERSE 5
@@ -312,50 +311,56 @@ void send_coords() {
 
     // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
     char coords[19];
-    sprintf(coords, "%f, %f", coord_x, coord_y);
+    sprintf(coords, "%lf, %lf", coord_x, coord_y);
   
     UDP.beginPacket(UDP_SERVER_IP, UDP_PORT);
     UDP.write(coords);
     UDP.endPacket();
-
-    printf("Current coords: %s\n", coords);
 }
 
 
 
 void update_movements(int next_move_dir) {
 
-    if(next_move_dir == FORWARD) {
+    if(FORWARD == next_move_dir) {
 
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * cos(dir));
+        // No orientation update
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == FORWARD_LEFT) {
+    } else if(FORWARD_LEFT == next_move_dir) {
 
-        dir += TURNING_ANGLE;
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * cos(dir)); 
+        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == FORWARD_RIGHT) {
+    } else if(FORWARD_RIGHT == next_move_dir) {
 
-        dir -= TURNING_ANGLE;
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * cos(dir));
+        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == REVERSE) {
+    } else if(REVERSE == next_move_dir) {
 
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * cos(dir));
+        // No orientation update
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == REVERSE_LEFT) {
+    } else if(REVERSE_LEFT == next_move_dir) {
 
-        dir += TURNING_ANGLE;
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * cos(dir));
+        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);;
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == REVERSE_RIGHT) {
+    } else if(REVERSE_RIGHT == next_move_dir) {
 
-        dir -= TURNING_ANGLE;
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * cos(dir));
+        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
 
-    } else if(next_move_dir == STOP) {
+    } else if(STOP == next_move_dir) {
 
-        // Assuming that stopping takes ~ 3x less time than accelerating
+        // Assuming that stopping takes ~ 3x less time than accelerating (TODO: calibration)
         velocity_x = fmax(0, velocity_x - 3*VELOCITY_UNIT);
         velocity_y = fmax(0, velocity_y - 3*VELOCITY_UNIT);
 
@@ -365,12 +370,9 @@ void update_movements(int next_move_dir) {
         return;
 
     } else {
-        printf("Invalid dir\n");
+        Serial.println("Invalid direction\n");
         return;
     }
-
-    // velocity_x update will be the same for each direction
-    velocity_x = fmin(MAX_VELOCITY, velocity_x - VELOCITY_UNIT * sin(dir));
 
     coord_x += velocity_x;
     coord_y += velocity_y;
