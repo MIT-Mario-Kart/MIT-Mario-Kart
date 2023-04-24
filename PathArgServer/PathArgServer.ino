@@ -12,8 +12,8 @@
 #include <stdlib.h>
 
 #ifndef STASSID
-#define STASSID "Dan the Pol"
-#define STAPSK "RETR0ProkT765"
+#define STASSID ""
+#define STAPSK ""
 #endif
 
 #define UDP_SERVER_IP "10.172.10.2"
@@ -274,7 +274,7 @@ void update_movements(int next_move_dir) {
         Serial.println("Invalid direction\n");
         return;
     }
-    
+
 void handleRoot() {
   char* html_body =  
   "  <html> "
