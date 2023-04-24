@@ -1,6 +1,6 @@
 import math
 
-angles = [[0 for _ in range(20)] for _ in range(20)]
+directions = [[0 for _ in range(20)] for _ in range(20)]
 
 a1 = 60
 a2 = 30
