@@ -67,20 +67,26 @@ if __name__ == "__main__":
 
     # set up server
     bufferSize = 4096
-    
+    cam_addr = '00:00:00:00:00:00'#your address here
+    BServerSocket = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+    port = 1
+    print("Bluetooth server up and listening")
+
     UDPServerSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_DGRAM)
     print("UDP server up and listening")
     CarAddrPort = (car_IP, 8888)
     bytesToSend1 = "BEGIN CONNECTION".encode()
     UDPServerSocket.sendto(bytesToSend1, CarAddrPort)
     while(True):
+        print(BServerSocket.recvfrom(bufferSize))
+
         # TODO maybe add a way to check that all the values are valid without crashing the program
-        getCoordForCar(car1)
-        if(car1.move):
-            print(f"Received coords ({car1.x}, {car1.y}) for {car1.name}")
-            moveToCoordinate(car1, path[car1.index], delta)
-            if car1.index == len(path):
-                print("Reached destination")
-                exit()
+        # getCoordForCar(car1)
+        # if(car1.move):
+        #     # print(f"Received coords ({car1.x}, {car1.y}) for {car1.name}")
+            # moveToCoordinate(car1, path[car1.index], delta)
+            # if car1.index == len(path):
+            #     print("Reached destination")
+            #     exit()
 
         
