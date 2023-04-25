@@ -26,6 +26,7 @@
 #define MAX_ORIENTATION M_PI
 #define MIN_ORIENTATION -MAX_ORIENTATION // -180 deg <= orientation <= 180 deg
 #define VELOCITY_UNIT 0.1
+#define SLOWDOWN_VELOCITY_UNIT 0.3
 #define MAX_VELOCITY 2
 
 #define STOP 0
@@ -195,8 +196,6 @@ void setup(void) {
   Serial.println(UDP_PORT);
 }
 
-
-
 void loop(void) {
   server.handleClient();
   // If packet received...
@@ -220,18 +219,16 @@ void loop(void) {
   sendCoords();
 }
 
-void send_coords() {
+void send_coords() { 
 
     // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
     char coords[30];
-    sprintf(coords, "%d, %f, %f", interaction_index, coord_x, coord_y);
+    sprintf(coords, "%d, %lf, %lf", interaction_index, coord_x, coord_y);
   
     UDP.beginPacket(SERVER_IP, SERVER_PORT); // send ip to server
     UDP.write(coords);
     UDP.endPacket();
 }
-
-
 
 void update_movements(int next_move_dir) {
 
@@ -274,8 +271,8 @@ void update_movements(int next_move_dir) {
     } else if(STOP == next_move_dir) {
 
         // Assuming that stopping takes ~ 3x less time than accelerating (TODO: calibration)
-        velocity_x = fmax(0, velocity_x - 3*VELOCITY_UNIT);
-        velocity_y = fmax(0, velocity_y - 3*VELOCITY_UNIT);
+        velocity_x = fmax(0, velocity_x - SLOWDOWN_VELOCITY_UNIT);
+        velocity_y = fmax(0, velocity_y - SLOWDOWN_VELOCITY_UNIT);
 
         coord_x += velocity_x;
         coord_y += velocity_y;
