@@ -2,6 +2,8 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.patches import Wedge
+
 
 
 class Car:
@@ -41,22 +43,41 @@ class Car:
 x,y = generate_semicircle(0,0,10, 0.1)
 plt.plot(x, y)
 plt.show() """
-
-def overtake(mycar, positions, delta):
-
-  radius = 10
-  
-  rad = math.radians(mycar.orientation)
+""" 
+  rad = math.radians(dir)
   v = np.array([math.cos(rad) * radius, math.sin(rad) * radius]) 
   perp_v = np.dot(np.array([[0, -1], [1, 0]]), v)
-
-  x, y = mycar.x, mycar.y
-
   x1 = x - perp_v[0]
   y1 = y - perp_v[1]
 
   x2 = x + perp_v[0]
-  y2 = y + perp_v[1]
+  y2 = y + perp_v[1] 
+  x, y = mycar.x, mycar.y
+
+  """
+
+
+
+def overtake(mycar, positions, delta):
+
+  radius = 10
+  dir = mycar.orientation
+  center = (mycar.x, mycar.y)
+  theta1, theta2 = dir + 90, dir - 90
+
+  semi_circle = Wedge(center, radius, theta1, theta2, fc='black', edgecolor='black')
+  plt.gca().add_patch(semi_circle)
+
+  transformed_center = semi_circle.get_transform().transform(center)
+  transformed_point = semi_circle.get_transform().transform(center)
+
+  isInArea = semi_circle.contains_point(transformed_point)
+
+  print("Does the car have to overtake?", isInArea)
+
+
+
+  
 
 
 
