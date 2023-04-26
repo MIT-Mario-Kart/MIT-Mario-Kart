@@ -275,6 +275,8 @@ void update_movements(int next_move_dir) {
         return;
     }
 
+}
+
 void handleRoot() {
   char* html_body =  
   "  <html> "

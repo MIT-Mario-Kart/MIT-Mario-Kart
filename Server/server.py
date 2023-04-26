@@ -1,5 +1,6 @@
 import socket
 import requests
+from FlowMaps.fm_20_20 import directions as fmdir
 
 class Car:
   def __init__(self, name, server, x=0, y=0, interaction_index=0, index=0, move=False):
@@ -10,6 +11,11 @@ class Car:
     self.interaction_index = interaction_index
     self.index = index # to be incremented every time we reach a given checkpoint
     self.move = move
+    self.velocity = 0
+    self.orientation = 0
+    self.desired_orientation = 0
+    self.delta = 0 # steering angle
+    self.a = 0 # acceleration
 
 def parseCoordFromLine(coordinates):
     return [int(coord.strip()) for coord in coordinates.split(',')]
@@ -17,10 +23,15 @@ def parseCoordFromLine(coordinates):
 def getCoordForCar(car):
     # receiving coordinates from client
     coordinates, addr = UDPServerSocket.recvfrom(bufferSize)
+
+    if coordinates == b"1":
+        bytesToSend1 = b"-1"
+        UDPServerSocket.sendto(bytesToSend1, CarAddrPort)
+
     coordinates = coordinates.decode()
     line = parseCoordFromLine(coordinates)
     if (line[0] == car.interaction_index):
-        car.x, car.y = line[1:]
+        car.x, car.y, car.orientation = line[1:]
         car.interaction_index += 1
         car.move = True
 
@@ -48,6 +59,25 @@ def moveToCoordinate(car, target, delta):
 
     requests.get(url=car.server+server_path)
     car.move = False
+
+def moveCar(car):
+    car.delta = car.desired_orientation - car.orientation
+    
+    if (180 <= car.delta <= 270):
+        car.delta = 180
+    elif (270 <= car.delta <= 360):
+        car.delta = 0
+    else:
+        car.delta += 90
+
+    UDPServerSocket.sendto(str(car.delta).encode(), CarAddrPort)
+
+def find_velocity_and_orientation():
+    pass
+
+def find_info_flowmap(car):
+    # Assumes that coord x and y are between 0 and 200
+    car.desired_orientaion = fmdir[(car.x//20) - 1][(car.y//20) - 1]
 
 if __name__ == "__main__":
     # read path from file and store information in a list of [x, y] values 
@@ -94,13 +124,13 @@ if __name__ == "__main__":
     bytesToSend1 = "BEGIN CONNECTION".encode()
     UDPServerSocket.sendto(bytesToSend1, CarAddrPort)
     while(True):
+        print(BServerSocket.recvfrom(bufferSize))
         # TODO maybe add a way to check that all the values are valid without crashing the program
         getCoordForCar(car1)
         if(car1.move):
             print(f"Received coords ({car1.x}, {car1.y}) for {car1.name}")
-            moveToCoordinate(car1, path[car1.index], delta)
+            find_info_flowmap(car1)
+            moveCar(car1)
             if car1.index == len(path):
                 print("Reached destination")
                 exit()
-
-        
