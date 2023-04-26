@@ -20,10 +20,10 @@ class Car:
     self.a = 0 # acceleration
 
 
-def generate_semicircle(center_x, center_y, radius, stepsize=0.1):
-    """
-    generates coordinates for a semicircle, centered at center_x, center_y
-    """        
+""" def generate_semicircle(center_x, center_y, radius, stepsize=0.1):
+   
+    # generates coordinates for a semicircle, centered at center_x, center_y
+         
 
     x = np.arange(center_x, center_x+radius+stepsize, stepsize)
     y = np.sqrt(radius**2 - x**2)
@@ -40,7 +40,7 @@ def generate_semicircle(center_x, center_y, radius, stepsize=0.1):
 
 x,y = generate_semicircle(0,0,10, 0.1)
 plt.plot(x, y)
-plt.show()
+plt.show() """
 
 def overtake(mycar, positions, delta):
 
@@ -50,11 +50,14 @@ def overtake(mycar, positions, delta):
   v = np.array([math.cos(rad) * radius, math.sin(rad) * radius]) 
   perp_v = np.dot(np.array([[0, -1], [1, 0]]), v)
 
-  x1 = mycar.x - perp_v[0]
-  y1 = mycar.y - perp_v[1]
+  x, y = mycar.x, mycar.y
 
-  x2 = mycar.x + perp_v[0]
-  y2 = mycar.y + perp_v[1]
+  x1 = x - perp_v[0]
+  y1 = y - perp_v[1]
+
+  x2 = x + perp_v[0]
+  y2 = y + perp_v[1]
+
 
 
   return 0
