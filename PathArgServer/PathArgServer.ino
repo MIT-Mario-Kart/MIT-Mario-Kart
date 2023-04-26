@@ -12,8 +12,8 @@
 #include <stdlib.h>
 
 #ifndef STASSID
-#define STASSID ""
-#define STAPSK ""
+#define STASSID "Dan the Pol"
+#define STAPSK "RETR0ProkT765"
 #endif
 
 #define UDP_SERVER_IP "10.172.10.2"
@@ -28,6 +28,7 @@
 #define VELOCITY_UNIT 0.1
 #define SLOWDOWN_VELOCITY_UNIT 0.3
 #define MAX_VELOCITY 2
+#define ANGLE_PRECISION 0.75
 
 #define STOP 0
 #define FORWARD 1
@@ -53,16 +54,10 @@
 void move(void);
 void send_coords(void);
 
-#define DISTANCE 1
-
-void move(void);
-void send_coords(void);
-
 const char *ssid = STASSID;
 const char *password = STAPSK;
 
 Servo myservo;
-ESP8266WebServer server(80);
 WiFiUDP UDP;
 
 char packet[255];
@@ -100,96 +95,6 @@ void setup(void) {
   Serial.println(WiFi.localIP());
 
   if (MDNS.begin("esp8266")) { Serial.println("MDNS responder started"); }
-
-  server.on(("/F"), []() {
-    digitalWrite(4, HIGH);
-    digitalWrite(5, LOW);
-    myservo.write(90);
-    interaction_index += 1;
-    handleRoot();
-    // No change to dir
-    update_movements(FORWARD);
-    send_coords();
-  });
-
-    server.on(("/FL"), []() {
-    digitalWrite(4, HIGH);
-    digitalWrite(5, LOW);
-    myservo.write(180);
-    interaction_index += 1;
-    handleRoot();
-    dir += TURNING_ANGLE;
-    move_forwards();
-
-    update_movements(FORWARD_LEFT);
-    send_coords();
-  });
-
-    server.on(("/FR"), []() {
-    digitalWrite(4, HIGH);
-    digitalWrite(5, LOW);
-    myservo.write(0);
-    interaction_index += 1;
-    handleRoot();
-    dir -= TURNING_ANGLE;
-    move_forwards();
-
-    update_movements(FORWARD_RIGHT);
-    send_coords();
-
-  });
-
-    server.on(("/B"), []() {
-    digitalWrite(4, LOW);
-    digitalWrite(5, HIGH);
-    myservo.write(90);
-    interaction_index += 1;
-    handleRoot();
-    // No update to dir
-    update_movements(REVERSE);
-    send_coords();
-  });
-
-    server.on(("/BL"), []() {
-    digitalWrite(4, LOW);
-    digitalWrite(5, HIGH);
-    myservo.write(180);
-    interaction_index += 1;
-    handleRoot();
-    dir += TURNING_ANGLE;
-    move_backwards();
-
-    update_movements(REVERSE_LEFT);
-    send_coords();
-  });
-
-    server.on(("/BR"), []() {
-    digitalWrite(4, LOW);
-    digitalWrite(5, HIGH);
-    myservo.write(0);
-    interaction_index += 1;
-    handleRoot();
-    dir -= TURNING_ANGLE;
-    move_backwards();
-
-    update_movements(REVERSE_RIGHT);
-    send_coords();
-  });
-  
-    server.on(("/S"), []() {
-    digitalWrite(4, LOW);
-    digitalWrite(5, LOW);
-    myservo.write(90);
-    interaction_index += 1;
-    handleRoot();
-
-    update_movements(STOP);
-    send_coords();
-  });
-
-
-  server.begin();
-  Serial.println("HTTP server started");
   
   UDP.begin(UDP_PORT);
   Serial.print("Listening on UDP port ");
@@ -197,7 +102,7 @@ void setup(void) {
 }
 
 void loop(void) {
-  server.handleClient();
+
   // If packet received...
   int packetSize = UDP.parsePacket();
   if (packetSize) {
@@ -210,91 +115,75 @@ void loop(void) {
     }
     Serial.print("Packet received: ");
     Serial.println(packet);
+
+    int desired_angle = atoi(packet);
+    update_movements(desired_angle);
+
     if (init_val) {
       SERVER_IP = UDP.remoteIP();
       SERVER_PORT = UDP.remotePort();
       init_val = 1;
     }
   } 
-  sendCoords();
+  send_coords();
 }
 
 void send_coords() { 
 
     // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
-    char coords[30];
-    sprintf(coords, "%d, %lf, %lf", interaction_index, coord_x, coord_y);
+      // Coordinates must be converted to integers and sent in form: <x>, <y>, <dir>
+    char coords[33];
+    sprintf(coords, "%d, %d, %d, %d", interaction_index, (int) coord_x, (int) coord_y, (int) dir);
   
+
     UDP.beginPacket(SERVER_IP, SERVER_PORT); // send ip to server
     UDP.write(coords);
     UDP.endPacket();
 }
 
-void update_movements(int next_move_dir) {
+void update_movements(int desired_angle) {
 
-    if(FORWARD == next_move_dir) {
-
-        // No orientation update
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
-
-    } else if(FORWARD_LEFT == next_move_dir) {
-
-        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
-
-    } else if(FORWARD_RIGHT == next_move_dir) {
-
-        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
-
-    } else if(REVERSE == next_move_dir) {
-
-        // No orientation update
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
-
-    } else if(REVERSE_LEFT == next_move_dir) {
-
-        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);;
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
-
-    } else if(REVERSE_RIGHT == next_move_dir) {
-
-        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
-
-    } else if(STOP == next_move_dir) {
-
-        // Assuming that stopping takes ~ 3x less time than accelerating (TODO: calibration)
+    if(desired_angle == -1) {
+        // Stop
         velocity_x = fmax(0, velocity_x - SLOWDOWN_VELOCITY_UNIT);
         velocity_y = fmax(0, velocity_y - SLOWDOWN_VELOCITY_UNIT);
-
-        coord_x += velocity_x;
-        coord_y += velocity_y;
-
-        return;
+        digitalWrite(4, LOW);
+        digitalWrite(5, LOW);
 
     } else {
-        Serial.println("Invalid direction\n");
-        return;
+
+        double deg_dir = (dir / M_PI) * 180;
+          
+        // Assume moving forwards for now
+        if(gt(deg_dir, desired_angle)) {
+            dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
+        } else if(lt(deg_dir, desired_angle)) {
+            dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
+        } 
+
+        velocity_x = fmin(MAX_VELOCITY, velocity_x + cos(dir));
+        velocity_y = fmin(MAX_VELOCITY, velocity_y + sin(dir));
+
+        digitalWrite(4, HIGH);
+        digitalWrite(5, LOW);
+        myservo.write(desired_angle);
     }
 
 }
 
-void handleRoot() {
-  char* html_body =  
-  "  <html> "
- "  <body> "
- "  </body> "
+// if angle > desired_angle
+int gt(double angle, int desired_angle) {
+    return (angle - desired_angle > ANGLE_PRECISION); 
+}
 
- "  </html>";
+// if angle < desired_angle
+int lt(double angle, int desired_angle) {
+    return (angle - desired_angle < -ANGLE_PRECISION);
+}
 
-  server.send(200, "text/html", html_body);
+// if angle =~ desired_angle
+int eq(double angle, int desired_angle) {
+    return (fabs(angle - desired_angle) < ANGLE_PRECISION);
 }
 
 void move_forwards(void) {
