@@ -1,7 +1,8 @@
 # xy orientation delta(servo) et xy autres voitures
-
 import math
 import numpy as np
+import matplotlib.pyplot as plt
+
 
 class Car:
   def init(self, name, server, x=0, y=0, interaction_index=0, index=0, move=False):
@@ -18,6 +19,28 @@ class Car:
     self.delta = 0 # steering angle
     self.a = 0 # acceleration
 
+
+def generate_semicircle(center_x, center_y, radius, stepsize=0.1):
+    """
+    generates coordinates for a semicircle, centered at center_x, center_y
+    """        
+
+    x = np.arange(center_x, center_x+radius+stepsize, stepsize)
+    y = np.sqrt(radius**2 - x**2)
+
+    # since each x value has two corresponding y-values, duplicate x-axis.
+    # [::-1] is required to have the correct order of elements for plt.plot. 
+    x = np.concatenate([x,x[::-1]])
+
+    # concatenate y and flipped y. 
+    y = np.concatenate([y,-y[::-1]])
+
+    return x, y + center_y
+
+
+x,y = generate_semicircle(0,0,10, 0.1)
+plt.plot(x, y)
+plt.show()
 
 def overtake(mycar, positions, delta):
 
