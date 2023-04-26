@@ -6,11 +6,11 @@ coordinates = input()
 frequence = 1/10
 
 # data to calculate orientation and speed
-currx=coordinates[-1]
-curry=coordinates[-1]
+currx=int(coordinates[-1])
+curry=int(coordinates[-1])
 
-prevx=coordinates[-2]
-prevy=coordinates[-2]
+prevx=int(coordinates[-2])
+prevy=int(coordinates[-2])
 
 # code =============================================================================================================================
 
