@@ -12,8 +12,8 @@
 #include <stdlib.h>
 
 #ifndef STASSID
-#define STASSID "Dan the Pol"
-#define STAPSK "RETR0ProkT765"
+#define STASSID "Rok's iPhone"
+#define STAPSK "babalilo"
 #endif
 
 #define UDP_SERVER_IP "10.172.10.2"
@@ -30,13 +30,7 @@
 #define MAX_VELOCITY 2
 #define ANGLE_PRECISION 0.75
 
-#define STOP 0
-#define FORWARD 1
-#define FORWARD_LEFT 2
-#define FORWARD_RIGHT 3
-#define REVERSE -1
-#define REVERSE_LEFT -2
-#define REVERSE_RIGHT -3
+#define STOP -1
 
 #define FORWARD 1
 #define FORWARD_LEFT 2
@@ -122,7 +116,7 @@ void loop(void) {
     if (init_val) {
       SERVER_IP = UDP.remoteIP();
       SERVER_PORT = UDP.remotePort();
-      init_val = 1;
+      init_val = 0;
     }
   } 
   send_coords();
@@ -130,20 +124,32 @@ void loop(void) {
 
 void send_coords() { 
 
+    int deg_angle = (int) ((dir / M_PI) * 180);
     // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
-      // Coordinates must be converted to integers and sent in form: <x>, <y>, <dir>
+    // Coordinates must be converted to integers and sent in form: <interaction_index>, <x>, <y>, <deg_angle>
     char coords[33];
-    sprintf(coords, "%d, %d, %d, %d", interaction_index, (int) coord_x, (int) coord_y, (int) dir);
-  
+    sprintf(coords, "%d, %d, %d, %d", interaction_index, (int) coord_x, (int) coord_y, deg_angle);
+
+    // print_info();
+      
 
     UDP.beginPacket(SERVER_IP, SERVER_PORT); // send ip to server
     UDP.write(coords);
     UDP.endPacket();
 }
 
+void print_info(void) {
+
+    double absolute_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
+    printf("\nVelocity(x, y) | absolute = (%lf, %lf) | %lf\n", velocity_x, velocity_y, absolute_velocity);
+    printf("Pos(x, y) = (%lf, %lf)\n", coord_x, coord_y);
+    printf("Orientation = %lf\n\n", (dir/M_PI) * 180);
+
+}
+
 void update_movements(int desired_angle) {
 
-    if(desired_angle == -1) {
+    if(desired_angle == STOP) {
         // Stop
         velocity_x = fmax(0, velocity_x - SLOWDOWN_VELOCITY_UNIT);
         velocity_y = fmax(0, velocity_y - SLOWDOWN_VELOCITY_UNIT);
