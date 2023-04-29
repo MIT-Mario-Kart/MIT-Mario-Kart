@@ -3,3 +3,4 @@ ard_test
 .metals/metals.log
 .metals/metals.mv.db
 .vscode/settings.json
+.vscode/
