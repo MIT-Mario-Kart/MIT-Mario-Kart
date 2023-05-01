@@ -22,15 +22,18 @@ class Car:
     self.a = 0 # acceleration
 
 
+
+# leftCircle has to be claculated with claculateCircles()
 def isInLeftCircle(pos, leftCircle):
   transformed_pos = leftCircle.get_transform().transform(pos)
   return leftCircle.contains_point(transformed_pos)
 
+# rightCircle has to be claculated with claculateCircles()
 def isInRightCircle(pos, rightCircle):
   transformed_pos = rightCircle.get_transform().transform(pos)
   return rightCircle.contains_point(transformed_pos)
 
-   
+
 
 def calculateCircles(mycar):
 
