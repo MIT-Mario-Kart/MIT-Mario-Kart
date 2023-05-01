@@ -67,8 +67,3 @@ def overtake(mycar, otherCars):
 
     if (isInRightCircle(myPos, rightC)):
       mycar.delta = mycar.delta - distance * sensibility
-
-
-
-
-
