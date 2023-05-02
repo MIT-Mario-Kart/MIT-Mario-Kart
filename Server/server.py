@@ -1,16 +1,13 @@
 import socket
-import requests
 from FlowMaps.circuit20x20 import directions as fmdir
 
 class Car:
-  def __init__(self, name, server, x=0, y=0, interaction_index=0, index=0, move=False):
-    self.name = name
+  def __init__(self, id, server, x=0, y=0, index=0):
+    self.id = id
     self.server = server
     self.x = x
     self.y = y
-    self.interaction_index = interaction_index
     self.index = index # to be incremented every time we reach a given checkpoint
-    self.move = move
     self.velocity = 0
     self.orientation = 0
     self.desired_orientation = 0
@@ -20,47 +17,34 @@ class Car:
 def parseCoordFromLine(coordinates):
     return [int(coord.strip()) for coord in coordinates.split(',')]
 
-def getCoordForCar(car):
+def recvInfo(camID, stopID, cars):
+    c, addr = TCPServerSocket.accept()
     # receiving coordinates from client
-    coordinates, addr = TCPServerSocket.recvfrom(bufferSize)
-    # print(coordinates)
-    if coordinates == b"1":
-        bytesToSend1 = b"-1"
-        TCPServerSocket.sendto(bytesToSend1, CarAddrPort)
-        exit()
-        
+    info, addr = TCPServerSocket.recvfrom(bufferSize)
+    info = info.decode()
+    print(info, addr)
+    info = [line.split(',') for line in info.split('\n')]
+    id = info[0][0]
+    if id == camID:
+        for i in range(1, len(cars) + 1):
+            getCoordForCar(cars, info[i])
+    elif id == stopID:
+        for car in cars:
+            TCPServerSocket.sendto(b"-1", car.server)
+            print(f"Stopped {car.id}")
+        # exit()
+    elif id == car1.id:
+        getCoordForCar(car1, info[1])
+
+def getCoordForCar(car, coordinates):
     coordinates = coordinates.decode()
     line = parseCoordFromLine(coordinates)
     print(line)
-    # if (line[0] == car.interaction_index):
     car.x, car.y, car.orientation = line[1:]
-    car.interaction_index += 1
-    car.move = True
-
-def moveToCoordinate(car, target, delta):
-    distX = target[0] - car.x
-    distY = target[1] - car.y
-    if abs(distX) < delta and abs(distY) < delta:
-        car.index += 1 # if we are within a certain radius of our checkpoint, we move on to the next
-        return
-    # TODO this is where the car model will need to be taken into account bc the cars move while doing the calculations
-
-    server_path = ""
-    if distY > 0:
-        server_path += "F"
-    elif distY < 0:
-        server_path += "B"
-
-    if distX > 0:
-        server_path += "R"
-    elif distX < 0:
-        server_path += "L" 
-    print(server_path)
-    if server_path == "" or server_path[0] not in  ["F", "B"]:
-        server_path = "S"
-
-    requests.get(url=car.server+server_path)
-    car.move = False
+    print(f"Received coords ({car.x}, {car.y}) for {car.id}")
+    if (not(car.x > 200 or car.y > 200)):
+        find_info_flowmap(car)
+        moveCar(car)
 
 def moveCar(car):
     car.delta = car.desired_orientation - car.orientation
@@ -72,7 +56,7 @@ def moveCar(car):
     else:
         car.delta += 90
     car.move = False
-    return str(car1.delta).encode()
+    TCPServerSocket.sendto(str(car.delta).encode())
 
 def find_velocity_and_orientation():
     pass
@@ -83,53 +67,53 @@ def find_info_flowmap(car):
 
 if __name__ == "__main__":
     # read path from file and store information in a list of [x, y] values 
-    filename = "Path/PathCoordsNoDupes.txt"
-    path = []
+    # filename = "Path/PathCoordsNoDupes.txt"
+    # path = []
 
-    with open(filename, "r") as file:
-        path = file.readlines()
-        path = [parseCoordFromLine(line) for line in path]
+    # with open(filename, "r") as file:
+    #     path = file.readlines()
+    #     path = [parseCoordFromLine(line) for line in path]
 
-    delta = 3 # hardcoded will need to be defined later on
+    # delta = 3 # hardcoded will need to be defined later on
 
-    # initialise car objects
-    # name = str(input("Car IP: "))
-    car_IP = "172.20.10.3"
-    car1 = Car("Car1", f"http://{car_IP}:80/")
+    # # initialise car objects
+    # # name = str(input("Car IP: "))
+    # car1 = Car("CAR1", ("172.20.10.4", 9999))
+    # cars = [car1]
 
-    # set up server
+    # camID = "cam"
+    # stopID = "stop"
+    # # set up server
     bufferSize = 4096
 
-    # cam_addr = '00:00:00:00:00:00'#your address here
-    # BServerSocket = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
-    # port = 1
-    # print("Bluetooth server up and listening")
-    # BServerSocket.connect((cam_addr,port))
+    # # TCPServerSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
+    # # TCPServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    # ServerAddr = ("172.20.10.2", 8888)
 
-    TCPServerSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_DGRAM)
-    ServerAddr = ("127.0.0.1", 8888)
-    # TCPServerSocket.bind()
-    print("UDP server up and listening")
-    CarAddrPort = (car_IP, 8888)
-    bytesToSend1 = "BEGIN CONNECTION".encode()
-    ClientAddrPort = ("127.0.0.1", 9999)
-    TCPServerSocket.sendto(bytesToSend1, ClientAddrPort)
-    # packet_recv = ""
-    # while (packet_recv != ""):
-        
-    while(True):
-        TCPServerSocket.sendto(bytesToSend1, CarAddrPort)
-        if (car1.interaction_index == 0):
-            bytesToSend1 = "BEGIN CONNECTION".encode()
-        # print(BServerSocket.recvfrom(bufferSize))
-        # print(TCPServerSocket.recvfrom(bufferSize))
-        # TODO maybe add a way to check that all the values are valid without crashing the program
-        getCoordForCar(car1)
-        # if(car1.move):
-        print(f"Received coords ({car1.x}, {car1.y}) for {car1.name}")
-        if (not(car1.x > 200 or car1.y > 200)):
-            find_info_flowmap(car1)
-            bytesToSend1 = moveCar(car1)
-            if car1.index == len(path):
-                print("Reached destination")
-                exit()
+    # TCPServerSocket.bind(ServerAddr)
+    # TCPServerSocket.connect(("172.20.10.2", 8888))
+    # TCPServerSocket.listen()
+
+      # This is the alternative code for TCP instead of UDP
+    # My proposal is that we use one TCP socket for everything.
+    
+    
+    HOST = "172.20.10.2"  # addr to bind to (generally server's computer local IP addr)
+    PORT = 8000   # port to listen on (non-privileged ports are > 1023)
+    
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    
+        s.bind((HOST, PORT))
+        s.listen()
+        conn, addr = s.accept()
+        print(conn)
+        with conn:
+            print(f"Connected by {addr}")
+            while True:
+                data = conn.recv(bufferSize)
+                print("received")
+                print(data)
+    print("TCP server launched")
+    # while(True):
+    #     # TODO maybe add a way to check that all the values are valid without crashing the program
+    #     recvInfo(camID, stopID, cars)
