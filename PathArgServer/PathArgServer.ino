@@ -22,12 +22,11 @@
 
 #define START_ORIENTATION M_PI/2            // 90 deg = facing forwards on trig circle
 #define ANGLE_UNIT M_PI/100                 // ~ 1.8 deg
-#define MAX_ORIENTATION M_PI
-#define MIN_ORIENTATION -MAX_ORIENTATION    // -180 deg <= orientation <= 180 deg
+#define MAX_ORIENTATION 2*M_PI
+#define MIN_ORIENTATION 0                   // 0 deg <= orientation <= 360 deg
 #define ANGLE_PRECISION 1                   // In degrees (if angle is within ± ANGLE_PRECISION 
                                             // it doesn't get updated)
 #define MAX_VELOCITY 0.025
-#define SLOWDOWN_DECEL 0.0125
 #define STOP_DECEL 0.025
 #define ACC_UNIT 0.025
 #define MAX_ACC 0.025
@@ -36,8 +35,7 @@
 #define START_X 0   
 #define START_Y 0
 
-#define STOP -2
-#define SLOWDOWN -1
+#define STOP -1
 #define MAINTAIN_VELOCITY 0
 #define ACCELERATE 1
 
@@ -148,13 +146,13 @@ void print_info(void) {
 
 /*
 * @param desired_angle between MIN_ORIENTATION and MAX_ORIENTATION
-* @param desired_accel either -2 (full stop), -1 (slow down), 0 (maintain velocity) or 1 (accelerate)
+* @param desired_accel either -1 (slow down), 0 (maintain velocity) or 1 (accelerate)
 * Updates the car's coordinate approximation according to the desired parameters
 */
 void update_movements(int desired_angle, int desired_accel) {
 
     if(desired_angle < (MIN_ORIENTATION/M_PI)*180 || desired_angle > (MAX_ORIENTATION/M_PI)*180 
-        || desired_accel < -2 || desired_accel > 1) {
+        || desired_accel < -1 || desired_accel > 1) {
         printf("Bad parameters\n");
         return;
     }
@@ -168,55 +166,49 @@ void update_movements(int desired_angle, int desired_accel) {
         dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
     } 
 
+    // Current total acceleration
+    double curr_acc = sqrt(acc_x * acc_x + acc_y * acc_y);
+
     // Current total velocity (along x and y)
     double curr_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
 
     // Movement logic
-    if(desired_accel == -2) {
+    if(desired_accel == -1) {
         
-        // Stop
+        // Slow down
 
         // Assume that stopping is so quick that the deceleration can be assumed constant
-        double stop_accel = curr_velocity > 0 ? STOP_DECEL : 0;
-        acc_x = - stop_accel * cos(dir);
-        acc_y = - stop_accel * sin(dir);
+        curr_acc = curr_velocity > 0 ? fmax(-STOP_DECEL, curr_acc - ACC_UNIT) : 0;
+        acc_x = curr_acc * cos(dir);
+        acc_y = curr_acc * sin(dir);
         // Update velocity
-        double stop_velocity = fmax(0, curr_velocity - stop_accel);
-        velocity_x = stop_velocity * cos(dir);
-        velocity_y = stop_velocity * sin(dir);
-
-    } else if(desired_accel == -1) {
-
-        // Slow down (for a corner for example)
-
-        // Assume that we slow down at a constant pace
-        double slowdown_accel = curr_velocity > 0 ? -SLOWDOWN_DECEL : 0;
-        acc_x = - slowdown_accel * cos(dir);
-        acc_y = - slowdown_accel * sin(dir);
-        // Update velocity
-        double slowdown_velocity = fmax(0, curr_velocity - slowdown_accel);
-        velocity_x = slowdown_velocity * cos(dir);
-        velocity_y = slowdown_velocity * sin(dir);
+        curr_velocity = fmax(0, curr_velocity + curr_acc);
+        velocity_x = curr_velocity * cos(dir);
+        velocity_y = curr_velocity * sin(dir);
 
     } else if(desired_accel == 0) {
 
-        // Maintain current velocity
+        // Maintain speed
+
+        // Don't change total acceleration, update for orientation
+        acc_x = curr_acc * cos(dir);
+        acc_y = curr_acc * sin(dir);
+        // Don't change total velocity, update for orientation
         velocity_x = curr_velocity * cos(dir);
         velocity_y = curr_velocity * sin(dir);
 
     } else if(desired_accel == 1) {
 
-        // Accelerate
-        double acc = fmin(MAX_ACC, (MAX_VELOCITY - curr_velocity) * ACC_UNIT);
-        acc_x = acc * cos(dir);
-        acc_y = acc * sin(dir); 
+        // Accelerate 
 
-        // Update total velocity
-        double new_velocity = fmin(MAX_VELOCITY, curr_velocity + acc);
-
-        // Update x/y velocity
-        velocity_x = new_velocity * cos(dir);
-        velocity_y = new_velocity * sin(dir);
+        // Update acceleration (the higher the speed, the lower the acceleration)
+        curr_acc = fmin(MAX_ACC, (MAX_VELOCITY - curr_velocity) * ACC_UNIT);
+        acc_x = curr_acc * cos(dir);
+        acc_y = curr_acc * sin(dir); 
+        // Update velocity
+        curr_velocity = fmin(MAX_VELOCITY, curr_velocity + curr_acc);
+        velocity_x = curr_velocity * cos(dir);
+        velocity_y = curr_velocity * sin(dir);
 
     }
 
