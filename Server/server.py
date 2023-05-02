@@ -1,6 +1,6 @@
 import socket
 import requests
-from FlowMaps.fm_20_20 import directions as fmdir
+from FlowMaps.circuit20x20 import directions as fmdir
 
 class Car:
   def __init__(self, name, server, x=0, y=0, interaction_index=0, index=0, move=False):
@@ -22,18 +22,20 @@ def parseCoordFromLine(coordinates):
 
 def getCoordForCar(car):
     # receiving coordinates from client
-    coordinates, addr = UDPServerSocket.recvfrom(bufferSize)
-
+    coordinates, addr = TCPServerSocket.recvfrom(bufferSize)
+    # print(coordinates)
     if coordinates == b"1":
         bytesToSend1 = b"-1"
-        UDPServerSocket.sendto(bytesToSend1, CarAddrPort)
-
+        TCPServerSocket.sendto(bytesToSend1, CarAddrPort)
+        exit()
+        
     coordinates = coordinates.decode()
     line = parseCoordFromLine(coordinates)
-    if (line[0] == car.interaction_index):
-        car.x, car.y, car.orientation = line[1:]
-        car.interaction_index += 1
-        car.move = True
+    print(line)
+    # if (line[0] == car.interaction_index):
+    car.x, car.y, car.orientation = line[1:]
+    car.interaction_index += 1
+    car.move = True
 
 def moveToCoordinate(car, target, delta):
     distX = target[0] - car.x
@@ -69,15 +71,15 @@ def moveCar(car):
         car.delta = 0
     else:
         car.delta += 90
-
-    UDPServerSocket.sendto(str(car.delta).encode(), CarAddrPort)
+    car.move = False
+    return str(car1.delta).encode()
 
 def find_velocity_and_orientation():
     pass
 
 def find_info_flowmap(car):
     # Assumes that coord x and y are between 0 and 200
-    car.desired_orientaion = fmdir[(car.x//20) - 1][(car.y//20) - 1]
+    car.desired_orientation = fmdir[(car.x//10) - 1][(car.y//10) - 1]
 
 if __name__ == "__main__":
     # read path from file and store information in a list of [x, y] values 
@@ -92,7 +94,7 @@ if __name__ == "__main__":
 
     # initialise car objects
     # name = str(input("Car IP: "))
-    car_IP = "172.20.10.4"
+    car_IP = "172.20.10.3"
     car1 = Car("Car1", f"http://{car_IP}:80/")
 
     # set up server
@@ -122,15 +124,24 @@ if __name__ == "__main__":
     print("UDP server up and listening")
     CarAddrPort = (car_IP, 8888)
     bytesToSend1 = "BEGIN CONNECTION".encode()
-    UDPServerSocket.sendto(bytesToSend1, CarAddrPort)
+    ClientAddrPort = ("127.0.0.1", 9999)
+    TCPServerSocket.sendto(bytesToSend1, ClientAddrPort)
+    # packet_recv = ""
+    # while (packet_recv != ""):
+        
     while(True):
-        print(BServerSocket.recvfrom(bufferSize))
+        TCPServerSocket.sendto(bytesToSend1, CarAddrPort)
+        if (car1.interaction_index == 0):
+            bytesToSend1 = "BEGIN CONNECTION".encode()
+        # print(BServerSocket.recvfrom(bufferSize))
+        # print(TCPServerSocket.recvfrom(bufferSize))
         # TODO maybe add a way to check that all the values are valid without crashing the program
         getCoordForCar(car1)
-        if(car1.move):
-            print(f"Received coords ({car1.x}, {car1.y}) for {car1.name}")
+        # if(car1.move):
+        print(f"Received coords ({car1.x}, {car1.y}) for {car1.name}")
+        if (not(car1.x > 200 or car1.y > 200)):
             find_info_flowmap(car1)
-            moveCar(car1)
+            bytesToSend1 = moveCar(car1)
             if car1.index == len(path):
                 print("Reached destination")
                 exit()

@@ -1,6 +1,6 @@
 import socket
 
-serverAddrPort = ("172.20.10.2", 8888)
+serverAddrPort = ("172.20.10.3", 8888)
 bufferSize = 1024
 
 # connecting to hosts
