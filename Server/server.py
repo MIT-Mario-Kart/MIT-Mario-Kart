@@ -101,9 +101,9 @@ if __name__ == "__main__":
     bufferSize = 4096
 
     # cam_addr = '00:00:00:00:00:00'#your address here
-    BServerSocket = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+    # BServerSocket = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
     # port = 1
-    print("Bluetooth server up and listening")
+    # print("Bluetooth server up and listening")
     # BServerSocket.connect((cam_addr,port))
 
     TCPServerSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_DGRAM)
