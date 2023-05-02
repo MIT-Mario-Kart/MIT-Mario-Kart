@@ -25,6 +25,3 @@ theta = math.atan2(y, x)
 
 # Convert radians to degrees
 theta_degrees = math.degrees(theta)
-
-
-
