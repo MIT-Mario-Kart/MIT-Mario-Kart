@@ -271,11 +271,13 @@ void send_coords() {
 
 void print_info(void) {
 
-    double absolute_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
-    printf("\nVelocity(x, y) | absolute = (%lf, %lf) | %lf\n", velocity_x, velocity_y, absolute_velocity);
+    double total_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
+    double total_acc = sqrt(acc_x * acc_x + acc_y * acc_y);
+    printf("\nAcceleration(x, y) | absolute = (%lf, %lf) | %lf\n", acc_x, acc_y, total_acc);
+    printf("Velocity(x, y) | absolute = (%lf, %lf) | %lf\n", velocity_x, velocity_y, total_velocity);
     printf("Pos(x, y) = (%lf, %lf)\n", coord_x, coord_y);
     printf("Orientation = %lf\n\n", (dir/M_PI) * 180);
-
+    
 }
 
 
