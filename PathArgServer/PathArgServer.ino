@@ -2,7 +2,6 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
-#include <WiFiUdp.h>
 
 #include <uri/UriBraces.h>
 #include <uri/UriRegex.h>
@@ -12,13 +11,14 @@
 #include <stdlib.h>
 
 #ifndef STASSID
-#define STASSID "Dan the Pol"
-#define STAPSK "RETR0ProkT765"
+#define STASSID "Rok's iPhone"
+#define STAPSK "babalilo"
 #endif
 
-#define UDP_SERVER_IP "10.172.10.2"
-#define UDP_PORT 8888
+// #define SERVER_IP "172.20.10.2"
+#define SERVER_PORT 8888
 
+#define ID "CAR1"
 
 #define START_ORIENTATION M_PI/2            // 90 deg = facing forwards on trig circle
 #define ANGLE_UNIT M_PI/100                 // ~ 1.8 deg
@@ -49,11 +49,10 @@ const char *ssid = STASSID;
 const char *password = STAPSK;
 
 Servo myservo;
-WiFiUDP UDP;
+int port = 9999;  //Port number
+WiFiServer server(port);
 
-char packet[255];
-uint16_t SERVER_PORT;
-IPAddress SERVER_IP;
+IPAddress SERVER_IP(172,20,10,2);
 int init_val = 1;
 int interaction_index = 0;
 // Using doubles for extra precision (lol)
@@ -65,6 +64,24 @@ double velocity_y = 0;
 double acc_x = 0;
 double acc_y = 0;
 
+
+boolean connected = false;
+
+void WiFiEvent(WiFiEvent_t event) {
+    switch(event) {
+    case 3: // WL_CONNECTED 
+        Serial.println("WiFi connected");
+        Serial.println("IP address: ");
+        Serial.println(WiFi.localIP());
+        connected = true;
+        break;
+    case 6: // WL_DISCONNECTED 
+        Serial.println("WiFi lost connection");
+        connected = false;
+        break;
+    }
+}
+
 void setup(void) {
   pinMode(PIN_D2_FORWARD,OUTPUT); // D2 F
   pinMode(PIN_D1_REVERSE,OUTPUT); // D1 R
@@ -72,56 +89,65 @@ void setup(void) {
   // 172.20.10.5
 
   Serial.begin(115200);
-  WiFi.mode(WIFI_STA);
+  WiFi.disconnect(true);
+  delay(1000);
+  WiFi.onEvent(WiFiEvent); // update connected variable method based on event
+  WiFi.mode(WIFI_STA); 
   WiFi.begin(ssid, password);
   Serial.println("");
 
   // Wait for connection
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+      delay(500);
+      Serial.print(".");
   }
   Serial.println("");
   Serial.print("Connected to ");
   Serial.println(ssid);
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
-
+  server.begin();
+  Serial.println("Started server");
   if (MDNS.begin("esp8266")) { Serial.println("MDNS responder started"); }
-  
-  UDP.begin(UDP_PORT);
-  Serial.print("Listening on UDP port ");
-  Serial.println(UDP_PORT);
-}
-
-void loop(void) {
-
-  // If packet received...
-  int packetSize = UDP.parsePacket();
-  if (packetSize) {
-    Serial.print("Received packet! Size: ");
-    Serial.println(packetSize); 
-    int len = UDP.read(packet, 255);
-    if (len > 0)
-    {
-      packet[len] = '\0';
-    }
-    Serial.print("Packet received: ");
-    Serial.println(packet);
-
-    int desired_angle = atoi(packet);
-    update_movements(desired_angle, ACCELERATE);
-
-    if (init_val) {
-      SERVER_IP = UDP.remoteIP();
-      SERVER_PORT = UDP.remotePort();
-      init_val = 0;
-    }
-  } 
   send_coords();
 }
 
-void send_coords() { 
+void loop(void) {
+    WiFiClient client = server.available();
+    
+    if(!connected){  
+        update_movements(0, -2); // STOP the car 
+    } else {
+    // if (client) {
+        
+        char packet[255];
+        int i = 0;
+        
+        // while(client.connected()){
+            while(client.available()>0){
+                // read data from the connected client
+                packet[i] = client.read(); 
+                ++i;
+            }
+            int desired_angle = atoi(packet);
+            if (desired_angle == STOP) { // if server wants to stop the car
+                print_info();
+                update_movements(desired_angle, -2); // stop the car
+            } else {
+                print_info();
+                update_movements(desired_angle, ACCELERATE);
+            }
+        // }
+        client.stop();
+        send_coords();
+    // }   
+    }
+}
+
+void send_coords() {
+    const uint16_t port = 8888;
+    const char * host = "172.20.10.2";
+    WiFiClient clientSend;
 
     int deg_angle = (int) ((dir / M_PI) * 180);
     // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
@@ -130,11 +156,20 @@ void send_coords() {
     sprintf(coords, "%d, %d, %d, %d", interaction_index, (int) coord_x, (int) coord_y, deg_angle);
 
     // print_info();
-      
-
-    UDP.beginPacket(SERVER_IP, SERVER_PORT); // send ip to server
-    UDP.write(coords);
-    UDP.endPacket();
+    
+    boolean notsent = true;
+    while(notsent) { // make sure to keep trying if the connection failed
+        if (clientSend.connect(host, port)) //Try to connect to TCP Server
+        {
+            // clientSend.write(coords);
+            Serial.println("sent packet ... ");
+            notsent = false;
+        } 
+        else
+        {
+            Serial.println("connection failed ... ");
+        } 
+    }
 }
 
 void print_info(void) {
