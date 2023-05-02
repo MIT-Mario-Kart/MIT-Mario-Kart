@@ -12,25 +12,34 @@
 #include <stdlib.h>
 
 #ifndef STASSID
-#define STASSID "Rok's iPhone"
-#define STAPSK "babalilo"
+#define STASSID "Dan the Pol"
+#define STAPSK "RETR0ProkT765"
 #endif
 
 #define UDP_SERVER_IP "10.172.10.2"
 #define UDP_PORT 8888
 
-#define START_X 0
-#define START_Y 0
-#define START_ORIENTATION M_PI/2          // 90 deg = facing forwards on trig circle
-#define ANGLE_UNIT M_PI/100               // ~ 1.8 deg
-#define MAX_ORIENTATION M_PI
-#define MIN_ORIENTATION -MAX_ORIENTATION // -180 deg <= orientation <= 180 deg
-#define VELOCITY_UNIT 0.1
-#define SLOWDOWN_VELOCITY_UNIT 0.3
-#define MAX_VELOCITY 2
-#define ANGLE_PRECISION 0.75
 
-#define STOP -1
+#define START_ORIENTATION M_PI/2            // 90 deg = facing forwards on trig circle
+#define ANGLE_UNIT M_PI/100                 // ~ 1.8 deg
+#define MAX_ORIENTATION M_PI
+#define MIN_ORIENTATION -MAX_ORIENTATION    // -180 deg <= orientation <= 180 deg
+#define ANGLE_PRECISION 1                   // In degrees (if angle is within ± ANGLE_PRECISION 
+                                            // it doesn't get updated)
+#define MAX_VELOCITY 0.025
+#define SLOWDOWN_DECEL 0.0125
+#define STOP_DECEL 0.025
+#define ACC_UNIT 0.025
+#define MAX_ACC 0.025
+
+// 1 Unit (along x or y) =~ 10 cm irl
+#define START_X 0   
+#define START_Y 0
+
+#define STOP -2
+#define SLOWDOWN -1
+#define MAINTAIN_VELOCITY 0
+#define ACCELERATE 1
 
 #define PIN_D2_FORWARD 4
 #define PIN_D1_REVERSE 5
@@ -53,6 +62,8 @@ double coord_y = START_Y;
 double dir = START_ORIENTATION;
 double velocity_x = 0;
 double velocity_y = 0;
+double acc_x = 0;
+double acc_y = 0;
 
 void setup(void) {
   pinMode(PIN_D2_FORWARD,OUTPUT); // D2 F
@@ -99,7 +110,7 @@ void loop(void) {
     Serial.println(packet);
 
     int desired_angle = atoi(packet);
-    update_movements(desired_angle);
+    update_movements(desired_angle, ACCELERATE);
 
     if (init_val) {
       SERVER_IP = UDP.remoteIP();
@@ -135,38 +146,83 @@ void print_info(void) {
 
 }
 
-void update_movements(int desired_angle) {
+/*
+* @param desired_angle between MIN_ORIENTATION and MAX_ORIENTATION
+* @param desired_accel either -2 (full stop), -1 (slow down), 0 (maintain velocity) or 1 (accelerate)
+* Updates the car's coordinate approximation according to the desired parameters
+*/
+void update_movements(int desired_angle, int desired_accel) {
 
-    if(desired_angle == STOP) {
-        // Stop
-        velocity_x = fmax(0, velocity_x - SLOWDOWN_VELOCITY_UNIT);
-        velocity_y = fmax(0, velocity_y - SLOWDOWN_VELOCITY_UNIT);
-        digitalWrite(4, LOW);
-        digitalWrite(5, LOW);
-
-    } else {
-
-        double deg_dir = (dir / M_PI) * 180;
-          
-        // Assume moving forwards for now
-        if(gt(deg_dir, desired_angle)) {
-            dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
-        } else if(lt(deg_dir, desired_angle)) {
-            dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
-        } 
-
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + sin(dir));
-
-        digitalWrite(4, HIGH);
-        digitalWrite(5, LOW);
-        myservo.write(desired_angle);
+    if(desired_angle < (MIN_ORIENTATION/M_PI)*180 || desired_angle > (MAX_ORIENTATION/M_PI)*180 
+        || desired_accel < -2 || desired_accel > 1) {
+        printf("Bad parameters\n");
+        return;
     }
 
+    // Current orientation in degrees
+    double deg_dir = (dir / M_PI) * 180;
+    // Update current orientation
+    if(gt(deg_dir, desired_angle)) {
+        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
+    } else if(lt(deg_dir, desired_angle)) {
+        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
+    } 
+
+    // Current total velocity (along x and y)
+    double curr_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
+
+    // Movement logic
+    if(desired_accel == -2) {
+        
+        // Stop
+
+        // Assume that stopping is so quick that the deceleration can be assumed constant
+        double stop_accel = curr_velocity > 0 ? STOP_DECEL : 0;
+        acc_x = - stop_accel * cos(dir);
+        acc_y = - stop_accel * sin(dir);
+        // Update velocity
+        double stop_velocity = fmax(0, curr_velocity - stop_accel);
+        velocity_x = stop_velocity * cos(dir);
+        velocity_y = stop_velocity * sin(dir);
+
+    } else if(desired_accel == -1) {
+
+        // Slow down (for a corner for example)
+
+        // Assume that we slow down at a constant pace
+        double slowdown_accel = curr_velocity > 0 ? -SLOWDOWN_DECEL : 0;
+        acc_x = - slowdown_accel * cos(dir);
+        acc_y = - slowdown_accel * sin(dir);
+        // Update velocity
+        double slowdown_velocity = fmax(0, curr_velocity - slowdown_accel);
+        velocity_x = slowdown_velocity * cos(dir);
+        velocity_y = slowdown_velocity * sin(dir);
+
+    } else if(desired_accel == 0) {
+
+        // Maintain current velocity
+        velocity_x = curr_velocity * cos(dir);
+        velocity_y = curr_velocity * sin(dir);
+
+    } else if(desired_accel == 1) {
+
+        // Accelerate
+        double acc = fmin(MAX_ACC, (MAX_VELOCITY - curr_velocity) * ACC_UNIT);
+        acc_x = acc * cos(dir);
+        acc_y = acc * sin(dir); 
+
+        // Update total velocity
+        double new_velocity = fmin(MAX_VELOCITY, curr_velocity + acc);
+
+        // Update x/y velocity
+        velocity_x = new_velocity * cos(dir);
+        velocity_y = new_velocity * sin(dir);
+
+    }
+
+    // Update coordinates
     coord_x += velocity_x;
     coord_y += velocity_y;
-
-    ++interaction_index;
 }
 
 // if angle > desired_angle

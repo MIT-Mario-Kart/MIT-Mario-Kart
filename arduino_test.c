@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 // #ifndef STASSID
 // #define STASSID "IP"
@@ -21,20 +22,26 @@
 // #define UDP_SERVER_IP "10.172.10.2"
 // #define UDP_PORT 8888
 
-#define START_X 0
-#define START_Y 0
-#define START_ORIENTATION M_PI/2 // 90 deg = facing forwards on trig circle
-#define ANGLE_UNIT M_PI/100 // ~ 1.8 deg
+#define START_ORIENTATION M_PI/2            // 90 deg = facing forwards on trig circle
+#define ANGLE_UNIT M_PI/100                 // ~ 1.8 deg
 #define MAX_ORIENTATION M_PI
-#define MIN_ORIENTATION -MAX_ORIENTATION // -180 deg <= orientation <= 180 deg
-#define VELOCITY_UNIT 0.1
-#define SLOWDOWN_ACCEL 0.03
-#define STOP_ACCEL 0.05
-#define MAX_VELOCITY 0.1
+#define MIN_ORIENTATION -MAX_ORIENTATION    // -180 deg <= orientation <= 180 deg
+#define ANGLE_PRECISION 1                   // In degrees (if angle is within ± ANGLE_PRECISION 
+                                            // it doesn't get updated)
+#define MAX_VELOCITY 0.025
+#define SLOWDOWN_DECEL 0.0125
+#define STOP_DECEL 0.025
+#define ACC_UNIT 0.025
+#define MAX_ACC 0.025
 
-#define ACC_UNIT 0.01
-#define DECEL_UNIT 0.2
-#define MAX_ACC 0.01
+#define START_X 0
+#define START_Y 3.164954
+
+// --------------------------------
+// Test only values
+
+#define START_VELOCITY 0.024607
+#define START_DEG_ORIENTATION 90
 
 #define INPUT_SIZE 513
 #define CLOSE "close"
@@ -48,7 +55,6 @@
 #define STOP "S"
 #define CONT "C"
 
-#define ANGLE_PRECISION 1 // In degrees (if angle is within ± ANGLE_PRECISION it doesn't get updated)
 
 // #define STOP 0
 // #define FORWARD 1
@@ -91,28 +97,33 @@ double acc_x = 0;
 double acc_y = 0;
 
 int main(void) {
-//   pinMode(PIN_D2_FORWARD,OUTPUT); // D2 F
-//   pinMode(PIN_D1_REVERSE,OUTPUT); // D1 R
-//   myservo.attach(SERVO_PIN); // D8
-//   // 172.20.10.5
 
-//   Serial.begin(115200);
-//   WiFi.mode(WIFI_STA);
-//   WiFi.begin(ssid, password);
-//   Serial.println("");
+    dir = (START_DEG_ORIENTATION/180.0) * M_PI;
+    velocity_x = START_VELOCITY * cos(dir);
+    velocity_y = START_VELOCITY * sin(dir);
 
-    // Wait for connection
-//   while (WiFi.status() != WL_CONNECTED) {
-//     delay(500);
-//     Serial.print(".");
-//   }
-//   Serial.println("");
-//   Serial.print("Connected to ");
-//   Serial.println(ssid);
-//   Serial.print("IP address: ");
-//   Serial.println(WiFi.localIP());
+    //   pinMode(PIN_D2_FORWARD,OUTPUT); // D2 F
+    //   pinMode(PIN_D1_REVERSE,OUTPUT); // D1 R
+    //   myservo.attach(SERVO_PIN); // D8
+    //   // 172.20.10.5
 
-//   if (MDNS.begin("esp8266")) { Serial.println("MDNS responder started"); }
+    //   Serial.begin(115200);
+    //   WiFi.mode(WIFI_STA);
+    //   WiFi.begin(ssid, password);
+    //   Serial.println("");
+
+        // Wait for connection
+    //   while (WiFi.status() != WL_CONNECTED) {
+    //     delay(500);
+    //     Serial.print(".");
+    //   }
+    //   Serial.println("");
+    //   Serial.print("Connected to ");
+    //   Serial.println(ssid);
+    //   Serial.print("IP address: ");
+    //   Serial.println(WiFi.localIP());
+
+    //   if (MDNS.begin("esp8266")) { Serial.println("MDNS responder started"); }
 
 
 // ----------- STRTOD EXAMPLE ---------------
@@ -156,12 +167,12 @@ int main(void) {
         } else if(  strcmp(mov_input, FORWARD) == 0 || strcmp(mov_input, FORWARD_LEFT) == 0 || strcmp(mov_input, FORWARD_RIGHT) == 0
                     || strcmp(mov_input, REVERSE) == 0 || strcmp(mov_input, REVERSE_LEFT) == 0 
                     || strcmp(mov_input, REVERSE_RIGHT) == 0 || strcmp(mov_input, CONT) == 0) {
-            // update_movements(desired_angle);
+            update_movements(desired_angle, 1);
             send_coords();
             print_info();
         } else if(strcmp(mov_input, STOP) == 0) {
 
-            // update_movements(-1);
+            update_movements(90, -1);
 
         } else {
             printf("Invalid input\n");
@@ -196,8 +207,8 @@ int main(void) {
 
 //     if(desired_angle == -1) {
 //         // Stop
-//         velocity_x = fmax(0, velocity_x - SLOWDOWN_ACCEL);
-//         velocity_y = fmax(0, velocity_y - SLOWDOWN_ACCEL);
+//         velocity_x = fmax(0, velocity_x - SLOWDOWN_DECCEL);
+//         velocity_y = fmax(0, velocity_y - SLOWDOWN_DECCEL);
 
 //     } else {
 
@@ -291,8 +302,8 @@ void print_info(void) {
 
 //         // Stop
 //         // Assume that stopping is so quick that the deceleration can be assumed constant
-//         velocity_x = fmax(0, velocity_x - SLOWDOWN_ACCEL);
-//         velocity_y = fmax(0, velocity_y - SLOWDOWN_ACCEL);
+//         velocity_x = fmax(0, velocity_x - SLOWDOWN_DECCEL);
+//         velocity_y = fmax(0, velocity_y - SLOWDOWN_DECCEL);
 
 //     } else {
 
@@ -329,7 +340,7 @@ void print_info(void) {
 */
 void update_movements(int desired_angle, int desired_accel) {
 
-    if(desired_angle < MIN_ORIENTATION || desired_angle > MAX_ORIENTATION 
+    if(desired_angle < (MIN_ORIENTATION/M_PI)*180 || desired_angle > (MAX_ORIENTATION/M_PI)*180 
         || desired_accel < -2 || desired_accel > 1) {
         printf("Bad parameters\n");
         return;
@@ -353,21 +364,24 @@ void update_movements(int desired_angle, int desired_accel) {
         // Stop
 
         // Assume that stopping is so quick that the deceleration can be assumed constant
-        double stop_accel = curr_velocity > 0 ? -STOP_ACCEL : 0;
-        acc_x = stop_accel * cos(dir);
-        acc_y = stop_accel * sin(dir);
+        double stop_accel = curr_velocity > 0 ? STOP_DECEL : 0;
+        acc_x = - stop_accel * cos(dir);
+        acc_y = - stop_accel * sin(dir);
         // Update velocity
-        velocity_x = fmax(0, velocity_x - acc_x);
-        velocity_y = fmax(0, velocity_y - acc_y);
+        double stop_velocity = fmax(0, curr_velocity - stop_accel);
+        velocity_x = stop_velocity * cos(dir);
+        velocity_y = stop_velocity * sin(dir);
 
     } else if(desired_accel == -1) {
 
         // Slow down (for a corner for example)
 
         // Assume that we slow down at a constant pace
-        double slowdown_accel = curr_velocity > 0 ? -SLOWDOWN_ACCEL : 0;
-        double slowdown_velocity = fmax(0, curr_velocity - slowdown_accel);
+        double slowdown_accel = curr_velocity > 0 ? -SLOWDOWN_DECEL : 0;
+        acc_x = - slowdown_accel * cos(dir);
+        acc_y = - slowdown_accel * sin(dir);
         // Update velocity
+        double slowdown_velocity = fmax(0, curr_velocity - slowdown_accel);
         velocity_x = slowdown_velocity * cos(dir);
         velocity_y = slowdown_velocity * sin(dir);
 

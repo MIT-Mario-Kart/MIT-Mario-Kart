@@ -3,3 +3,6 @@ ard_test
 .metals/metals.mv.db
 .vscode/settings.json
 .vscode/
+time_test.c
+time_test
+PathArgServerTest/
