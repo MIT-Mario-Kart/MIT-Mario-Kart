@@ -99,28 +99,16 @@ if __name__ == "__main__":
 
     # set up server
     bufferSize = 4096
-    
-    
-    # This is the alternative code for TCP instead of UDP
-    # My proposal is that we use one TCP socket for everything.
-    
-    
-    # HOST = "172.20.10.4"  # addr to bind to (generally server's computer local IP addr)
-    # PORT = 65432   # port to listen on (non-privileged ports are > 1023)
-    
-    # with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    
-    #     s.bind((HOST, PORT))
-    #     s.listen()
-    #     conn, addr = s.accept()
-    #     with conn:
-    #         print(f"Connected by {addr}")
-    #         while True:
-    #             data = conn.recv(bufferSize)
-    #             print("received")
-    #             print(data)
-    
-    UDPServerSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_DGRAM)
+
+    # cam_addr = '00:00:00:00:00:00'#your address here
+    # BServerSocket = socket.socket(socket.AF_BLUETOOTH, socket.SOCK_STREAM, socket.BTPROTO_RFCOMM)
+    # port = 1
+    # print("Bluetooth server up and listening")
+    # BServerSocket.connect((cam_addr,port))
+
+    TCPServerSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_DGRAM)
+    ServerAddr = ("127.0.0.1", 8888)
+    # TCPServerSocket.bind()
     print("UDP server up and listening")
     CarAddrPort = (car_IP, 8888)
     bytesToSend1 = "BEGIN CONNECTION".encode()
