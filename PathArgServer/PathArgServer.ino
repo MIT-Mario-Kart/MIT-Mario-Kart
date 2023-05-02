@@ -32,21 +32,9 @@
 
 #define STOP -1
 
-#define FORWARD 1
-#define FORWARD_LEFT 2
-#define FORWARD_RIGHT 3
-#define REVERSE -1
-#define REVERSE_LEFT -2
-#define REVERSE_RIGHT -3
-
 #define PIN_D2_FORWARD 4
 #define PIN_D1_REVERSE 5
 #define SERVO_PIN 15
-
-#define DISTANCE 1
-
-void move(void);
-void send_coords(void);
 
 const char *ssid = STASSID;
 const char *password = STAPSK;
@@ -175,6 +163,10 @@ void update_movements(int desired_angle) {
         myservo.write(desired_angle);
     }
 
+    coord_x += velocity_x;
+    coord_y += velocity_y;
+
+    ++interaction_index;
 }
 
 // if angle > desired_angle
@@ -190,83 +182,4 @@ int lt(double angle, int desired_angle) {
 // if angle =~ desired_angle
 int eq(double angle, int desired_angle) {
     return (fabs(angle - desired_angle) < ANGLE_PRECISION);
-}
-
-void move_forwards(void) {
-    // velocity_x update will be the same for each direction
-    velocity_x = fmin(MAX_VELOCITY, velocity_x - VELOCITY_UNIT * sin(dir));
-}
-
-
-
-void send_coords() {
-
-    // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
-    char coords[19];
-    sprintf(coords, "%lf, %lf", coord_x, coord_y);
-  
-    UDP.beginPacket(UDP_SERVER_IP, UDP_PORT);
-    UDP.write(coords);
-    UDP.endPacket();
-}
-
-
-
-void update_movements(int next_move_dir) {
-
-    if(FORWARD == next_move_dir) {
-
-        // No orientation update
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
-
-    } else if(FORWARD_LEFT == next_move_dir) {
-
-        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
-
-    } else if(FORWARD_RIGHT == next_move_dir) {
-
-        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y + VELOCITY_UNIT * sin(dir));
-
-    } else if(REVERSE == next_move_dir) {
-
-        // No orientation update
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
-
-    } else if(REVERSE_LEFT == next_move_dir) {
-
-        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);;
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
-
-    } else if(REVERSE_RIGHT == next_move_dir) {
-
-        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
-        velocity_x = fmin(MAX_VELOCITY, velocity_x + VELOCITY_UNIT * cos(dir));
-        velocity_y = fmin(MAX_VELOCITY, velocity_y - VELOCITY_UNIT * sin(dir));
-
-    } else if(STOP == next_move_dir) {
-
-        // Assuming that stopping takes ~ 3x less time than accelerating (TODO: calibration)
-        velocity_x = fmax(0, velocity_x - 3*VELOCITY_UNIT);
-        velocity_y = fmax(0, velocity_y - 3*VELOCITY_UNIT);
-
-        coord_x += velocity_x;
-        coord_y += velocity_y;
-
-        return;
-
-    } else {
-        Serial.println("Invalid direction\n");
-        return;
-    }
-
-    coord_x += velocity_x;
-    coord_y += velocity_y;
-
 }
