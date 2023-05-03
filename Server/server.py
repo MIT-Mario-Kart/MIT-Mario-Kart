@@ -85,9 +85,6 @@ if __name__ == "__main__":
     stopID = "stop"
     # set up server
     bufferSize = 4096
-
-      # This is the alternative code for TCP instead of UDP
-    # My proposal is that we use one TCP socket for everything.
     
     class handler(BaseRequestHandler):
         def handle(self):
@@ -102,8 +99,3 @@ if __name__ == "__main__":
 
     server = ThreadingTCPServer(('',8888), handler)
     server.serve_forever()
-                
-
-    # while(True):
-    #     # TODO maybe add a way to check that all the values are valid without crashing the program
-    #     recvInfo(camID, stopID, cars)

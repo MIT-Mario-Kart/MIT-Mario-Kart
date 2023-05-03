@@ -5,3 +5,10 @@ time_test
 PathArgServerTest/
 .metals/metals.log
 .metals/metals.mv.db
+.metals/metals.log
+.metals/metals.mv.db
+.vscode/settings.json
+.vscode/
+time_test.c
+time_test
+PathArgServerTest/

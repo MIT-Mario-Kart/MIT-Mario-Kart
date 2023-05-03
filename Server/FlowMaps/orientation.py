@@ -6,11 +6,11 @@ coordinates = input()
 frequence = 1/10
 
 # data to calculate orientation and speed
-currx=coordinates[-1]
-curry=coordinates[-1]
+currx=coordinates[-1][0]
+curry=coordinates[-1][1]
 
-prevx=coordinates[-2]
-prevy=coordinates[-2]
+prevx=coordinates[-2][0]
+prevy=coordinates[-2][1]
 
 # code =============================================================================================================================
 
@@ -25,6 +25,3 @@ theta = math.atan2(y, x)
 
 # Convert radians to degrees
 theta_degrees = math.degrees(theta)
-
-
-
