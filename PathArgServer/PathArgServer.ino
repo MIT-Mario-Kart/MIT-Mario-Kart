@@ -28,6 +28,10 @@
 #define ANGLE_PRECISION 1                   // In degrees (if angle is within ± ANGLE_PRECISION 
                                             // it doesn't get updated)
 #define MAX_VELOCITY 0.025
+#define GREEN_V MAX_VELOCITY
+#define BLUE_V MAX_VELOCITY*0.7
+#define RED_V MAX_VELOCITY*0.3
+
 #define STOP_DECEL 0.025
 #define ACC_UNIT 0.025
 #define MAX_ACC 0.025
