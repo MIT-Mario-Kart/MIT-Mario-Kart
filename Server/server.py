@@ -1,19 +1,8 @@
 import socket
 from FlowMaps.circuit20x20 import directions as fmdir
 from socketserver import ThreadingTCPServer,BaseRequestHandler
-
-class Car:
-  def __init__(self, id, server, x=0, y=0, index=0):
-    self.id = id
-    self.server = server
-    self.x = x
-    self.y = y
-    self.index = index # to be incremented every time we reach a given checkpoint
-    self.velocity = 0
-    self.orientation = 0
-    self.desired_orientation = 0
-    self.delta = 0 # steering angle
-    self.a = 0 # acceleration
+from Car import Car
+import Overtake.overtake as ovt
 
 def parseCoordFromLine(coordinates):
     return [int(coord.strip()) for coord in coordinates.split(',')]
@@ -25,7 +14,11 @@ def recvInfo(info):
     id = info[0]
     if id == camID:
         for i in range(1, len(cars) + 1):
-            getCoordForCar(cars, info[i])
+            getCoordForCar(car[i], info[i])
+        #     ovt.calculateCircles(car[i])
+        # for car in cars:
+        #     ovt.overtake(car, cars)
+
     elif id == stopID:
         for car in cars:
             server.sendto(b"-1", car.server)
@@ -44,7 +37,6 @@ def getCoordForCar(car, coordinates):
     print(f"Received coords ({car.x}, {car.y}) for {car.id}")
     if (not(car.x > 200 or car.y > 200)):
         find_info_flowmap(car)
-        moveCar(car)
 
 def moveCar(car):
     car.delta = car.desired_orientation - car.orientation
@@ -81,8 +73,8 @@ if __name__ == "__main__":
     car1 = Car("CAR1", ("172.20.10.4", 9999))
     cars = [car1]
 
-    camID = "cam"
-    stopID = "stop"
+    camID = "CAM"
+    stopID = "STOP"
     # set up server
     bufferSize = 4096
     

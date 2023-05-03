@@ -3,10 +3,6 @@ import socket
 serverAddrPort = ("127.0.0.1", 8888)
 bufferSize = 1024
 
-# connecting to hosts
-TCPClientSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_DGRAM)
-bytesToSend = "stop".encode()
-stop_server = ""
-while (stop_server != "y"):
-    stop_server = input("Stop Server? ")
-TCPClientSocket.sendto(bytesToSend, serverAddrPort)
+with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+    s.connect(serverAddrPort)
+    s.sendall(b"STOP")

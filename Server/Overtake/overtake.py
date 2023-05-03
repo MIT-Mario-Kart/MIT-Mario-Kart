@@ -4,25 +4,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 
-
-
-class Car:
-  def init(self, name, server, x=0, y=0, interaction_index=0, index=0, move=False):
-    self.name = name
-    self.server = server
-    self.x = x
-    self.y = y
-    self.interaction_index = interaction_index
-    self.index = index # to be incremented every time we reach a given checkpoint
-    self.move = move
-    self.velocity = 0
-    self.orientation = 0
-    self.desired_orientation = 0
-    self.delta = 0 # steering angle
-    self.a = 0 # acceleration
-
-
-
 # leftCircle has to be claculated with claculateCircles()
 def isInLeftCircle(pos, leftCircle):
   transformed_pos = leftCircle.get_transform().transform(pos)
