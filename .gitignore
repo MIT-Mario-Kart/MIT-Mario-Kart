@@ -3,3 +3,5 @@ ard_test
 time_test.c
 time_test
 PathArgServerTest/
+.metals/metals.log
+.metals/metals.mv.db
