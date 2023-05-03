@@ -11,12 +11,12 @@
 #include <stdlib.h>
 
 #ifndef STASSID
-#define STASSID "Rok's iPhone"
-#define STAPSK "babalilo"
+#define STASSID "Dan the Pol"
+#define STAPSK "RETR0ProkT765"
 #endif
 
 // #define SERVER_IP "172.20.10.2"
-#define SERVER_PORT 8888
+#define SERVER_PORT 8998
 
 #define ID "CAR1"
 
@@ -54,18 +54,18 @@ Servo myservo;
 int port = 9999;  //Port number
 WiFiServer server(port);
 
-IPAddress SERVER_IP(172,20,10,2);
+IPAddress SERVER_IP(172,20,10,4);
 
 // Using doubles for extra precision (lol)
 double coord_x = START_X;
 double coord_y = START_Y;
 double dir = (START_ORIENTATION/180)*M_PI;
+int desired_orientation = START_ORIENTATION;
+int desired_move = STOP;
 double velocity_x = 0;
 double velocity_y = 0;
 double acc_x = 0;
 double acc_y = 0;
-
-int received_packet = 0;
 
 boolean connected = false;
 
@@ -115,10 +115,11 @@ void setup(void) {
 }
 
 void loop(void) {
+
     WiFiClient client = server.available();
     
     if(!connected){  
-        update_movements(0, STOP); // STOP the car 
+        desired_move = STOP; // STOP the car 
     } else {
     if (client) {
         
@@ -126,43 +127,53 @@ void loop(void) {
         int i = 0;
         
         while(client.connected()){
-          printf("\n");
+          // printf("\nClient connected: \n");
             while(client.available() > 0){
                 // read data from the connected client
                 packet[i] = client.read(); 
-                printf(" [%d] %c ", i, packet[i]);
+                // printf(" [%d] %c ", i, packet[i]);
 
                 ++i;
             }
 
+            // send_coords();
+            // printf("Packet as string [%s]\n\n", packet);
+
             if(i > 0) {
-              int desired_angle = atoi(packet);
 
-              send_coords();
-              printf("Packet as string %s\n\n", packet);
+              if(strstr(packet, "-")) {
+                desired_orientation = atoi(packet);
+              }
+              else {
+                desired_orientation = atoi(packet);
+              }
+
+              // send_coords();
+              printf("\nPacket as string %s\n", packet);
+              printf("dir: %lf\ndesired_orientation: %d\n\n", (dir/M_PI)*180, desired_orientation);
+
+            
+
+              if (desired_orientation == STOP) { // if server wants to stop the car
+                  desired_move = STOP;
+              } else {
+                  desired_move = ACCELERATE;
+              }
             }
-
-            // if (desired_angle == STOP) { // if server wants to stop the car
-            //     print_info();
-            //     update_movements(desired_angle, STOP); // stop the car
-            //     send_coords();
-            //     printf("Recevied packet %s\n", packet);
-            // } else if((MIN_ORIENTATION/M_PI)*180 <= desired_angle && desired_angle <= (MAX_ORIENTATION/M_PI)*180) {
-            //     print_info();
-            //     update_movements(desired_angle, ACCELERATE);
-            //     send_coords();
-            //     printf("Recevied packet %s\n", packet);
-            // }
-            received_packet = 1;
         }
-        client.stop();
-    }   
+        // client.stop();
+      }   
     }
+
+  send_coords();
+  update_movements();
+  // print_info();
+
 }
 
 void send_coords() {
-    const uint16_t port = 8888;
-    const char * host = "172.20.10.2";
+    const uint16_t port = 8998;
+    const char * host = "172.20.10.4";
     WiFiClient clientSend;
 
     int deg_angle = (int) ((dir / M_PI) * 180);
@@ -180,7 +191,7 @@ void send_coords() {
         if (clientSend.connect(host, port)) //Try to connect to TCP Server
         {
             clientSend.write(coords);
-            Serial.println("sent packet ... ");
+            // Serial.println("sent packet ... ");
             notsent = false;
         } 
         else
@@ -204,21 +215,17 @@ void print_info(void) {
 * @param desired_accel either -1 (slow down), 0 (maintain velocity) or 1 (accelerate)
 * Updates the car's coordinate approximation according to the desired parameters
 */
-void update_movements(int desired_angle, int desired_accel) {
-
-    if(desired_angle < (MIN_ORIENTATION/M_PI)*180 || desired_angle > (MAX_ORIENTATION/M_PI)*180 
-        || desired_accel < -1 || desired_accel > 1) {
-        printf("Bad parameters\n");
-        return;
-    }
+void update_movements() {
 
     // Current orientation in degrees
-    double deg_dir = (dir / M_PI) * 180;
+    int deg_dir = (int) (dir / M_PI) * 180;
+
+    int diff = abs(deg_dir - abs(desired_orientation));
     // Update current orientation
-    if(gt(deg_dir, desired_angle)) {
-        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
-    } else if(lt(deg_dir, desired_angle)) {
-        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
+    if(gt((double) diff, 0)) {
+        if(desired_orientation < 0) deg_dir = modulo(deg_dir - (ANGLE_UNIT/M_PI)*180, 360);
+        if(desired_orientation > 0) deg_dir = modulo(deg_dir + (ANGLE_UNIT/M_PI)*180, 360);
+        dir = (deg_dir/180.0)*M_PI;
     } 
 
     // Current total acceleration
@@ -228,7 +235,7 @@ void update_movements(int desired_angle, int desired_accel) {
     double curr_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
 
     // Movement logic
-    if(desired_accel == -1) {
+    if(desired_move == -1) {
         
         // Slow down
 
@@ -241,7 +248,7 @@ void update_movements(int desired_angle, int desired_accel) {
         velocity_x = curr_velocity * cos(dir);
         velocity_y = curr_velocity * sin(dir);
 
-    } else if(desired_accel == 0) {
+    } else if(desired_move == 0) {
 
         // Maintain speed
 
@@ -252,7 +259,7 @@ void update_movements(int desired_angle, int desired_accel) {
         velocity_x = curr_velocity * cos(dir);
         velocity_y = curr_velocity * sin(dir);
 
-    } else if(desired_accel == 1) {
+    } else if(desired_move == 1) {
 
         // Accelerate 
 
@@ -285,4 +292,11 @@ int lt(double angle, int desired_angle) {
 // if angle =~ desired_angle
 int eq(double angle, int desired_angle) {
     return (fabs(angle - desired_angle) < ANGLE_PRECISION);
+}
+
+
+int modulo(int nb, int base)
+{
+    int remainder = nb % base;
+    return remainder < 0 ? remainder + base : remainder;
 }
