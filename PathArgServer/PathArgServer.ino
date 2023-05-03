@@ -35,8 +35,7 @@
 #define START_X 0
 #define START_Y 0
 
-#define STOP -2
-#define SLOWDOWN -1
+#define STOP -1
 #define MAINTAIN_VELOCITY 0
 #define ACCELERATE 1
 
@@ -52,8 +51,7 @@ int port = 9999;  //Port number
 WiFiServer server(port);
 
 IPAddress SERVER_IP(172,20,10,2);
-int init_val = 1;
-int interaction_index = 0;
+
 // Using doubles for extra precision (lol)
 double coord_x = START_X;
 double coord_y = START_Y;
@@ -115,7 +113,7 @@ void loop(void) {
     WiFiClient client = server.available();
     
     if(!connected){  
-        update_movements(0, -2); // STOP the car 
+        update_movements(0, STOP); // STOP the car 
     } else {
     // if (client) {
         
@@ -123,17 +121,17 @@ void loop(void) {
         int i = 0;
         
         // while(client.connected()){
-            while(client.available()>0){
+            while(client.available() > 0){
                 // read data from the connected client
                 packet[i] = client.read(); 
                 ++i;
             }
             int desired_angle = atoi(packet);
             if (desired_angle == STOP) { // if server wants to stop the car
-                print_info();
-                update_movements(desired_angle, -2); // stop the car
+                // print_info();
+                update_movements(desired_angle, STOP); // stop the car
             } else {
-                print_info();
+                // print_info();
                 update_movements(desired_angle, ACCELERATE);
             }
         // }
@@ -150,9 +148,11 @@ void send_coords() {
 
     int deg_angle = (int) ((dir / M_PI) * 180);
     // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
-    // Coordinates must be converted to integers and sent in form: <interaction_index>, <x>, <y>, <deg_angle>
+    // Coordinates must be converted to integers and sent in form: 
+    // ID
+    // <x>, <y>, <deg_angle>
     char coords[33];
-    sprintf(coords, "%d, %d, %d, %d", interaction_index, (int) coord_x, (int) coord_y, deg_angle);
+    sprintf(coords, ID"\n%d, %d, %d", (int) coord_x, (int) coord_y, deg_angle);
 
     // print_info();
     
@@ -160,7 +160,7 @@ void send_coords() {
     while(notsent) { // make sure to keep trying if the connection failed
         if (clientSend.connect(host, port)) //Try to connect to TCP Server
         {
-            // clientSend.write(coords);
+            clientSend.write(coords);
             Serial.println("sent packet ... ");
             notsent = false;
         } 
