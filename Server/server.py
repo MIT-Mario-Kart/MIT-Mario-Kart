@@ -1,5 +1,6 @@
 import socket
 from FlowMaps.circuit20x20 import directions as fmdir
+from socketserver import ThreadingTCPServer,BaseRequestHandler
 
 class Car:
   def __init__(self, id, server, x=0, y=0, index=0):
@@ -17,24 +18,23 @@ class Car:
 def parseCoordFromLine(coordinates):
     return [int(coord.strip()) for coord in coordinates.split(',')]
 
-def recvInfo(camID, stopID, cars):
-    c, addr = TCPServerSocket.accept()
+def recvInfo(info):
     # receiving coordinates from client
-    info, addr = TCPServerSocket.recvfrom(bufferSize)
     info = info.decode()
-    print(info, addr)
-    info = [line.split(',') for line in info.split('\n')]
-    id = info[0][0]
+    info = info.split('\n')
+    id = info[0]
     if id == camID:
         for i in range(1, len(cars) + 1):
             getCoordForCar(cars, info[i])
     elif id == stopID:
         for car in cars:
-            TCPServerSocket.sendto(b"-1", car.server)
+            server.sendto(b"-1", car.server)
             print(f"Stopped {car.id}")
         # exit()
-    elif id == car1.id:
-        getCoordForCar(car1, info[1])
+    else:
+        for car in cars:
+            if id == car.id:
+                getCoordForCar(cars[0], info[1])
 
 def getCoordForCar(car, coordinates):
     coordinates = coordinates.decode()
@@ -56,7 +56,7 @@ def moveCar(car):
     else:
         car.delta += 90
     car.move = False
-    TCPServerSocket.sendto(str(car.delta).encode())
+    server.sendto(str(car.delta).encode())
 
 def find_velocity_and_orientation():
     pass
@@ -67,53 +67,43 @@ def find_info_flowmap(car):
 
 if __name__ == "__main__":
     # read path from file and store information in a list of [x, y] values 
-    # filename = "Path/PathCoordsNoDupes.txt"
-    # path = []
+    filename = "Path/PathCoordsNoDupes.txt"
+    path = []
 
-    # with open(filename, "r") as file:
-    #     path = file.readlines()
-    #     path = [parseCoordFromLine(line) for line in path]
+    with open(filename, "r") as file:
+        path = file.readlines()
+        path = [parseCoordFromLine(line) for line in path]
 
-    # delta = 3 # hardcoded will need to be defined later on
+    delta = 3 # hardcoded will need to be defined later on
 
-    # # initialise car objects
-    # # name = str(input("Car IP: "))
-    # car1 = Car("CAR1", ("172.20.10.4", 9999))
-    # cars = [car1]
+    # initialise car objects
+    # name = str(input("Car IP: "))
+    car1 = Car("CAR1", ("172.20.10.4", 9999))
+    cars = [car1]
 
-    # camID = "cam"
-    # stopID = "stop"
-    # # set up server
+    camID = "cam"
+    stopID = "stop"
+    # set up server
     bufferSize = 4096
-
-    # # TCPServerSocket = socket.socket(family = socket.AF_INET, type = socket.SOCK_STREAM)
-    # # TCPServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    # ServerAddr = ("172.20.10.2", 8888)
-
-    # TCPServerSocket.bind(ServerAddr)
-    # TCPServerSocket.connect(("172.20.10.2", 8888))
-    # TCPServerSocket.listen()
 
       # This is the alternative code for TCP instead of UDP
     # My proposal is that we use one TCP socket for everything.
     
-    
-    HOST = "172.20.10.2"  # addr to bind to (generally server's computer local IP addr)
-    PORT = 8000   # port to listen on (non-privileged ports are > 1023)
-    
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    
-        s.bind((HOST, PORT))
-        s.listen()
-        conn, addr = s.accept()
-        print(conn)
-        with conn:
-            print(f"Connected by {addr}")
+    class handler(BaseRequestHandler):
+        def handle(self):
+            print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
             while True:
-                data = conn.recv(bufferSize)
-                print("received")
-                print(data)
-    print("TCP server launched")
+                msg = self.request.recv(bufferSize)
+                if not msg:
+                    print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
+                    break # exits handler, framework closes socket
+                print(f'Received: {msg}')
+                recvInfo(msg)
+
+    server = ThreadingTCPServer(('',8888), handler)
+    server.serve_forever()
+                
+
     # while(True):
     #     # TODO maybe add a way to check that all the values are valid without crashing the program
     #     recvInfo(camID, stopID, cars)
