@@ -20,7 +20,7 @@
 
 #define ID "CAR1"
 
-#define START_ORIENTATION M_PI/2            // 90 deg = facing forwards on trig circle
+#define START_ORIENTATION 270
 #define ANGLE_UNIT M_PI/100                 // ~ 1.8 deg
 #define SERVO_SPEED 1                       // How many degrees the servo turns in one iteration
 #define MAX_ORIENTATION 2*M_PI              // 0 deg <= orientation <= 360 deg
@@ -36,8 +36,8 @@
 #define ACC_UNIT 0.025
 #define MAX_ACC 0.025
 
-#define START_X 0
-#define START_Y 0
+#define START_X 20
+#define START_Y 20
 
 #define STOP -1
 #define MAINTAIN_VELOCITY 0
@@ -59,12 +59,13 @@ IPAddress SERVER_IP(172,20,10,2);
 // Using doubles for extra precision (lol)
 double coord_x = START_X;
 double coord_y = START_Y;
-double dir = START_ORIENTATION;
+double dir = (START_ORIENTATION/180)*M_PI;
 double velocity_x = 0;
 double velocity_y = 0;
 double acc_x = 0;
 double acc_y = 0;
 
+int received_packet = 0;
 
 boolean connected = false;
 
@@ -132,17 +133,21 @@ void loop(void) {
             }
             int desired_angle = atoi(packet);
             if (desired_angle == STOP) { // if server wants to stop the car
-                // print_info();
+                print_info();
                 update_movements(desired_angle, STOP); // stop the car
+                send_coords();
+                printf("Recevied packet %s\n", packet);
             } else {
-                // print_info();
+                print_info();
                 update_movements(desired_angle, ACCELERATE);
+                send_coords();
+                printf("Recevied packet %s\n", packet);
             }
-        // }
+            received_packet = 1;
+        }
         client.stop();
-        send_coords();
     // }   
-    }
+    // }
 }
 
 void send_coords() {
