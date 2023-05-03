@@ -13,8 +13,9 @@ def recvInfo(info):
     info = info.split('\n')
     id = info[0]
     if id == camID:
-        for i in range(1, len(cars) + 1):
-            getCoordForCar(car[i], info[i])
+        print("HI")
+        # for i in range(1, len(cars)+1):
+        #     getCoordForCar(cars[i-1], info[i])
         #     ovt.calculateCircles(car[i])
         # for car in cars:
         #     ovt.overtake(car, cars)
@@ -23,21 +24,20 @@ def recvInfo(info):
         for car in cars:
             server.sendto(b"-1", car.server)
             print(f"Stopped {car.id}")
-        # exit()
+        server.shutdown()
     else:
         for car in cars:
             if id == car.id:
-                getCoordForCar(cars[0], info[1])
+                # print(info)
+                getCoordForCar(car, info[1])
+                if (not(car.x > 200 or car.y > 200)):
+                    find_info_flowmap(car)
+                    return moveCar(car)
 
 def getCoordForCar(car, coordinates):
-    coordinates = coordinates.decode()
-    line = parseCoordFromLine(coordinates)
-    print(line)
-    car.x, car.y, car.orientation = line[1:]
-    print(f"Received coords ({car.x}, {car.y}) for {car.id}")
-    if (not(car.x > 200 or car.y > 200)):
-        find_info_flowmap(car)
-
+    car.x, car.y, car.orientation = parseCoordFromLine(coordinates)
+    print(f"Received coords ({car.x}, {car.y}) and direction {car.orientation} for {car.id}")
+    
 def moveCar(car):
     car.delta = car.desired_orientation - car.orientation
     
@@ -47,8 +47,7 @@ def moveCar(car):
         car.delta = 0
     else:
         car.delta += 90
-    car.move = False
-    server.sendto(str(car.delta).encode())
+    return car.delta
 
 def find_velocity_and_orientation():
     pass
@@ -70,14 +69,14 @@ if __name__ == "__main__":
 
     # initialise car objects
     # name = str(input("Car IP: "))
-    car1 = Car("CAR1", ("172.20.10.4", 9999))
+    car1 = Car("CAR1", ("172.20.10.9", 9999))
     cars = [car1]
 
     camID = "CAM"
     stopID = "STOP"
     # set up server
     bufferSize = 4096
-    
+
     class handler(BaseRequestHandler):
         def handle(self):
             print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
@@ -87,7 +86,9 @@ if __name__ == "__main__":
                     print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
                     break # exits handler, framework closes socket
                 print(f'Received: {msg}')
-                recvInfo(msg)
-
+                toSend = recvInfo(msg)
+                if toSend:
+                    self.request.send(toSend.encode())
     server = ThreadingTCPServer(('',8888), handler)
     server.serve_forever()
+    
