@@ -7,13 +7,19 @@ import Overtake.overtake as ovt
 def parseCoordFromLine(coordinates):
     return [int(coord.strip()) for coord in coordinates.split(',')]
 
+def sendCarInfo(car, toSend):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.connect(car.server)
+        s.sendall(str(toSend).encode())
+        s.close()
+
 def recvInfo(info):
     # receiving coordinates from client
     info = info.decode()
     info = info.split('\n')
     id = info[0]
     if id == camID:
-        print("HI")
+        return "ACK"
         # for i in range(1, len(cars)+1):
         #     getCoordForCar(cars[i-1], info[i])
         #     ovt.calculateCircles(car[i])
@@ -21,10 +27,8 @@ def recvInfo(info):
         #     ovt.overtake(car, cars)
 
     elif id == stopID:
-        for car in cars:
-            server.sendto(b"-1", car.server)
-            print(f"Stopped {car.id}")
-        server.shutdown()
+        print(f"Stopped {cars[0].id}")
+        sendCarInfo(cars[0], "-1")
     else:
         for car in cars:
             if id == car.id:
@@ -32,7 +36,7 @@ def recvInfo(info):
                 getCoordForCar(car, info[1])
                 if (not(car.x > 200 or car.y > 200)):
                     find_info_flowmap(car)
-                    return moveCar(car)
+                    moveCar(car)
 
 def getCoordForCar(car, coordinates):
     car.x, car.y, car.orientation = parseCoordFromLine(coordinates)
@@ -47,7 +51,7 @@ def moveCar(car):
         car.delta = 0
     else:
         car.delta += 90
-    return car.delta
+    sendCarInfo(car, car.delta)
 
 def find_velocity_and_orientation():
     pass
@@ -76,7 +80,7 @@ if __name__ == "__main__":
     stopID = "STOP"
     # set up server
     bufferSize = 4096
-
+    stop = False
     class handler(BaseRequestHandler):
         def handle(self):
             print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
@@ -88,7 +92,12 @@ if __name__ == "__main__":
                 print(f'Received: {msg}')
                 toSend = recvInfo(msg)
                 if toSend:
-                    self.request.send(toSend.encode())
+                    self.request.send(str(toSend).encode())
+                    print(f"Sent {toSend}")
+
+                
     server = ThreadingTCPServer(('',8888), handler)
     server.serve_forever()
-    
+    if stop:
+        server.shutdown()
+
