@@ -3,6 +3,7 @@ from FlowMaps.circuit20x20 import directions as fmdir
 from socketserver import ThreadingTCPServer,BaseRequestHandler
 from Car import Car
 import Overtake.overtake as ovt
+import math
 
 def parseCoordFromLine(coordinates):
     return [int(coord.strip()) for coord in coordinates.split(',')]
@@ -10,6 +11,7 @@ def parseCoordFromLine(coordinates):
 def sendCarInfo(car, toSend):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(car.server)
+        print(f"Sent to {car.id}: {str(toSend)}")
         s.sendall(str(toSend).encode())
         s.close()
 
@@ -36,21 +38,25 @@ def recvInfo(info):
                 getCoordForCar(car, info[1])
                 if (not(car.x > 200 or car.y > 200)):
                     find_info_flowmap(car)
-                    moveCar(car)
+                moveCar(car)
 
 def getCoordForCar(car, coordinates):
     car.x, car.y, car.orientation = parseCoordFromLine(coordinates)
     print(f"Received coords ({car.x}, {car.y}) and direction {car.orientation} for {car.id}")
     
 def moveCar(car):
-    car.delta = car.desired_orientation - car.orientation
-    
-    if (180 <= car.delta <= 270):
-        car.delta = 180
-    elif (270 <= car.delta <= 360):
-        car.delta = 0
+    right = car.orientation - car.desired_orientation
+    right = right +360 if right < 0  else right
+    left = car.desired_orientation - car.orientation
+    left = left +360 if left < 0  else left
+
+    if (left <= right):
+        car.delta = left
+        # car.delta = 90 + (left/180) * 90
     else:
-        car.delta += 90
+        # car.delta = 90 - (right/180)*90
+        car.delta = -right
+
     sendCarInfo(car, car.delta)
 
 def find_velocity_and_orientation():
@@ -73,7 +79,7 @@ if __name__ == "__main__":
 
     # initialise car objects
     # name = str(input("Car IP: "))
-    car1 = Car("CAR1", ("172.20.10.9", 9999))
+    car1 = Car("CAR1", ("172.20.10.5", 9999))
     cars = [car1]
 
     camID = "CAM"
@@ -96,7 +102,7 @@ if __name__ == "__main__":
                     print(f"Sent {toSend}")
 
                 
-    server = ThreadingTCPServer(('',8888), handler)
+    server = ThreadingTCPServer(('',8998), handler)
     server.serve_forever()
     if stop:
         server.shutdown()
