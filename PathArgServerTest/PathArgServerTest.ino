@@ -284,3 +284,8 @@ int lt(double angle, int desired_angle) {
 int eq(double angle, int desired_angle) {
     return (fabs(angle - desired_angle) < ANGLE_PRECISION);
 }
+
+
+void html_send(void) {
+  
+}
