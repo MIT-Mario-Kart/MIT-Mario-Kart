@@ -120,34 +120,44 @@ void loop(void) {
     if(!connected){  
         update_movements(0, STOP); // STOP the car 
     } else {
-    // if (client) {
+    if (client) {
         
-        char packet[255];
+        char packet[255] = "";
         int i = 0;
         
-        // while(client.connected()){
+        while(client.connected()){
+          printf("\n");
             while(client.available() > 0){
                 // read data from the connected client
                 packet[i] = client.read(); 
+                printf(" [%d] %c ", i, packet[i]);
+
                 ++i;
             }
-            int desired_angle = atoi(packet);
-            if (desired_angle == STOP) { // if server wants to stop the car
-                print_info();
-                update_movements(desired_angle, STOP); // stop the car
-                send_coords();
-                printf("Recevied packet %s\n", packet);
-            } else {
-                print_info();
-                update_movements(desired_angle, ACCELERATE);
-                send_coords();
-                printf("Recevied packet %s\n", packet);
+
+            if(i > 0) {
+              int desired_angle = atoi(packet);
+
+              send_coords();
+              printf("Packet as string %s\n\n", packet);
             }
+
+            // if (desired_angle == STOP) { // if server wants to stop the car
+            //     print_info();
+            //     update_movements(desired_angle, STOP); // stop the car
+            //     send_coords();
+            //     printf("Recevied packet %s\n", packet);
+            // } else if((MIN_ORIENTATION/M_PI)*180 <= desired_angle && desired_angle <= (MAX_ORIENTATION/M_PI)*180) {
+            //     print_info();
+            //     update_movements(desired_angle, ACCELERATE);
+            //     send_coords();
+            //     printf("Recevied packet %s\n", packet);
+            // }
             received_packet = 1;
         }
         client.stop();
-    // }   
-    // }
+    }   
+    }
 }
 
 void send_coords() {
