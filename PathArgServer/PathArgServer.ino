@@ -11,30 +11,30 @@
 #include <stdlib.h>
 
 #ifndef STASSID
-#define STASSID "Dan the Pol"
-#define STAPSK "RETR0ProkT765"
+#define STASSID "Rok's iPhone"
+#define STAPSK "babalilo"
 #endif
 
-// #define SERVER_IP "172.20.10.2"
+#define SERVER_IP "172.20.10.2"
 #define SERVER_PORT 8998
 
 #define ID "CAR1"
 
 #define START_ORIENTATION 270
-#define ANGLE_UNIT M_PI/100                 // ~ 1.8 deg
+#define ANGLE_UNIT M_PI/1000                // ~ 0.18 deg
 #define SERVO_SPEED 1                       // How many degrees the servo turns in one iteration
 #define MAX_ORIENTATION 2*M_PI              // 0 deg <= orientation <= 360 deg
 #define MIN_ORIENTATION 0                   
-#define ANGLE_PRECISION 1                   // In degrees (if angle is within ± ANGLE_PRECISION 
+#define ANGLE_PRECISION 3                   // In degrees (if angle is within ± ANGLE_PRECISION 
                                             // it doesn't get updated)
-#define MAX_VELOCITY 0.025
+#define MAX_VELOCITY 0.25
 #define GREEN_V MAX_VELOCITY
 #define BLUE_V MAX_VELOCITY*0.7
 #define RED_V MAX_VELOCITY*0.3
 
-#define STOP_DECEL 0.025
-#define ACC_UNIT 0.025
-#define MAX_ACC 0.025
+#define MAX_ACC 0.25
+#define STOP_DECEL MAX_ACC
+#define ACC_UNIT MAX_ACC
 
 #define START_X 20
 #define START_Y 20
@@ -53,8 +53,6 @@ const char *password = STAPSK;
 Servo myservo;
 int port = 9999;  //Port number
 WiFiServer server(port);
-
-IPAddress SERVER_IP(172,20,10,4);
 
 // Using doubles for extra precision (lol)
 double coord_x = START_X;
@@ -90,11 +88,15 @@ void setup(void) {
   myservo.attach(SERVO_PIN); // D8
   // 172.20.10.5
 
+
+
+  
+
   Serial.begin(115200);
   WiFi.disconnect(true);
   delay(1000);
   WiFi.onEvent(WiFiEvent); // update connected variable method based on event
-  WiFi.mode(WIFI_STA); 
+  WiFi.mode(WIFI_AP_STA); 
   WiFi.begin(ssid, password);
   Serial.println("");
 
@@ -120,93 +122,105 @@ void loop(void) {
     
     if(!connected){  
         desired_move = STOP; // STOP the car 
+        setup();
     } else {
-    if (client) {
-        
-        char packet[255] = "";
-        int i = 0;
-        
-        while(client.connected()){
-          // printf("\nClient connected: \n");
-            while(client.available() > 0){
-                // read data from the connected client
-                packet[i] = client.read(); 
-                // printf(" [%d] %c ", i, packet[i]);
-
-                ++i;
-            }
-
-            // send_coords();
-            // printf("Packet as string [%s]\n\n", packet);
-
-            if(i > 0) {
-
-              if(strstr(packet, "-")) {
-                desired_orientation = atoi(packet);
-              }
-              else {
-                desired_orientation = atoi(packet);
-              }
-
-              // send_coords();
-              printf("\nPacket as string %s\n", packet);
-              printf("dir: %lf\ndesired_orientation: %d\n\n", (dir/M_PI)*180, desired_orientation);
-
-            
-
-              if (desired_orientation == STOP) { // if server wants to stop the car
-                  desired_move = STOP;
-              } else {
-                  desired_move = ACCELERATE;
-              }
-            }
-        }
-        // client.stop();
-      }   
+      send_coords();
+      desired_move = ACCELERATE;
     }
 
-  send_coords();
   update_movements();
-  // print_info();
-
+  print_info();
 }
 
 void send_coords() {
-    const uint16_t port = 8998;
-    const char * host = "172.20.10.4";
-    WiFiClient clientSend;
 
-    int deg_angle = (int) ((dir / M_PI) * 180);
+  // Connect to the server
+  WiFiClient client;
+  const char* serverAddress = SERVER_IP;   // server address
+
+  if (client.connect(serverAddress, SERVER_PORT)) {
+    // Serial.println("Connected to server.");
+
+    int deg_angle = (int) ((dir / M_PI) * 180.0);
     // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
     // Coordinates must be converted to integers and sent in form: 
     // ID
     // <x>, <y>, <deg_angle>
     char coords[33];
-    sprintf(coords, ID"\n%d, %d, %d", (int) coord_x, (int) coord_y, deg_angle);
-
-    // print_info();
+    int len = sprintf(coords, ID"\n%d, %d, %d\n", (int) coord_x, (int) coord_y, deg_angle);
     
-    boolean notsent = true;
-    while(notsent) { // make sure to keep trying if the connection failed
-        if (clientSend.connect(host, port)) //Try to connect to TCP Server
-        {
-            clientSend.write(coords);
-            // Serial.println("sent packet ... ");
-            notsent = false;
-        } 
-        else
-        {
-            Serial.println("connection failed ... ");
-        } 
+    // Send data to the server
+    if(client.write(coords) != len) {
+      Serial.println("Error when sending packet");
+    } else {
+      // Serial.println("Sent data to server.");
     }
+
+    // Wait for a response from the server
+    while (client.connected()) {
+      if (client.available()) {
+        // Read data from the server
+        String data = client.readStringUntil('\n');
+        // Serial.print("Received data: ");
+        // Serial.println(data);
+        char rcvd[data.length()];
+        data.toCharArray(rcvd, data.length());
+        dir = atoi(rcvd);
+        // Close the connection
+        client.stop();
+        // Serial.println("Disconnected from server.");
+        break;
+      }
+    }
+  } else {
+    Serial.println("Connection to server failed.");
+  }
+
+    // const uint16_t port = 8998;
+    // const char * host = "172.20.10.4";
+    // WiFiClient clientSend;
+
+    // int deg_angle = (int) ((dir / M_PI) * 180);
+    // // Size of array should be 20 bytes (1 float = 8b + 2b for ", " + 1b for '\0')
+    // // Coordinates must be converted to integers and sent in form: 
+    // // ID
+    // // <x>, <y>, <deg_angle>
+    // char coords[33];
+    // sprintf(coords, ID"\n%d, %d, %d", (int) coord_x, (int) coord_y, deg_angle);
+
+    // // print_info();
+    
+    // boolean notsent = true;
+    // while(notsent) { // make sure to keep trying if the connection failed
+    //     if (clientSend.connect(host, port)) //Try to connect to TCP Server
+    //     {
+    //         clientSend.write(coords);
+    //         // Serial.println("sent packet ... ");
+    //         notsent = false;
+    //     } 
+    //     else
+    //     {
+    //         Serial.println("connection failed ... ");
+    //     } 
+    // }
 }
+
+
+
+
+
+
+
+
+
+
 
 void print_info(void) {
 
     double absolute_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
     printf("\nVelocity(x, y) | absolute = (%lf, %lf) | %lf\n", velocity_x, velocity_y, absolute_velocity);
     printf("Pos(x, y) = (%lf, %lf)\n", coord_x, coord_y);
-    printf("Orientation = %lf\n\n", (dir/M_PI) * 180);
+    printf("Orientation = %lf\n\n", (dir/M_PI) * 180.0);
 
 }
 
@@ -218,13 +232,13 @@ void print_info(void) {
 void update_movements() {
 
     // Current orientation in degrees
-    int deg_dir = (int) (dir / M_PI) * 180;
+    int deg_dir = (int) ((dir / M_PI) * 180.0);
 
     int diff = abs(deg_dir - abs(desired_orientation));
     // Update current orientation
     if(gt((double) diff, 0)) {
-        if(desired_orientation < 0) deg_dir = modulo(deg_dir - (ANGLE_UNIT/M_PI)*180, 360);
-        if(desired_orientation > 0) deg_dir = modulo(deg_dir + (ANGLE_UNIT/M_PI)*180, 360);
+        if(desired_orientation < 0) deg_dir = modulo(deg_dir - ((int) ((ANGLE_UNIT/M_PI)*180.0)), 360);
+        if(desired_orientation > 0) deg_dir = modulo(deg_dir + ((int) ((ANGLE_UNIT/M_PI)*180.0)), 360);
         dir = (deg_dir/180.0)*M_PI;
     } 
 
@@ -242,11 +256,11 @@ void update_movements() {
         // Assume that stopping is so quick that the deceleration can be assumed constant
         curr_acc = curr_velocity > 0 ? fmax(-STOP_DECEL, curr_acc - ACC_UNIT) : 0;
         acc_x = curr_acc * cos(dir);
-        acc_y = curr_acc * sin(dir);
+        acc_y = -curr_acc * sin(dir);
         // Update velocity
         curr_velocity = fmax(0, curr_velocity + curr_acc);
         velocity_x = curr_velocity * cos(dir);
-        velocity_y = curr_velocity * sin(dir);
+        velocity_y = -curr_velocity * sin(dir);
 
     } else if(desired_move == 0) {
 
@@ -254,10 +268,10 @@ void update_movements() {
 
         // Don't change total acceleration, update for orientation
         acc_x = curr_acc * cos(dir);
-        acc_y = curr_acc * sin(dir);
+        acc_y = -curr_acc * sin(dir);
         // Don't change total velocity, update for orientation
         velocity_x = curr_velocity * cos(dir);
-        velocity_y = curr_velocity * sin(dir);
+        velocity_y = -curr_velocity * sin(dir);
 
     } else if(desired_move == 1) {
 
@@ -266,11 +280,11 @@ void update_movements() {
         // Update acceleration (the higher the speed, the lower the acceleration)
         curr_acc = fmin(MAX_ACC, (MAX_VELOCITY - curr_velocity) * ACC_UNIT);
         acc_x = curr_acc * cos(dir);
-        acc_y = curr_acc * sin(dir); 
+        acc_y = -curr_acc * sin(dir); 
         // Update velocity
         curr_velocity = fmin(MAX_VELOCITY, curr_velocity + curr_acc);
         velocity_x = curr_velocity * cos(dir);
-        velocity_y = curr_velocity * sin(dir);
+        velocity_y = -curr_velocity * sin(dir);
 
     }
 
