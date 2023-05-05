@@ -10,3 +10,9 @@ class Car:
     self.desired_orientation = 0
     self.delta = 0 # steering angle
     self.a = 0 # acceleration
+    self.player # true (player) or false (AI)
+    self.inverted = 0
+
+
+def isPlayer(car):
+  return car.player

@@ -57,7 +57,7 @@ def moveCar(car):
         # car.delta = 90 - (right/180)*90
         car.delta = -right
 
-    sendCarInfo(car, car.delta)
+    sendCarInfo(car, car.delta, car.a)
 
 def find_velocity_and_orientation():
     pass
