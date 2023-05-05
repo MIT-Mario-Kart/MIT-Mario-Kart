@@ -6,20 +6,23 @@ import Overtake.overtake as ovt
 import math
 
 def parseCoordFromLine(coordinates):
-    return [int(coord.strip()) for coord in coordinates.split(',')]
+    return [int(coord.rstrip()) for coord in coordinates.split(',')]
 
 def sendCarInfo(car, toSend):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.connect(car.server)
+        # s.bind(('172.20.10.2', 7777))
+        s.connect(car.server)   
         print(f"Sent to {car.id}: {str(toSend)}")
         s.sendall(str(toSend).encode())
         s.close()
 
 def recvInfo(info):
+    print(info)
     # receiving coordinates from client
     info = info.decode()
-    info = info.split('\n')
+    info = [inf for inf in info.split('\n') if inf != ""]
     id = info[0]
+    # print(id)
     if id == camID:
         return "ACK"
         # for i in range(1, len(cars)+1):
@@ -30,20 +33,21 @@ def recvInfo(info):
 
     elif id == stopID:
         print(f"Stopped {cars[0].id}")
-        sendCarInfo(cars[0], "-1")
+        return "-1"
     else:
         for car in cars:
             if id == car.id:
-                # print(info)
-                getCoordForCar(car, info[1])
-                if (not(car.x > 200 or car.y > 200)):
-                    find_info_flowmap(car)
-                moveCar(car)
+                for i in range(1, len(info)):
+                    getCoordForCar(car, info[i])
+                    if (not(car.x > 200 or car.y > 200) and not(car.x < 0 or car.y < 0)):
+                        find_info_flowmap(car)
+                        print(f"Received coords ({car.x}, {car.y}), cur dir: {car.orientation} and desired dir: {car.desired_orientation} for {car.id}")
+                        moveCar(car)
+                    return car.delta 
 
 def getCoordForCar(car, coordinates):
     car.x, car.y, car.orientation = parseCoordFromLine(coordinates)
-    print(f"Received coords ({car.x}, {car.y}) and direction {car.orientation} for {car.id}")
-    
+
 def moveCar(car):
     right = car.orientation - car.desired_orientation
     right = right +360 if right < 0  else right
@@ -57,7 +61,7 @@ def moveCar(car):
         # car.delta = 90 - (right/180)*90
         car.delta = -right
 
-    sendCarInfo(car, car.delta)
+    # sendCarInfo(car, car.delta)
 
 def find_velocity_and_orientation():
     pass
@@ -79,7 +83,7 @@ if __name__ == "__main__":
 
     # initialise car objects
     # name = str(input("Car IP: "))
-    car1 = Car("CAR1", ("172.20.10.5", 9999))
+    car1 = Car("CAR1", ("172.20.10.9", 9999))
     cars = [car1]
 
     camID = "CAM"
@@ -98,7 +102,7 @@ if __name__ == "__main__":
                 print(f'Received: {msg}')
                 toSend = recvInfo(msg)
                 if toSend:
-                    self.request.send(str(toSend).encode())
+                    self.request.send((str(toSend) + "\n").encode())
                     print(f"Sent {toSend}")
 
                 
