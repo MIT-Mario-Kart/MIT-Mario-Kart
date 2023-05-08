@@ -81,6 +81,8 @@ def parseInfo(info):
 
         grid.setupGrid(top_left, top_right, bot_left, bot_right)
         updateAICarMovements()
+        return "CAL"
+    
     elif id == camID:
         points = parseJson(info[1])
         for id, val in points.items():
