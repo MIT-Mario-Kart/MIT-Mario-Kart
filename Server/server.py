@@ -18,7 +18,7 @@ def recvInfo(info):
     info = info.decode()
     info = info.split('\n')
     id = info[0]
-    if id == camID:
+    if id == "CAL":
         return "ACK"
         # for i in range(1, len(cars)+1):
         #     getCoordForCar(cars[i-1], info[i])
@@ -82,18 +82,33 @@ if __name__ == "__main__":
     bufferSize = 4096
     stop = False
     class handler(BaseRequestHandler):
+        clients = set()
+        
         def handle(self):
             print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
+            self.clients.add(self.request)
             while True:
                 msg = self.request.recv(bufferSize)
                 if not msg:
                     print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
+                    self.clients.remove(self.request)
                     break # exits handler, framework closes socket
+                
+                
                 print(f'Received: {msg}')
+                
                 toSend = recvInfo(msg)
                 if toSend:
-                    self.request.send(str(toSend).encode())
-                    print(f"Sent {toSend}")
+                    # create a UDP socket
+                    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+
+                    # define the address and port to send the request to
+                    address = (self.client_address[0], 12345)
+
+                    # send the request
+                    message = b'Calibrated'
+                    sock.sendto(message, address)
+                    sock.close()
 
                 
     server = ThreadingTCPServer(('',8888), handler)
