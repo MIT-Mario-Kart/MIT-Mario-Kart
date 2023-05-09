@@ -2,8 +2,8 @@
 #include <Servo.h>
 
 // Pins
-#define PIN_D2_FORWARD 4
-#define PIN_D1_REVERSE 5
+#define PIN_FORWARD 12 // D6 (D2 = 4)
+#define PIN_REVERSE 13 //D7 (D1 = 5)
 #define SERVO_PIN 15
 
 #define CAR_ID "CAR_ID_TEST"
@@ -12,7 +12,7 @@
 const char* ssid = "Rok's iPhone";       // your network SSID (name)
 const char* password = "babalilo";       // your network password
 const char* serverAddress = "172.20.10.2";   // server address
-const int serverPort = 8888;                   // server port
+const int serverPort = 8899;                   // server port
 
 // Global variables
 Servo myservo;
@@ -22,8 +22,8 @@ int dir = 0;
 void setup() {
 
   // Pin stuff
-  pinMode(PIN_D2_FORWARD,OUTPUT); // D6 F (project)
-  pinMode(PIN_D1_REVERSE,OUTPUT); // D7 R (project)
+  pinMode(PIN_FORWARD,OUTPUT); // D6 F (project)
+  pinMode(PIN_REVERSE,OUTPUT); // D7 R (project)
   myservo.attach(SERVO_PIN); // D8 (project)
 
 
@@ -74,10 +74,18 @@ void loop() {
 
         client.stop();
         // Serial.println("Disconnected from server.");
+
+        // For now the car moves forward all the time
+        digitalWrite(4, HIGH);
+        digitalWrite(5, LOW);
+
       }
     }
 
   } else {
+
+    digitalWrite(4, LOW);
+    digitalWrite(5, LOW);
     Serial.println("Connection to server failed.");
   }
 }
