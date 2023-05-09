@@ -76,16 +76,16 @@ void loop() {
         // Serial.println("Disconnected from server.");
 
         // For now the car moves forward all the time
-        digitalWrite(4, HIGH);
-        digitalWrite(5, LOW);
+        analogWrite(PIN_FORWARD, 120);
+        digitalWrite(PIN_REVERSE, LOW);
 
       }
     }
 
   } else {
 
-    digitalWrite(4, LOW);
-    digitalWrite(5, LOW);
+    digitalWrite(PIN_FORWARD, LOW);
+    digitalWrite(PIN_REVERSE, LOW);
     Serial.println("Connection to server failed.");
   }
 }
