@@ -156,3 +156,6 @@ def modulo(nb: int, base: int):
 # Returns whether a > b within a certain range
 def gtWithin(a: float, b: float, within: float):
     return (a - b) > within
+
+def eqWithin(a: float, b: float, within: float):
+    return abs(a - b) < within

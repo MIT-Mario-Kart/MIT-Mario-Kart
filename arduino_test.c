@@ -21,9 +21,8 @@
 
 // #define UDP_SERVER_IP "10.172.10.2"
 // #define UDP_PORT 8888
-
-#define START_ORIENTATION M_PI/2            // 90 deg = facing upwards on trig circle
-#define ANGLE_UNIT M_PI/100                 // ~ 1.8 deg
+#define START_ORIENTATION 270
+#define ANGLE_UNIT 1                 
 #define MAX_ORIENTATION M_PI
 #define MIN_ORIENTATION -MAX_ORIENTATION    // -180 deg <= orientation <= 180 deg
 #define ANGLE_PRECISION 1                   // In degrees (if angle is within ± ANGLE_PRECISION 
@@ -42,10 +41,9 @@
 // --------------------------------
 // Test only values
 
-#define FLOAT_PRECISION 0.00005
+#define FLOAT_PRECISION 0.0001
 
 #define START_VELOCITY 0
-#define START_DEG_ORIENTATION 270
 #define START_X 0
 #define START_Y 0
 
@@ -61,10 +59,12 @@
 #define STOP "S"
 #define CONT "C"
 
-void updateMovements(double desired_angle, double desired_velocity);
+void update_movements(double desired_angle, double desired_velocity);
 int gtWithin(double a, double b, double within);
+int eqWithin(double a, double b, double within);
 void print_info();
 double radians(double angle);
+int modulo(int nb, int base);
 
 double coord_x = START_X;
 double coord_y = START_Y;
@@ -73,8 +73,6 @@ double velocity = START_VELOCITY;
 double acc = 0;
 
 int main(void) {
-
-    dir = START_DEG_ORIENTATION;
 
     int close = 0;
 
@@ -96,19 +94,35 @@ int main(void) {
             printf("Restarting...\n");
             velocity = 0;
             acc = 0;
-            dir = START_DEG_ORIENTATION;
+            dir = START_ORIENTATION;
             coord_x = START_X;
             coord_y = START_Y;
             print_info();
         } else if(  strcmp(mov_input, FORWARD) == 0 || strcmp(mov_input, FORWARD_LEFT) == 0 || strcmp(mov_input, FORWARD_RIGHT) == 0
                     || strcmp(mov_input, REVERSE) == 0 || strcmp(mov_input, REVERSE_LEFT) == 0 
                     || strcmp(mov_input, REVERSE_RIGHT) == 0 || strcmp(mov_input, CONT) == 0) {
-            update_movements(desired_angle, 1);
-            send_coords();
+
+
+            desired_angle = desired_angle % 360;
+            double right = dir - desired_angle;
+            double left = desired_angle - dir;
+            if(left < 0) left += 360;
+            if(right < 0) right += 360;
+
+            if(right < left) {
+                // Turn right (negative desired_angle)
+                update_movements((double) -abs(desired_angle), USR);
+            } else {
+                // Turn left (positive desired_angle)
+                update_movements((double) abs(desired_angle), USR);
+            }
+
             print_info();
+
         } else if(strcmp(mov_input, STOP) == 0) {
 
-            update_movements(90, -1);
+            update_movements(dir, BRAKE);
+            print_info();
 
         } else {
             printf("Invalid input\n");
@@ -122,10 +136,14 @@ int gtWithin(double a, double b, double within) {
     return (a - b) > within;
 }
 
+int eqWithin(double a, double b, double within) {
+    return fabs(a - b) < within;
+}
+
 void print_info(void) {
 
     printf("\nAcceleration: %lf\n", acc);
-    printf("\nVelocity: %lf\n", velocity);
+    printf("Velocity: %lf\n", velocity);
     printf("Pos(x, y) = (%lf, %lf)\n", coord_x, coord_y);
     printf("Orientation = %lf\n\n", dir);
 
@@ -135,6 +153,10 @@ double radians(double angle) {
     return (angle/180.0) * M_PI;
 }
 
+int modulo(int nb, int base) {
+    int remainder = nb % base;
+    return remainder < 0 ? remainder + base : remainder;
+}
 // ---------------------------------------------------------------------------------
 
 
@@ -143,7 +165,7 @@ double radians(double angle) {
 * @param desired_velocity either -1 (user accelerate), 0 (brake), RED_V, BLUE_V or GREEN_V
 * Updates the car's coordinate approximation according to the desired parameters
 */
-void updateMovements(double desired_angle, double desired_velocity) {
+void update_movements(double desired_angle, double desired_velocity) {
 
     // Update orientation
 
@@ -158,7 +180,7 @@ void updateMovements(double desired_angle, double desired_velocity) {
 
     // Update acceleration, velocity and finally coordinates
 
-    if(gtWithin(abs(desired_velocity - BRAKE), 0, FLOAT_PRECISION)) {
+    if(eqWithin(desired_velocity, BRAKE, FLOAT_PRECISION)) {
 
         // Start braking (user control)
 
@@ -168,8 +190,8 @@ void updateMovements(double desired_angle, double desired_velocity) {
             acc = 0;
         }
             
-        velocity = max(0, velocity + acc);
-    } else if(gtWithin(abs(desired_velocity - RED_V), 0, FLOAT_PRECISION)) {
+        velocity = fmax(0, velocity + acc);
+    } else if(eqWithin(desired_velocity, RED_V, FLOAT_PRECISION)) {
 
         double vDiff = RED_V - velocity;
         if(gtWithin(vDiff, 0, FLOAT_PRECISION)) {
@@ -180,11 +202,11 @@ void updateMovements(double desired_angle, double desired_velocity) {
             if(acc < 0) {
                 acc = 0;
             } else {
-                acc = min(MAX_ACC, abs(MAX_VELOCITY - velocity)*ACC_UNIT);
+                acc = fmin(MAX_ACC, fabs(MAX_VELOCITY - velocity)*ACC_UNIT);
             }
 
             // Update velocity
-            velocity = min(RED_V, velocity + acc);
+            velocity = fmin(RED_V, velocity + acc);
         
 
             
@@ -200,11 +222,11 @@ void updateMovements(double desired_angle, double desired_velocity) {
             }
 
             // Update velocity
-            velocity = max(RED_V, velocity + acc);
+            velocity = fmax(RED_V, velocity + acc);
         }
 
 
-    } else if(gtWithin(abs(desired_velocity - BLUE_V), 0, FLOAT_PRECISION)) {
+    } else if(eqWithin(desired_velocity, BLUE_V, FLOAT_PRECISION)) {
 
         double vDiff = BLUE_V - velocity;
         if(gtWithin(vDiff, 0, FLOAT_PRECISION)) {
@@ -215,11 +237,11 @@ void updateMovements(double desired_angle, double desired_velocity) {
             if(acc < 0) {
                 acc = 0;
             } else {
-                acc = min(MAX_ACC, abs(MAX_VELOCITY - velocity)*ACC_UNIT);
+                acc = fmin(MAX_ACC, fabs(MAX_VELOCITY - velocity)*ACC_UNIT);
             }
 
             // Update velocity
-            velocity = min(BLUE_V, velocity + acc);
+            velocity = fmin(BLUE_V, velocity + acc);
         
 
             
@@ -235,11 +257,11 @@ void updateMovements(double desired_angle, double desired_velocity) {
             }
 
             // Update velocity
-            velocity = max(BLUE_V, velocity + acc);
+            velocity = fmax(BLUE_V, velocity + acc);
         }
 
 
-    } else if(gtWithin(abs(desired_velocity - GREEN_V), 0, FLOAT_PRECISION)) {
+    } else if(eqWithin(desired_velocity, GREEN_V, FLOAT_PRECISION)) {
 
         double vDiff = GREEN_V - velocity;
         if(gtWithin(vDiff, 0, FLOAT_PRECISION)) {
@@ -250,23 +272,23 @@ void updateMovements(double desired_angle, double desired_velocity) {
             if(acc < 0) {
                 acc = 0;
             } else {
-                acc = min(MAX_ACC, abs(MAX_VELOCITY - velocity)*ACC_UNIT);
+                acc = fmin(MAX_ACC, fabs(MAX_VELOCITY - velocity)*ACC_UNIT);
             }
 
             // Update velocity
-            velocity = min(GREEN_V, velocity + acc);
+            velocity = fmin(GREEN_V, velocity + acc);
           
         } 
 
-    } else if(gtWithin(abs(desired_velocity - USR), 0, FLOAT_PRECISION)) {
+    } else if(eqWithin(desired_velocity, USR, FLOAT_PRECISION)) {
         
         // User only has accelerate/brake controls
 
         // Update acceleration
-        acc = min(MAX_ACC, abs(MAX_VELOCITY - velocity)*ACC_UNIT);
+        acc = fmin(MAX_ACC, fabs(MAX_VELOCITY - velocity)*ACC_UNIT);
 
         // Update velocity
-        velocity = min(MAX_VELOCITY, velocity + acc);
+        velocity = fmin(MAX_VELOCITY, velocity + acc);
     }
 
     // Update coordinates after velocity and acceleration have been updated
