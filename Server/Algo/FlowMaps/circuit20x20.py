@@ -1,5 +1,3 @@
-directions = [[0 for _ in range(20)] for _ in range(20)]
-
 a1 = 60
 a2 = 30
 a3 = 0
@@ -12,6 +10,8 @@ a9 = 180
 a10 = 150
 a11 = 120
 a12 = 90
+
+directions = [[a3 for _ in range(20)] for _ in range(20)]
 
 # continuous blocks ================================================================================================
 
@@ -190,4 +190,28 @@ directions[18][3] = a11
 directions[18][4] = a12
 directions[18][5] = a1
 
+# outside zone =====================================================================================================
 
+for x in range(0, 1):
+    for y in range(0, 19):
+        directions[x][y] = a3
+
+for x in range(0, 20):
+    for y in range(19, 20):
+        directions[x][y] = a12
+
+for x in range(19, 20):
+    for y in range(0, 20):
+        directions[x][y] = a9
+
+for x in range(8, 20):
+    for y in range(10, 13):
+        directions[x][y] = a6
+
+for x in range(8, 20):
+    for y in range(7, 10):
+        directions[x][y] = a12
+
+for x in range(0, 20):
+    for y in range(0, 1):
+        directions[x][y] = a6
