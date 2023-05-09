@@ -22,26 +22,32 @@
 // #define UDP_SERVER_IP "10.172.10.2"
 // #define UDP_PORT 8888
 
-#define START_ORIENTATION M_PI/2            // 90 deg = facing forwards on trig circle
+#define START_ORIENTATION M_PI/2            // 90 deg = facing upwards on trig circle
 #define ANGLE_UNIT M_PI/100                 // ~ 1.8 deg
 #define MAX_ORIENTATION M_PI
 #define MIN_ORIENTATION -MAX_ORIENTATION    // -180 deg <= orientation <= 180 deg
 #define ANGLE_PRECISION 1                   // In degrees (if angle is within ± ANGLE_PRECISION 
                                             // it doesn't get updated)
-#define MAX_VELOCITY 0.025
-#define SLOWDOWN_DECEL 0.0125
-#define STOP_DECEL 0.025
-#define ACC_UNIT 0.025
-#define MAX_ACC 0.025
+#define MAX_VELOCITY 0.25
+#define MAX_ACC MAX_VELOCITY
+#define MAX_DECEL -MAX_ACC
+#define ACC_UNIT 0.9 
 
-#define START_X 0
-#define START_Y 3.164954
+#define GREEN_V MAX_VELOCITY
+#define BLUE_V MAX_VELOCITY*0.7
+#define RED_V MAX_VELOCITY*0.3
+#define USR -1.0
+#define BRAKE 0.0
 
 // --------------------------------
 // Test only values
 
-#define START_VELOCITY 0.024607
-#define START_DEG_ORIENTATION 90
+#define FLOAT_PRECISION 0.00005
+
+#define START_VELOCITY 0
+#define START_DEG_ORIENTATION 270
+#define START_X 0
+#define START_Y 0
 
 #define INPUT_SIZE 513
 #define CLOSE "close"
@@ -55,90 +61,20 @@
 #define STOP "S"
 #define CONT "C"
 
-
-// #define STOP 0
-// #define FORWARD 1
-// #define FORWARD_LEFT 2
-// #define FORWARD_RIGHT 3
-// #define REVERSE -1
-// #define REVERSE_LEFT -2
-// #define REVERSE_RIGHT -3
-
-// #define PIN_D2_FORWARD 4
-// #define PIN_D1_REVERSE 5
-// #define SERVO_PIN 15
-
-
-// Lite version
-// void update_movements(int desired_angle);
-
-// Pro version
-void update_movements(int desired_angle, int desired_accel);
-
-void send_coords(void);
+void updateMovements(double desired_angle, double desired_velocity);
+int gtWithin(double a, double b, double within);
 void print_info();
-int gt(double angle, int desired_angle);
-int lt(double angle, int desired_angle);
-int eq(double angle, int desired_angle);
-
-// const char *ssid = STASSID;
-// const char *password = STAPSK;
-
-// Servo myservo;
-// ESP8266WebServer server(80);
-// WiFiUDP UDP;
+double radians(double angle);
 
 double coord_x = START_X;
 double coord_y = START_Y;
 double dir = START_ORIENTATION;
-double velocity_x = 0;
-double velocity_y = 0;
-double acc_x = 0;
-double acc_y = 0;
+double velocity = START_VELOCITY;
+double acc = 0;
 
 int main(void) {
 
-    dir = (START_DEG_ORIENTATION/180.0) * M_PI;
-    velocity_x = START_VELOCITY * cos(dir);
-    velocity_y = START_VELOCITY * sin(dir);
-
-    //   pinMode(PIN_D2_FORWARD,OUTPUT); // D2 F
-    //   pinMode(PIN_D1_REVERSE,OUTPUT); // D1 R
-    //   myservo.attach(SERVO_PIN); // D8
-    //   // 172.20.10.5
-
-    //   Serial.begin(115200);
-    //   WiFi.mode(WIFI_STA);
-    //   WiFi.begin(ssid, password);
-    //   Serial.println("");
-
-        // Wait for connection
-    //   while (WiFi.status() != WL_CONNECTED) {
-    //     delay(500);
-    //     Serial.print(".");
-    //   }
-    //   Serial.println("");
-    //   Serial.print("Connected to ");
-    //   Serial.println(ssid);
-    //   Serial.print("IP address: ");
-    //   Serial.println(WiFi.localIP());
-
-    //   if (MDNS.begin("esp8266")) { Serial.println("MDNS responder started"); }
-
-
-// ----------- STRTOD EXAMPLE ---------------
-
-    // char str[30] = "20.30300 Test";
-    // char *ptr;
-    // double ret;
-
-    // ret = strtod(str, NULL);
-    // printf("\nThe number (double) is %lf\n", ret);
-    // printf("String part is |%s|\n", ptr);
-
-// -------------------------------------------
-
-// ---------------------------------------------------------------
+    dir = START_DEG_ORIENTATION;
 
     int close = 0;
 
@@ -158,9 +94,9 @@ int main(void) {
             print_info();
         } else if (strcmp(mov_input, RESTART) == 0) {
             printf("Restarting...\n");
-            velocity_x = 0;
-            velocity_y = 0;
-            dir = START_ORIENTATION;
+            velocity = 0;
+            acc = 0;
+            dir = START_DEG_ORIENTATION;
             coord_x = START_X;
             coord_y = START_Y;
             print_info();
@@ -179,237 +115,164 @@ int main(void) {
         }
     }
 
-// ---------------------------------------------------------------
-
-
     return 0;
 }
 
-// void loop(void) {
-//   server.handleClient();
-// }
-
-// void update_movements(int desired_angle) {
-
-//     // C tester code only
-//     // ---------------------
-//     if(desired_angle == -2) {
-//         // Continue
-//         coord_x += velocity_x;
-//         coord_y += velocity_y;
-
-//         return;
-//     }
-//     // ---------------------
-
-
-//     double deg_dir = (dir / M_PI) * 180;
-
-//     if(desired_angle == -1) {
-//         // Stop
-//         velocity_x = fmax(0, velocity_x - SLOWDOWN_DECCEL);
-//         velocity_y = fmax(0, velocity_y - SLOWDOWN_DECCEL);
-
-//     } else {
-
-//         // Assume moving forwards for now
-//         if(gt(deg_dir, desired_angle)) {
-//             printf("%lf > %d\n", deg_dir, desired_angle);
-//             dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
-//         } else if(lt(deg_dir, desired_angle)) {
-//             printf("%lf < %d\n", deg_dir, desired_angle);
-//             dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
-//         } 
-
-//         velocity_x = fmin(MAX_VELOCITY, velocity_x + cos(dir));
-//         velocity_y = fmin(MAX_VELOCITY, velocity_y + sin(dir));
-//     }
-
-
-//     coord_x += velocity_x;
-//     coord_y += velocity_y;
-
-// }
-
-// if angle > desired_angle
-int gt(double angle, int desired_angle) {
-    return (angle - desired_angle > ANGLE_PRECISION); 
+int gtWithin(double a, double b, double within) {
+    return (a - b) > within;
 }
-
-// if angle < desired_angle
-int lt(double angle, int desired_angle) {
-    return (angle - desired_angle < -ANGLE_PRECISION);
-}
-
-// if angle =~ desired_angle
-int eq(double angle, int desired_angle) {
-    return (fabs(angle - desired_angle) < ANGLE_PRECISION);
-}
-
-
-
-
-// Utility functions
-
-void send_coords() {
-
-    int interaction_index = 0;
-    int orientation = (int) ((dir/M_PI) * 180);
-
-    char coords[33];
-    sprintf(coords, "%d, %d, %d, %d", interaction_index, (int) coord_x, (int) coord_y, orientation);
-  
-
-    printf("%s\n", coords);
-    // UDP.beginPacket(UDP_SERVER_IP, UDP_PORT);
-    // UDP.write(coords);
-    // UDP.endPacket();
-}
-
-
-
 
 void print_info(void) {
 
-    double absolute_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
-    printf("\nVelocity(x, y) | absolute = (%lf, %lf) | %lf\n", velocity_x, velocity_y, absolute_velocity);
+    printf("\nAcceleration: %lf\n", acc);
+    printf("\nVelocity: %lf\n", velocity);
     printf("Pos(x, y) = (%lf, %lf)\n", coord_x, coord_y);
-    printf("Orientation = %lf\n\n", (dir/M_PI) * 180);
+    printf("Orientation = %lf\n\n", dir);
 
 }
 
+double radians(double angle) {
+    return (angle/180.0) * M_PI;
+}
 
+// ---------------------------------------------------------------------------------
 
-// ------------------------------------------------------------
-// Acceleration logic prototype lite (where we only move forward, and moving implies acceleration)
-
-// void update_movements(int desired_angle) {
-
-//     // C tester code only
-//     // ---------------------
-//     if(desired_angle == -2) {
-//         // Continue
-//         coord_x += velocity_x;
-//         coord_y += velocity_y;
-
-//         return;
-//     }
-//     // ---------------------
-
-//     double deg_dir = (dir / M_PI) * 180;
-
-//     if(desired_angle == -1) {
-
-//         // Stop
-//         // Assume that stopping is so quick that the deceleration can be assumed constant
-//         velocity_x = fmax(0, velocity_x - SLOWDOWN_DECCEL);
-//         velocity_y = fmax(0, velocity_y - SLOWDOWN_DECCEL);
-
-//     } else {
-
-//         // Assume moving forwards for now
-//         double curr_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
-//         double acc = fmin(MAX_ACC, (MAX_VELOCITY - velocity_x) * ACC_UNIT);
-//         acc_x = acc * cos(dir);
-//         acc_y = acc * sin(dir);
-
-//         if(gt(deg_dir, desired_angle)) {
-//             dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
-//         } else if(lt(deg_dir, desired_angle)) {
-//             dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
-//         } 
-
-//         velocity_x = fmin(MAX_VELOCITY, velocity_x + acc_x);
-//         velocity_y = fmin(MAX_VELOCITY, velocity_y + acc_y);
-//     }
-
-//     coord_x += velocity_x;
-//     coord_y += velocity_y;
-
-// }
-
-// ------------------------------------------------------------------------
-
-// ------------------------------------------------------------
-// Acceleration logic prototype (forwards only, pro)
 
 /*
 * @param desired_angle between MIN_ORIENTATION and MAX_ORIENTATION
-* @param desired_accel either -2 (full stop), -1 (slow down), 0 (maintain velocity) or 1 (accelerate)
+* @param desired_velocity either -1 (user accelerate), 0 (brake), RED_V, BLUE_V or GREEN_V
 * Updates the car's coordinate approximation according to the desired parameters
 */
-void update_movements(int desired_angle, int desired_accel) {
+void updateMovements(double desired_angle, double desired_velocity) {
 
-    if(desired_angle < (MIN_ORIENTATION/M_PI)*180 || desired_angle > (MAX_ORIENTATION/M_PI)*180 
-        || desired_accel < -2 || desired_accel > 1) {
-        printf("Bad parameters\n");
-        return;
+    // Update orientation
+
+    double aDiff = fabs(dir - desired_angle);
+
+    if (gtWithin(aDiff, 0, ANGLE_PRECISION)) {
+        // Turn right if desired_orientation < 0 (i.e. decrement angle)
+        if (desired_angle < 0) dir = modulo(dir - ANGLE_UNIT, 360);
+        // Else turn left (i.e. increment angle)
+        if (desired_angle > 0) dir = modulo(dir + ANGLE_UNIT, 360);
     }
 
-    // Current orientation in degrees
-    double deg_dir = (dir / M_PI) * 180;
-    // Update current orientation
-    if(gt(deg_dir, desired_angle)) {
-        dir = fmax(MIN_ORIENTATION, dir - ANGLE_UNIT);
-    } else if(lt(deg_dir, desired_angle)) {
-        dir = fmin(MAX_ORIENTATION, dir + ANGLE_UNIT);
-    } 
+    // Update acceleration, velocity and finally coordinates
 
-    // Current total velocity (along x and y)
-    double curr_velocity = sqrt(velocity_x * velocity_x + velocity_y * velocity_y);
+    if(gtWithin(abs(desired_velocity - BRAKE), 0, FLOAT_PRECISION)) {
 
-    // Movement logic
-    if(desired_accel == -2) {
+        // Start braking (user control)
+
+        if(velocity > 0) {
+            acc = MAX_DECEL;
+        } else {
+            acc = 0;
+        }
+            
+        velocity = max(0, velocity + acc);
+    } else if(gtWithin(abs(desired_velocity - RED_V), 0, FLOAT_PRECISION)) {
+
+        double vDiff = RED_V - velocity;
+        if(gtWithin(vDiff, 0, FLOAT_PRECISION)) {
+
+            // RED_V is quicker than current velocity => accelerate
+
+            // Update acceleration
+            if(acc < 0) {
+                acc = 0;
+            } else {
+                acc = min(MAX_ACC, abs(MAX_VELOCITY - velocity)*ACC_UNIT);
+            }
+
+            // Update velocity
+            velocity = min(RED_V, velocity + acc);
         
-        // Stop
 
-        // Assume that stopping is so quick that the deceleration can be assumed constant
-        double stop_accel = curr_velocity > 0 ? STOP_DECEL : 0;
-        acc_x = - stop_accel * cos(dir);
-        acc_y = - stop_accel * sin(dir);
+            
+        } else if(gtWithin(-vDiff, 0, FLOAT_PRECISION)) {
+
+            // RED_V is slower than current velocity => brake
+
+            // Update acceleration
+            if(gtWithin(velocity, RED_V, FLOAT_PRECISION)) {
+                acc = MAX_DECEL;
+            } else {
+                acc = 0;
+            }
+
+            // Update velocity
+            velocity = max(RED_V, velocity + acc);
+        }
+
+
+    } else if(gtWithin(abs(desired_velocity - BLUE_V), 0, FLOAT_PRECISION)) {
+
+        double vDiff = BLUE_V - velocity;
+        if(gtWithin(vDiff, 0, FLOAT_PRECISION)) {
+
+            // BLUE_V is quicker than current velocity => accelerate
+
+            // Update acceleration
+            if(acc < 0) {
+                acc = 0;
+            } else {
+                acc = min(MAX_ACC, abs(MAX_VELOCITY - velocity)*ACC_UNIT);
+            }
+
+            // Update velocity
+            velocity = min(BLUE_V, velocity + acc);
+        
+
+            
+        } else if(gtWithin(-vDiff, 0, FLOAT_PRECISION)) {
+
+            // BLUE_V is slower than current velocity => brake
+
+            // Update acceleration
+            if(gtWithin(velocity, BLUE_V, FLOAT_PRECISION)) {
+                acc = MAX_DECEL;
+            } else {
+                acc = 0;
+            }
+
+            // Update velocity
+            velocity = max(BLUE_V, velocity + acc);
+        }
+
+
+    } else if(gtWithin(abs(desired_velocity - GREEN_V), 0, FLOAT_PRECISION)) {
+
+        double vDiff = GREEN_V - velocity;
+        if(gtWithin(vDiff, 0, FLOAT_PRECISION)) {
+
+            // GREEN_V is quicker than current velocity => accelerate
+
+            // Update acceleration
+            if(acc < 0) {
+                acc = 0;
+            } else {
+                acc = min(MAX_ACC, abs(MAX_VELOCITY - velocity)*ACC_UNIT);
+            }
+
+            // Update velocity
+            velocity = min(GREEN_V, velocity + acc);
+          
+        } 
+
+    } else if(gtWithin(abs(desired_velocity - USR), 0, FLOAT_PRECISION)) {
+        
+        // User only has accelerate/brake controls
+
+        // Update acceleration
+        acc = min(MAX_ACC, abs(MAX_VELOCITY - velocity)*ACC_UNIT);
+
         // Update velocity
-        double stop_velocity = fmax(0, curr_velocity - stop_accel);
-        velocity_x = stop_velocity * cos(dir);
-        velocity_y = stop_velocity * sin(dir);
-
-    } else if(desired_accel == -1) {
-
-        // Slow down (for a corner for example)
-
-        // Assume that we slow down at a constant pace
-        double slowdown_accel = curr_velocity > 0 ? -SLOWDOWN_DECEL : 0;
-        acc_x = - slowdown_accel * cos(dir);
-        acc_y = - slowdown_accel * sin(dir);
-        // Update velocity
-        double slowdown_velocity = fmax(0, curr_velocity - slowdown_accel);
-        velocity_x = slowdown_velocity * cos(dir);
-        velocity_y = slowdown_velocity * sin(dir);
-
-    } else if(desired_accel == 0) {
-
-        // Maintain current velocity
-        velocity_x = curr_velocity * cos(dir);
-        velocity_y = curr_velocity * sin(dir);
-
-    } else if(desired_accel == 1) {
-
-        // Accelerate
-        double acc = fmin(MAX_ACC, (MAX_VELOCITY - curr_velocity) * ACC_UNIT);
-        acc_x = acc * cos(dir);
-        acc_y = acc * sin(dir); 
-
-        // Update total velocity
-        double new_velocity = fmin(MAX_VELOCITY, curr_velocity + acc);
-
-        // Update x/y velocity
-        velocity_x = new_velocity * cos(dir);
-        velocity_y = new_velocity * sin(dir);
-
+        velocity = min(MAX_VELOCITY, velocity + acc);
     }
 
-    // Update coordinates
-    coord_x += velocity_x;
-    coord_y += velocity_y;
+    // Update coordinates after velocity and acceleration have been updated
+    coord_x += velocity * cos(radians(dir));
+    coord_y += velocity * sin(radians(dir));
 }
+
 
 // ------------------------------------------------------------------------
