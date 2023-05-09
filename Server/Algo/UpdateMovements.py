@@ -40,9 +40,9 @@ def updateCarMovement(car: Car, desired_velocity: float):
 
     # Update acceleration, velocity and finally coordinates
 
-    if gtWithin(abs(desired_velocity - BRAKE), 0, FLOAT_PRECISION):
+    if eqWithin(desired_velocity, BRAKE, FLOAT_PRECISION):
 
-        # Start braking (user control)
+        # Start braking (user control or AI stopping)
 
         if car.velocity > 0:
             car.a = MAX_DECEL
@@ -51,7 +51,7 @@ def updateCarMovement(car: Car, desired_velocity: float):
             
         car.velocity = max(0, car.velocity + car.a)
 
-    elif gtWithin(abs(desired_velocity - RED_V), 0, FLOAT_PRECISION):
+    elif eqWithin(desired_velocity, RED_V, FLOAT_PRECISION):
 
         vDiff = RED_V - car.velocity
         if gtWithin(vDiff, 0, FLOAT_PRECISION):
@@ -82,7 +82,7 @@ def updateCarMovement(car: Car, desired_velocity: float):
             car.velocity = max(RED_V, car.velocity + car.a)
 
 
-    elif gtWithin(abs(desired_velocity - BLUE_V), 0, FLOAT_PRECISION):
+    elif eqWithin(desired_velocity, BLUE_V, FLOAT_PRECISION):
 
         vDiff = BLUE_V - car.velocity
         if gtWithin(vDiff, 0, FLOAT_PRECISION):
@@ -112,7 +112,7 @@ def updateCarMovement(car: Car, desired_velocity: float):
             # Update velocity
             car.velocity = max(BLUE_V, car.velocity + car.a) 
 
-    elif gtWithin(abs(desired_velocity - GREEN_V), 0, FLOAT_PRECISION): 
+    elif eqWithin(desired_velocity, GREEN_V, FLOAT_PRECISION): 
 
         vDiff = GREEN_V - car.velocity
         if gtWithin(vDiff, 0, FLOAT_PRECISION):
@@ -128,7 +128,7 @@ def updateCarMovement(car: Car, desired_velocity: float):
             # Update velocity (only if car still isn't at GREEN_V yet)
             car.velocity = min(GREEN_V, car.velocity + car.a)
 
-    elif gtWithin(abs(desired_velocity - USR), 0, FLOAT_PRECISION):
+    elif eqWithin(desired_velocity, USR, FLOAT_PRECISION):
         
         # User only has accelerate/brake controls
 
