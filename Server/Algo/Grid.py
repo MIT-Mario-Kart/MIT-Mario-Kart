@@ -18,9 +18,9 @@ class Grid:
         self.bot_right = bot_right
 
 
-        print(f"Grid Setup, top_left: {top_left}, top_right: {top_right}, bot_left: {bot_left}, bot_right: {bot_right}")
+        print(f"Grid Setup, top_left: {self.top_left}, top_right: {self.top_right}, bot_left: {self.bot_left}, bot_right: {self.bot_right}")
 
     def getCircuitCoords(self, x, y):
         new_X = (x - self.top_left[0]) / abs((self.top_right[0]) - self.top_left[0]) * self.width
-        new_Y = (y - self.top_left[1]) / (abs(self.bot_left[1] - self.top_left[1])) * self.height
+        new_Y = (y - self.top_left[1]) / abs(self.bot_left[1] - self.top_left[1]) * self.height
         return new_X, new_Y
