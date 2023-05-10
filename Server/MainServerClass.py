@@ -9,22 +9,22 @@ class handler(BaseRequestHandler):
     clients = set()
 
     def handle(self):
-        print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
+        # print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
         self.clients.add(self.request)
         
         while True:
             msg = self.request.recv(bufferSize)
             if not msg:
-                print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
+                # print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
                 break # exits handler, framework closes socket
             print(f'Received: {msg}')
             toSend = recvInfo(msg)
-            if toSend:
+            if toSend != None:
                 if toSend == "CAL":
                     self.sendToCameraAck()
                 else:
-                    self.request.send((str(toSend) + "\n").encode())
                     print(f"Sent {toSend}")
+                    self.request.send((str(toSend) + "\n").encode())
 
     def sendToCameraAck(self):
         # create a UDP socket

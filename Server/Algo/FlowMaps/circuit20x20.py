@@ -1,14 +1,14 @@
 a1 = 60
 a2 = 30
 a3 = 0
-a4 = 330
+a4 = 320
 a5 = 300
 a6 = 270
 a7 = 240
 a8 = 210
 a9 = 180
 a10 = 150
-a11 = 120
+a11 = 130
 a12 = 90
 
 directions = [[a3 for _ in range(20)] for _ in range(20)]
@@ -86,7 +86,9 @@ directions[3][16] = a4
 directions[3][17] = a3
 directions[3][18] = a3
 
-directions[4][15] = a4
+directions[4][14] = a5
+directions[4][15] = a5
+directions[5][15] = a5
 
 # bottom right zone =======================================================================================================
 
@@ -104,16 +106,16 @@ directions[16][17] = a2
 directions[16][18] = a2
 
 directions[17][13] = a9
-directions[17][14] = a11
+directions[17][14] = a9
 directions[17][15] = a12
 directions[17][16] = a1
 directions[17][17] = a2
 directions[17][18] = a1
 
-directions[18][14] = a10
+directions[18][14] = a9
 directions[18][15] = a11
-directions[18][16] = a12
-directions[18][17] = a12
+directions[18][16] = a11
+directions[18][17] = a11
 directions[18][18] = a1
 
 directions[19][16] = a11

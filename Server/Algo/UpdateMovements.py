@@ -1,12 +1,13 @@
 import Algo.Car as Car
 import math
 
-ANGLE_PRECISION = 5         # in degrees
+ANGLE_PRECISION = 10       # in degrees
 FLOAT_PRECISION = 0.00005
 
-MAX_VELOCITY = 0.25
+MAX_VELOCITY = 6
+ANGLE_UNIT = 10
 
-MAX_ACC = 0.25
+MAX_ACC = 1
 MAX_DECEL = -MAX_ACC
 ACC_UNIT = 0.9              # it's normal for this to be > MAX_ACC
 
@@ -16,13 +17,6 @@ RED_V = 0.3 * MAX_VELOCITY
 BLUE_V = 0.7 * MAX_VELOCITY
 GREEN_V = MAX_VELOCITY
 
-def updateMovement(cars):
-    for car in cars:
-        if car.ai:
-            updateCarMovement(car, GREEN_V)
-            car.x = car.predicted_x
-            car.y = car.predicted_y
-            print(f"Updated coords ({car.x}, {car.y}), cur dir: {car.orientation} and desired dir: {car.desired_orientation} for {car.id}")
 # car: (...)
 # desired_velocity: desired speed for the car (STOP, GREEN_V, BLUE_V, RED_V, USER_ACC)
 # No return value
@@ -30,13 +24,14 @@ def updateCarMovement(car: Car, desired_velocity: float):
 
     # Update orientation
 
-    aDiff = abs(car.orientation - car.desired_orientation)
+    aDiff = abs(car.orientation - abs(car.desired_orientation))
 
     if gtWithin(aDiff, 0, ANGLE_PRECISION):
         # Turn right if desired_orientation < 0 (i.e. decrement angle)
-        if car.desired_orientation < 0: car.orientation = modulo(car.orientation - car.delta, 360)
+        if car.desired_orientation < 0: 
+            car.orientation = modulo(car.orientation - ANGLE_UNIT, 360)
         # Else turn left (i.e. increment angle)
-        if car.desired_orientation > 0: car.orientation = modulo(car.orientation + car.delta, 360)
+        else: car.orientation = modulo(car.orientation + ANGLE_UNIT, 360)
 
     # Update acceleration, velocity and finally coordinates
 
@@ -113,7 +108,6 @@ def updateCarMovement(car: Car, desired_velocity: float):
             car.velocity = max(BLUE_V, car.velocity + car.a) 
 
     elif eqWithin(desired_velocity, GREEN_V, FLOAT_PRECISION): 
-
         vDiff = GREEN_V - car.velocity
         if gtWithin(vDiff, 0, FLOAT_PRECISION):
 
@@ -140,7 +134,7 @@ def updateCarMovement(car: Car, desired_velocity: float):
 
     # Update coordinates after velocity and acceleration have been updated
     car.predicted_x += car.velocity * math.cos(math.radians(car.orientation))
-    car.predicted_y += car.velocity * math.sin(math.radians(car.orientation))
+    car.predicted_y -= car.velocity * math.sin(math.radians(car.orientation))
 
     return 
 
