@@ -17,3 +17,4 @@ class Car:
     self.delta = 90 # steering angle
     self.a = 0 # acceleration
     self.ai = ai
+    self.speed = "GREEN"

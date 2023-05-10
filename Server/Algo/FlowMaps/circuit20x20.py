@@ -47,22 +47,23 @@ directions[4][1] = a8
 directions[3][1] = a7
 directions[2][1] = a6
 
-directions[6][2] = a8
-directions[5][2] = a7
-directions[4][2] = a7
+directions[6][2] = a9
+directions[5][2] = a9
+directions[4][2] = a8
 directions[3][2] = a7
 directions[2][2] = a7
 directions[1][2] = a6
 
-directions[6][3] = a8
-directions[5][3] = a8
-directions[4][3] = a7
+directions[6][3] = a9
+directions[5][3] = a9
+directions[4][3] = a8
 directions[3][3] = a7
 directions[2][3] = a6
 directions[1][3] = a6
 
-directions[5][4] = a7
-directions[4][4] = a7
+directions[5][4] = a8
+directions[4][4] = a8
+directions[4][5] = a8
 
 # bottom left zone ===================================================================================================
 
