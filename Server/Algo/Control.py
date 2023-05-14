@@ -1,6 +1,7 @@
 import socket
 import threading
 import  json
+import re
 
 from Algo.Car import Car
 from Algo.FlowMaps.circuit20x20 import directions as fmdir
@@ -92,28 +93,43 @@ def recvInfo(info):
     return parseInfo(info)
 
 def parseJson(recv_data):
-    recv_data = recv_data
-    parsed_json_data = json.loads(recv_data)
-    result = {}
-    point_str = "NSPoint("
-    for id, val in parsed_json_data.items():
-        points = []
-        while point_str in val:
-            start = val.index(point_str)
-            end = val.index(")", start, len(val))
-            x,y = parseCoordFromLine(val[start+len(point_str):end])
-            points.append([x, y])
-            val = val[end+1:]
-        result[id] = points
-    return result
+    print("received")
+    print(recv_data)
+    recv_data = recv_data.rstrip("CAL")
+    data = json.loads(recv_data)
+    point_regex = r"{(\d+), (\d+)}"
+    
+    yellow_points_str = data["yellow"]
+    points = []
+    for match in re.finditer(point_regex, yellow_points_str):
+        x, y = match.groups()
+        points.append([int(x), int(y)])
+    yellow_points_list = points
+    
+    green_points_str = data["green"]
+    points = []
+    for match in re.finditer(point_regex, green_points_str):
+        x, y = match.groups()
+        points.append([int(x), int(y)])
+    green_points_list = points
+    
+    blue_points_str = data["blue"]
+    points = []
+    for match in re.finditer(point_regex, blue_points_str):
+        x, y = match.groups()
+        points.append([int(x), int(y)])
+    blue_points_list = points
+
+    return {"yellow": yellow_points_list, "green": green_points_list,  "blue": blue_points_list}
 
 def parseInfo(info):
     id = info[0]
     if id == calibrationID:
         # all calibration points have the same color
-        calibrationPoints = parseJson(info[1])[calibrationColor]
+        calibrationPoints = parseJson(info[1])["yellow"]
         calibrationPoints.sort(key= lambda p:(p[1], p[0])) # order them along the y axis
         top_left, top_right, bot_left, bot_right = calibrationPoints
+        
 
         # # if we implement the color system
         # calibrationPoints = parseJson(info[1])
@@ -124,11 +140,15 @@ def parseInfo(info):
 
         grid.setupGrid(top_left, top_right, bot_left, bot_right)
         updateCarMovement()
+        
         return "CAL"
     
     elif id == camID:
         points = parseJson(info[1])
         for id, val in points.items():
+            # id will be the color of the car (green or blue for now)
+            # value will be an array of array
+            # [[687, 1248], [845, 639]]
             car = dict_cars.get(id)
             if car:
                 car.old_x = car.x
