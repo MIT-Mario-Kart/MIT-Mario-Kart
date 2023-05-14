@@ -26,17 +26,49 @@ for car in cars:
 
 grid = Grid()
 launched = False
+
+def moveCar(car: Car):
+    car.old_x = car.x
+    car.old_y = car.y
+    car.x = car.predicted_x # todo prevent errors because of threads
+    car.y = car.predicted_y # todo prevent errors because of threads
+    find_info_flowmap(car)
+    calculateDeltaCar(car)
+
+    if car.x <= 60 and car.y <= 30:
+        updateMov.updateCarMovement(car, updateMov.BLUE_V)
+        car.speed = "BLUE"
+        # print("Zone 1")
+    elif car.x <= 40 and car.y >= 130:
+        updateMov.updateCarMovement(car, updateMov.BLUE_V)
+        car.speed = "BLUE"
+        # print("Zone 2")
+    elif car.x >= 150 and car.y >= 120:
+        updateMov.updateCarMovement(car, updateMov.RED_V)
+        car.speed = "RED"
+        # print("Zone 3")
+    elif 40 <= car.x and car.x <= 90 and 40 <= car.y and car.y <= 150:
+        updateMov.updateCarMovement(car, updateMov.BLUE_V)
+        car.speed = "BLUE"
+        # print("Zone 4")
+    elif car.x >= 160 and car.y <= 60:
+        updateMov.updateCarMovement(car, updateMov.RED_V) 
+        car.speed = "RED"
+        # print("Zone 5")
+    else:
+        updateMov.updateCarMovement(car, updateMov.GREEN_V)
+        car.speed = "GREEN"
+        # print("Zone 6")
+
+
+    # updateMov.updateCarMovement(car, updateMov.GREEN_V)
+
+    print(f"Updated prediction coords ({car.predicted_x}, {car.predicted_y}), cur dir: {car.orientation}  velocity: {car.velocity} flowmap orientation: {car.fm_orientation} delta: {car.delta}and desired_orientation: {car.desired_orientation} for {car.id}")
+
 def updateCarMovement():
     threading.Timer(0.25, updateCarMovement).start()
     for car in cars:
-        car.old_x = car.x
-        car.old_y = car.y
-        car.x = car.predicted_x # todo prevent errors because of threads
-        car.y = car.predicted_y # todo prevent errors because of threads
-        find_info_flowmap(car)
-        calculateDeltaCar(car)
-        updateMov.updateCarMovement(car, updateMov.GREEN_V)
-        print(f"Updated prediction coords ({car.predicted_x}, {car.predicted_y}), cur dir: {car.orientation}  velocity: {car.velocity} flowmap orientation: {car.fm_orientation} delta: {car.delta}and desired_orientation: {car.desired_orientation} for {car.id}")
+        moveCar(car)
 
 
 # updateAICarMovements()

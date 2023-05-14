@@ -2,7 +2,7 @@ import pygame
 
 from Algo.Car import Car
 from Algo.FlowMaps.circuit20x20 import directions as fmdir
-from Algo.Control import find_info_flowmap, calculateDeltaCar
+from Algo.Control import moveCar
 import Algo.UpdateMovements as updateMov
 
 # Define some colors
@@ -55,49 +55,6 @@ done = False
 fullscreen = False
 
 
-# Functions
-def move(car:Car):
-
-    car.old_x = car.x
-    car.old_y = car.y
-    car.x = car.predicted_x # todo prevent errors because of threads
-    car.y = car.predicted_y # todo prevent errors because of threads
-    find_info_flowmap(car)
-    calculateDeltaCar(car)
-
-    if car.x <= 60 and car.y <= 30:
-        updateMov.updateCarMovement(car, updateMov.BLUE_V)
-        car.speed = "BLUE"
-        # print("Zone 1")
-    elif car.x <= 40 and car.y >= 130:
-        updateMov.updateCarMovement(car, updateMov.BLUE_V)
-        car.speed = "BLUE"
-        # print("Zone 2")
-    elif car.x >= 150 and car.y >= 120:
-        updateMov.updateCarMovement(car, updateMov.RED_V)
-        car.speed = "RED"
-        # print("Zone 3")
-    elif 40 <= car.x and car.x <= 90 and 40 <= car.y and car.y <= 150:
-        updateMov.updateCarMovement(car, updateMov.BLUE_V)
-        car.speed = "BLUE"
-        # print("Zone 4")
-    elif car.x >= 160 and car.y <= 60:
-        updateMov.updateCarMovement(car, updateMov.RED_V) 
-        car.speed = "RED"
-        # print("Zone 5")
-    else:
-        updateMov.updateCarMovement(car, updateMov.GREEN_V)
-        car.speed = "GREEN"
-        # print("Zone 6")
-
-
-    # updateMov.updateCarMovement(car, updateMov.GREEN_V)
-
-    # print(f"Updated prediction coords ({car.predicted_x}, {car.predicted_y}), cur dir: {car.orientation}  velocity: {car.velocity} flowmap orientation: {car.fm_orientation} delta: {car.delta}and desired_orientation: {car.desired_orientation} for {car.id}")
-
-
-    return
-
 while not done:
     # --- Main event loop
     for event in pygame.event.get():
@@ -136,7 +93,7 @@ while not done:
     # Draw the text on the screen
     screen.blit(text_surface, [text_x, text_y])
 
-    move(guiCar)
+    moveCar(guiCar)
 
     # Display the image on the screen
     screen.blit(image, (image_x, image_y))
