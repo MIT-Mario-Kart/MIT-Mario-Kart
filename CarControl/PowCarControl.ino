@@ -18,12 +18,12 @@
 #define CAR_ID "CAR_ID_TEST"
 
 // Connection constants
-const char* ssid = "Rok's iPhone";       // your network SSID (name)
-const char* password = "babalilo";       // your network password
+const char* ssid = "S21Babou";       // your network SSID (name)
+const char* password = "sltcbabou";       // your network password
 const char* serverAddress = "172.20.10.2";   // server address
 const int serverPort = 8899;                   // server port
 
-WiFiServer ardServer(8888);
+WiFiServer ardServer(9999);
 Wificlient client;
 
 // Global variables
