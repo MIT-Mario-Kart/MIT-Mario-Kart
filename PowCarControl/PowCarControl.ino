@@ -50,7 +50,20 @@ bool isInMargin(int color, int theorical, int approx){
   return isIn;
 }
 
-char toSend[40];
+void sendPowUp() {
+
+  char toSend[40];
+  // Connect to the server
+  Serial.print(currZone);
+  Serial.print(" : ");
+  Serial.println(powerUp);
+  WiFiClient client;
+  if (client.connect(serverAddress, serverPort)) {
+    // send 0 or 1 so the server knows when to start the power up code
+    sprintf(toSend, "%s\n%d", CAR_ID, powerUp);
+    client.write(toSend, 40);
+  }
+}
 
 //Calibration values (must be updated before updated before each use)
 int redMin = 19285.71;
@@ -109,48 +122,67 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi.");
-  ardServer.begin();
-  Serial.println("Server started on port 8888");
   Serial.println(WiFi.localIP());
+  ardServer.begin();
+  Serial.println("Server started");
+  
 }
 
 void loop() {
 
-  if (!client.connected()) {
-      client = ardServer.available();
-  } else{
-      if (client.available()) {
-        String data = "";
+  String data = "";
 
-        // Read data from the server
-        data = client.readStringUntil('\n');
-        // Serial.print("Received data: ");
-        // Serial.println(data);
-        // Close the connection
+    // Connect to the server
+    WiFiClient client;
+    if (client.connect(serverAddress, serverPort)) {
+      // Serial.println("Connected to server.");
+      
+      // Send dummy data
+      client.write(CAR_ID);
+      // Serial.println("Sent data to server.");
 
-        char rcvd[data.length()+1];
-        data.toCharArray(rcvd, data.length()+1);
+      int a = 1;
 
-        int originalSize = sizeof(data) / sizeof(data[0]);
-        char direction[originalSize - 1];
+      // Wait for a response from the server
+      while (client.connected()) {
 
-        for (int i = 0; i < originalSize - 1; i++) {
-            direction[i] = data[i];
+        if (client.available()) {
+          // Read data from the server
+          data = client.readStringUntil('\n');
+          // Serial.print("Received data: ");
+          // Serial.println(data);
+          // Close the connection
+
+          char rcvd[data.length()+1];
+          data.toCharArray(rcvd, data.length()+1);
+
+          char* token;  // Pointer to the current token
+          const char delim[] = " ";  // The delimiter (a space in this case)
+
+          // Use strtok() to separate the string into tokens
+          token = strtok(rcvd, delim);
+
+          int count = 1;
+
+          while (token != nullptr && count <= 2) {
+              if(count == 1) {
+                dir = atoi(token);
+              } else {
+                a = atoi(token);
+              }
+
+              // Get the next token
+              token = strtok(nullptr, delim);
+              ++count;
+          }
+
+          // printf("%s\n", data);
+          // printf("dir: %d\n", dir);
+
+          myservo.write(dir);
+          client.stop();
+          // Serial.println("Disconnected from server.");
         }
-
-        int a = data[-1];
-        dir = atoi(direction);
-        
-
-        printf("%s\n", data);
-
-        printf("dir: %d\n", dir);
-
-        myservo.write(dir);
-
-        client.stop(); // why?
-
-        // Serial.println("Disconnected from server.");
 
         switch (a) {
             case 0:
@@ -186,12 +218,9 @@ void loop() {
         // For now the car moves forward all the time
         analogWrite(PIN_FORWARD, 120 * speed_percentage * acceleration);
         digitalWrite(PIN_REVERSE, LOW);
-        
-      
      
           // Color sensor =======================================================================================================================================
 
-        
         /*Determination of the photodiode type during measurement
           S2/S3
           LOW/LOW=RED, LOW/HIGH=BLUE,
@@ -214,8 +243,6 @@ void loop() {
         Serial.print(" "); */
 
 
-        
-        
         digitalWrite(S2, HIGH);
         digitalWrite(S3, HIGH);
         /*Frequency measurement of the specified color and its as-
@@ -303,26 +330,10 @@ void loop() {
               Serial.println("CIRCUIT");
           } 
         } 
-    
-      } 
-      else{
-
+        } 
+      } else {
           digitalWrite(PIN_FORWARD, LOW);
           digitalWrite(PIN_REVERSE, LOW);
           Serial.println("Connection to server failed.");
+        }
       }
-    }
-}
-
-void sendPowUp() {
-  // Connect to the server
-  Serial.print(currZone);
-  Serial.print(" : ");
-  Serial.println(powerUp);
-  WiFiClient client;
-  if (client.connect(serverAddress, serverPort)) {
-    // send 0 or 1 so the server knows when to start the power up code
-    sprintf(toSend, "%s\n%d", CAR_ID, powerUp);
-    client.write(toSend, 40);
-  }
-}
