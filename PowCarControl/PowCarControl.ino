@@ -24,7 +24,7 @@ const char* serverAddress = "172.20.10.2";   // server address
 const int serverPort = 8899;                   // server port
 
 WiFiServer ardServer(9999);
-Wificlient client;
+WiFiClient client;
 
 // Global variables
 Servo myservo;
@@ -50,7 +50,7 @@ bool isInMargin(int color, int theorical, int approx){
   return isIn;
 }
 
-char toSend[40]
+char toSend[40];
 
 //Calibration values (must be updated before updated before each use)
 int redMin = 19285.71;
@@ -137,7 +137,7 @@ void loop() {
             direction[i] = data[i];
         }
 
-        double a = data[-1];
+        int a = data[-1];
         dir = atoi(direction);
         
 
@@ -179,17 +179,18 @@ void loop() {
             default:
                 speed_percentage = 1;
                 break;
+        }
 
 
         // For now the car moves forward all the time
         analogWrite(PIN_FORWARD, 120 * speed_percentage * acceleration);
         digitalWrite(PIN_REVERSE, LOW);
-        }
-      }
-  }   
-// Color sensor =======================================================================================================================================
+        
+      
+     
+          // Color sensor =======================================================================================================================================
 
-        {
+        
         /*Determination of the photodiode type during measurement
           S2/S3
           LOW/LOW=RED, LOW/HIGH=BLUE,
@@ -200,20 +201,20 @@ void loop() {
           /*Frequency measurement of the specified color and its as- signment to an RGB value between 0-255*/
         float(redEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
         float(redFrequency) = (1 / (redEdgeTime / 1000000)); redColor = map(redFrequency, redMax, redMin, 255, 0); 
-            if (redColor > 255) {
-              redColor = 255;
-            }
-            if (redColor < 0) {
-              redColor = 0;
-            }
-            /*Output of frequency mapped to 0-255*/
-            Serial.print("R = ");
-            Serial.print(redColor);
-            Serial.print(" ");
-
-
+        if (redColor > 255) {
+          redColor = 255;
         }
-        {
+        if (redColor < 0) {
+          redColor = 0;
+        }
+        /*Output of frequency mapped to 0-255*/
+        Serial.print("R = ");
+        Serial.print(redColor);
+        Serial.print(" ");
+
+
+        
+        
         digitalWrite(S2, HIGH);
         digitalWrite(S3, HIGH);
         /*Frequency measurement of the specified color and its as-
@@ -221,89 +222,90 @@ void loop() {
         float(greenEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
         float(greenFrequency) = (1 / (greenEdgeTime / 1000000));
         greenColor = map(greenFrequency, greenMax, greenMin, 255, 0);
-            if (greenColor > 255) {
-              greenColor = 255;
-            }
-            if (greenColor < 0) {
-              greenColor = 0;
-            }
-            /*Output of frequency mapped to 0-255*/
-            Serial.print("G = ");
-            Serial.print(greenColor);
-            Serial.print(" ");
+        if (greenColor > 255) {
+          greenColor = 255;
         }
-        {
+        if (greenColor < 0) {
+          greenColor = 0;
+        }
+        /*Output of frequency mapped to 0-255*/
+        Serial.print("G = ");
+        Serial.print(greenColor);
+        Serial.print(" ");
+        
+        
         digitalWrite(S2, LOW);
         digitalWrite(S3, HIGH);
         /*Frequency measurement of the specified color and its as-
         signment to an RGB value between 0-255*/
         float(blueEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
         float(blueFrequency) = (1 / (blueEdgeTime / 1000000)); blueColor = map(blueFrequency, blueMax, blueMin, 255, 0); 
-            if (blueColor > 255) {
-              blueColor = 255;
-            }
-            if (blueColor < 0) {
-              blueColor = 0;
-            }
-            /*Output of frequency mapped to 0-255*/
-            Serial.print("B = ");
-            Serial.print(blueColor);
-            Serial.print(" ");
-
-            Serial.println("");
-
+        if (blueColor > 255) {
+          blueColor = 255;
         }
-        {
+        if (blueColor < 0) {
+          blueColor = 0;
+        }
+        /*Output of frequency mapped to 0-255*/
+        Serial.print("B = ");
+        Serial.print(blueColor);
+        Serial.print(" ");
+
+        Serial.println("");
+
+        
+        
         digitalWrite(S2, HIGH);
         digitalWrite(S3, LOW);
 
-          // check if the sensor detects a red tape
-          if (isInMargin(redColor, 255, 30) && isInMargin(greenColor, 55, 30) && isInMargin(blueColor, 80, 30)) {
-            if (currZone != red){
-              currZone = red;
-              sendPowUp();
-            }
+        // check if the sensor detects a red tape
+        if (isInMargin(redColor, 255, 30) && isInMargin(greenColor, 55, 30) && isInMargin(blueColor, 80, 30)) {
+          if (currZone != red){
+            currZone = red;
+            sendPowUp();
           }
+        }
 
-          // check if the sensor detects a green tape
-          if (isInMargin(redColor, 50, 30) && isInMargin(greenColor, 125, 30) && isInMargin(blueColor, 30, 30)) {
-            if (currZone != green){
-              currZone = green;
-              sendPowUp();
-            }
+        // check if the sensor detects a green tape
+        if (isInMargin(redColor, 50, 30) && isInMargin(greenColor, 125, 30) && isInMargin(blueColor, 30, 30)) {
+          if (currZone != green){
+            currZone = green;
+            sendPowUp();
           }
+        }
 
-          // check if the sensor detects a blue tape
-          if (isInMargin(redColor, 35, 30) && isInMargin(greenColor, 130, 30) && isInMargin(blueColor, 255, 30)) {
-            if (currZone != blue){
-              currZone = blue;
-              sendPowUp();
-            }
-          }  
-
-          // check if the sensor detects a marroon tape
-          if (isInMargin(redColor, 150, 30) && isInMargin(greenColor, 20, 30) && isInMargin(blueColor, 20, 30)) {
-            if (powerUp == 0){
-              powerUp = 1; // to change back to zero when sent once
-              sendPowUp();
-            }
+        // check if the sensor detects a blue tape
+        if (isInMargin(redColor, 35, 30) && isInMargin(greenColor, 130, 30) && isInMargin(blueColor, 255, 30)) {
+          if (currZone != blue){
+            currZone = blue;
+            sendPowUp();
           }
+        }  
 
-          // check if the sensor detects the circuit to reset powerup
-          if (isInMargin(redColor, 240, 30) && isInMargin(greenColor, 240, 30) && isInMargin(blueColor, 230, 30)) {
-            if (powerUp == 1){
-                powerUp = 0;
-                sendPowUp();
-            }
-            
+        // check if the sensor detects a marroon tape
+        if (isInMargin(redColor, 150, 30) && isInMargin(greenColor, 20, 30) && isInMargin(blueColor, 20, 30)) {
+          if (powerUp == 0){
+            powerUp = 1; // to change back to zero when sent once
+            sendPowUp();
           }
+        }
 
-  } else {
+        // check if the sensor detects the circuit to reset powerup
+        if (isInMargin(redColor, 240, 30) && isInMargin(greenColor, 240, 30) && isInMargin(blueColor, 230, 30)) {
+          if (powerUp == 1){
+              powerUp = 0;
+              sendPowUp();
+          } 
+        } 
+    
+      } 
+      else{
 
-    digitalWrite(PIN_FORWARD, LOW);
-    digitalWrite(PIN_REVERSE, LOW);
-    Serial.println("Connection to server failed.");
-  }
+          digitalWrite(PIN_FORWARD, LOW);
+          digitalWrite(PIN_REVERSE, LOW);
+          Serial.println("Connection to server failed.");
+      }
+    }
 }
 
 void sendPowUp() {
