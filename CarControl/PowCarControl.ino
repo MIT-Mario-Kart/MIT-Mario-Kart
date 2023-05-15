@@ -23,6 +23,9 @@ const char* password = "babalilo";       // your network password
 const char* serverAddress = "172.20.10.2";   // server address
 const int serverPort = 8899;                   // server port
 
+WiFiServer ardServer(8888);
+Wificlient client;
+
 // Global variables
 Servo myservo;
 double speed_percentage = 1;
@@ -106,24 +109,18 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi.");
+  ardServer.begin();
+  Serial.println("Server started on port 8888");
 }
 
 void loop() {
 
-  String data = "";
-
-  // Connect to the server
-  WiFiClient client;
-  if (client.connect(serverAddress, serverPort)) {
-    // Serial.println("Connected to server.");
-    
-    // Send dummy data
-    client.write(CAR_ID); // CAR_ID
-    // Serial.println("Sent data to server.");
-
-    // Wait for a response from the server
-    while (client.connected()) {
+  if (!client.connected()) {
+      client = ardServer.available();
+  } else{
       if (client.available()) {
+        String data = "";
+
         // Read data from the server
         data = client.readStringUntil('\n');
         // Serial.print("Received data: ");
@@ -151,6 +148,7 @@ void loop() {
         myservo.write(dir);
 
         client.stop(); // why?
+
         // Serial.println("Disconnected from server.");
 
         switch (a) {
@@ -181,18 +179,14 @@ void loop() {
             default:
                 speed_percentage = 1;
                 break;
-        }
-
-
-        // send 0 or 1 so the server knows when to start the power up code
-        sprintf(toSend, "%s\n%d", CAR_ID, powerUp);
-        client.write(toSend, 40)
 
 
         // For now the car moves forward all the time
         analogWrite(PIN_FORWARD, 120 * speed_percentage * acceleration);
         digitalWrite(PIN_REVERSE, LOW);
-
+        }
+      }
+  }   
 // Color sensor =======================================================================================================================================
 
         {
@@ -267,6 +261,7 @@ void loop() {
           if (isInMargin(redColor, 255, 30) && isInMargin(greenColor, 55, 30) && isInMargin(blueColor, 80, 30)) {
             if (currZone != red){
               currZone = red;
+              sendPowUp();
             }
           }
 
@@ -274,6 +269,7 @@ void loop() {
           if (isInMargin(redColor, 50, 30) && isInMargin(greenColor, 125, 30) && isInMargin(blueColor, 30, 30)) {
             if (currZone != green){
               currZone = green;
+              sendPowUp();
             }
           }
 
@@ -281,6 +277,7 @@ void loop() {
           if (isInMargin(redColor, 35, 30) && isInMargin(greenColor, 130, 30) && isInMargin(blueColor, 255, 30)) {
             if (currZone != blue){
               currZone = blue;
+              sendPowUp();
             }
           }  
 
@@ -288,6 +285,7 @@ void loop() {
           if (isInMargin(redColor, 150, 30) && isInMargin(greenColor, 20, 30) && isInMargin(blueColor, 20, 30)) {
             if (powerUp == 0){
               powerUp = 1; // to change back to zero when sent once
+              sendPowUp();
             }
           }
 
@@ -295,19 +293,25 @@ void loop() {
           if (isInMargin(redColor, 240, 30) && isInMargin(greenColor, 240, 30) && isInMargin(blueColor, 230, 30)) {
             if (powerUp == 1){
                 powerUp = 0;
+                sendPowUp();
             }
             
           }
-
-        }
-
-      }
-    }
 
   } else {
 
     digitalWrite(PIN_FORWARD, LOW);
     digitalWrite(PIN_REVERSE, LOW);
     Serial.println("Connection to server failed.");
+  }
+}
+
+void sendPowUp() {
+  // Connect to the server
+  WiFiClient client;
+  if (client.connect(serverAddress, serverPort)) {
+    // send 0 or 1 so the server knows when to start the power up code
+    sprintf(toSend, "%s\n%d", CAR_ID, powerUp);
+    client.write(toSend, 40);
   }
 }
