@@ -12,3 +12,4 @@ PathArgServerTest/
 time_test.c
 time_test
 PathArgServerTest/
+/Server/__pycache__/*
