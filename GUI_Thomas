@@ -1,0 +1,101 @@
+import pygame
+import Game
+
+pygame.init()
+
+# Couleurs
+NOIR = (0, 0, 0)
+GRIS_FONCE = (120, 120, 120)
+GRIS_CLAIR = (220, 220, 220)
+JAUNE = (255, 255, 254)
+
+# Taille de la fenêtre
+LARGEUR_FENETRE = 1500
+HAUTEUR_FENETRE = 900
+
+# Création de la fenêtre
+fenetre = pygame.display.set_mode((LARGEUR_FENETRE, HAUTEUR_FENETRE))
+pygame.display.set_caption("Classement")
+
+# Police d'écriture
+font = pygame.font.SysFont("Calibri", 28)
+
+# Liste des joueurs
+joueur1 = Player.Player("Joueur 1", False, 1, 600.111, 100.423, 2)
+joueur2 = Player.Player("Joueur 2", False, 3, 60.111, 700.123, 5)
+joueur3 = Player.Player("Joueur 3", False, 2, 60.111, 600.543, 5)
+joueur4 = Player.Player("Joueur 4", False, 6, 60.111, 600.543, 5)
+joueur5 = Player.Player("Joueur 5", False, 4, 60.111, 600.543, 5)
+joueur6 = Player.Player("Joueur 6", False, 4, 60.111, 600.543, 5)
+
+joueurs = [joueur1, joueur2, joueur3, joueur4, joueur5, joueur6]
+
+joueurs[0].shuffle()
+joueurs[1].shuffle()
+joueurs[2].shuffle()
+joueurs[3].shuffle()
+joueurs[4].shuffle()
+
+temps = 10.123
+
+# Boucle principale
+while True:
+    # Gestion des événements
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            quit()
+
+    # Effacement de l'écran
+    fenetre.fill(GRIS_FONCE)
+
+    # Affichage des joueurs
+    x = 790
+    y = 100
+
+    # Titre
+    titre = font.render("Classement", True, NOIR)
+    fenetre.blit(titre, (30 + x, 30))
+
+    # Ligne d'en-tête
+    pygame.draw.line(fenetre, GRIS_CLAIR, (30 + x, 80), (LARGEUR_FENETRE - 30, 80), 2)
+
+    # Affichage du Temps
+    temps_render = font.render(str(round(temps,1)), True, NOIR)
+    fenetre.blit(temps_render, (x + 570, 30))
+
+    for i, joueur in enumerate(joueurs):
+
+        # Nom du joueur
+        nom_joueur = font.render(joueur.name, True, JAUNE)
+        fenetre.blit(nom_joueur, (110 + x, y))
+
+        # Position
+        position = font.render(str(joueur.rank), True, JAUNE)
+        fenetre.blit(position, (50 + x, y))
+        rect = pygame.Rect(40 + x, y - 5, 640, 40)
+        pygame.draw.rect(fenetre, NOIR, rect, 2)
+
+        # Temps au tour
+        temps_tour = font.render(str(round(joueur.curr_lap, 3)), True, JAUNE)
+        fenetre.blit(temps_tour, (270 + x, y))
+
+        # Meilleure temps
+        temps_tour = font.render(str(joueur.best_lap), True, JAUNE)
+        fenetre.blit(temps_tour, (390 + x, y))
+
+        # Nombre de tours
+        tours = font.render(str(joueur.lap_count) + "/10", True, JAUNE)
+        fenetre.blit(tours, (540 + x, y))
+
+        # PowerUp
+        fenetre.blit(joueur.power, (635 + x, y))
+
+        y += 50
+
+        # joueurs[0].curr_lap += 0.0003
+        temps += 0.0003
+
+
+    # Mise à jour de l'affichage
+    pygame.display.update()
