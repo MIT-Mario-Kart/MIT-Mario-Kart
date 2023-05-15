@@ -1,5 +1,5 @@
 import time
-import Car as c
+import Algo.Car as c
 import random
 
 SLOW, NORMAL, FAST = range(3)

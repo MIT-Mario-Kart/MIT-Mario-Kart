@@ -19,7 +19,8 @@ stopID = "STOP"
 calibrationColor = "yellow"
 
 # initialise car objects
-car1 = Car("CAR1", ("172.20.10.6", 9999), x=160, y=20, orientation=180)
+#car1 = Car("CAR1", ("172.20.10.6", 9999), x=160, y=20, orientation=180)
+car1 = Car("CAR1", ("192.168.199.228", 9999), x=160, y=20, orientation=180)
 # car2 = Car("CAR2", ("172.20.10.8", 9999), x=160, y=20, orientation=270)
 dict_cars = {}
 cars = [car1] 
