@@ -111,6 +111,7 @@ void setup() {
   Serial.println("Connected to WiFi.");
   ardServer.begin();
   Serial.println("Server started on port 8888");
+  Serial.println(WiFi.localIP());
 }
 
 void loop() {
@@ -263,6 +264,7 @@ void loop() {
           if (currZone != red){
             currZone = red;
             sendPowUp();
+            Serial.println("RED");
           }
         }
 
@@ -271,6 +273,7 @@ void loop() {
           if (currZone != green){
             currZone = green;
             sendPowUp();
+            Serial.println("GREEN");
           }
         }
 
@@ -279,6 +282,7 @@ void loop() {
           if (currZone != blue){
             currZone = blue;
             sendPowUp();
+            Serial.println("BLUE");
           }
         }  
 
@@ -287,6 +291,7 @@ void loop() {
           if (powerUp == 0){
             powerUp = 1; // to change back to zero when sent once
             sendPowUp();
+            Serial.println("POWER UP");
           }
         }
 
@@ -295,6 +300,7 @@ void loop() {
           if (powerUp == 1){
               powerUp = 0;
               sendPowUp();
+              Serial.println("CIRCUIT");
           } 
         } 
     
