@@ -29,14 +29,15 @@ double speed_percentage = 1;
 int dir = 0;
 
 enum Zone {
-  r,
-  g,
-  b,
+  red,
+  green,
+  blue,
 };
 
-Zone currZone = g;
+Zone currZone = green;
 
 int powerUp = 0;
+double acceleration = 1.0;
 
 bool isInMargin(int color, int theorical, int approx){
   int isIn = false;
@@ -139,7 +140,7 @@ void loop() {
             direction[i] = data[i];
         }
 
-        double acceleration = data[-1];
+        double a = data[-1];
         dir = atoi(direction);
         
 
@@ -152,21 +153,35 @@ void loop() {
         client.stop(); // why?
         // Serial.println("Disconnected from server.");
 
+        switch (a) {
+            case 0:
+                acceleration = 0.8;
+                break;
+            case 1:
+                acceleration = 1.0;
+                break;
+            case 2:
+                acceleration = 1.2;
+                break;
+            default:
+                acceleration = 1.0;
+                break;
+        }
 
         switch (currZone) {
-            case r:
+            case red:
                 speed_percentage = 0.5;
                 break;
-            case g:
+            case green:
                 speed_percentage = 0.75;
                 break;
-            case b:
+            case blue:
                 speed_percentage = 1;
                 break;
             default:
                 speed_percentage = 1;
                 break;
-            }
+        }
 
 
         // send 0 or 1 so the server knows when to start the power up code
@@ -250,22 +265,22 @@ void loop() {
 
           // check if the sensor detects a red tape
           if (isInMargin(redColor, 255, 30) && isInMargin(greenColor, 55, 30) && isInMargin(blueColor, 80, 30)) {
-            if (currZone != r){
-              currZone = r;
+            if (currZone != red){
+              currZone = red;
             }
           }
 
           // check if the sensor detects a green tape
           if (isInMargin(redColor, 50, 30) && isInMargin(greenColor, 125, 30) && isInMargin(blueColor, 30, 30)) {
-            if (currZone != g){
-              currZone = g;
+            if (currZone != green){
+              currZone = green;
             }
           }
 
           // check if the sensor detects a blue tape
           if (isInMargin(redColor, 35, 30) && isInMargin(greenColor, 130, 30) && isInMargin(blueColor, 255, 30)) {
-            if (currZone != b){
-              currZone = b;
+            if (currZone != blue){
+              currZone = blue;
             }
           }  
 
