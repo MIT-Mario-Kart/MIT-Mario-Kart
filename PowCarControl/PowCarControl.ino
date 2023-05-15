@@ -20,7 +20,7 @@
 // Connection constants
 const char* ssid = "S21Babou";       // your network SSID (name)
 const char* password = "sltcbabou";       // your network password
-const char* serverAddress = "172.20.10.2";   // server address
+const char* serverAddress = "192.168.199.19";   // server address
 const int serverPort = 8899;                   // server port
 
 WiFiServer ardServer(9999);
@@ -208,9 +208,9 @@ void loop() {
           redColor = 0;
         }
         /*Output of frequency mapped to 0-255*/
-        Serial.print("R = ");
+        /* Serial.print("R = ");
         Serial.print(redColor);
-        Serial.print(" ");
+        Serial.print(" "); */
 
 
         
@@ -229,9 +229,9 @@ void loop() {
           greenColor = 0;
         }
         /*Output of frequency mapped to 0-255*/
-        Serial.print("G = ");
+        /* Serial.print("G = ");
         Serial.print(greenColor);
-        Serial.print(" ");
+        Serial.print(" "); */
         
         
         digitalWrite(S2, LOW);
@@ -247,11 +247,11 @@ void loop() {
           blueColor = 0;
         }
         /*Output of frequency mapped to 0-255*/
-        Serial.print("B = ");
+        /* Serial.print("B = ");
         Serial.print(blueColor);
         Serial.print(" ");
 
-        Serial.println("");
+        Serial.println(""); */
 
         
         
@@ -310,6 +310,9 @@ void loop() {
 
 void sendPowUp() {
   // Connect to the server
+  Serial.print(currZone);
+  Serial.print(" : ");
+  Serial.println(powerUp);
   WiFiClient client;
   if (client.connect(serverAddress, serverPort)) {
     // send 0 or 1 so the server knows when to start the power up code
