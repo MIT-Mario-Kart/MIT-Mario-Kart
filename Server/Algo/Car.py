@@ -23,3 +23,5 @@ class Car:
     self.speed = "GREEN"
     self.powerup = powerup
     self.inverted = False
+    self.left_circle = None
+    self.right_circle = None

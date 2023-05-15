@@ -4,6 +4,9 @@ from Algo.Car import Car
 from Algo.FlowMaps.circuit20x20 import directions as fmdir
 from Algo.Control import moveCar
 import Algo.UpdateMovements as updateMov
+from Algo.Control import cars
+from Algo.Control import updateCarMovement
+from Algo.Overtake.overtake import *
 
 # Define some colors
 BLACK = (0, 0, 0)
@@ -14,16 +17,24 @@ PALE_BLUE = (175, 215, 238)
 SCREEN_WIDTH = 1600
 SCREEN_HEIGHT = 1000
 
-SCALE = 3.575
 
-circuitPosX = 292
-circuitPosY = 237
+
+SCALE = 3.60
+
+CIRCUIT_POS_X = 285
+CIRCUIT_POS_Y = 228
+
+MOVE_MAP_X = 0
+MOVE_MAP_Y = 0
+
 
 # List of cars
-guiCar = Car(1, "s", 160, 20, 180, True)
+# guiCar = Car(1, "s", 160, 20, 180, True)
 
 # Initialize PyGame
 pygame.init()
+
+updateCarMovement()
 
 # Set the size of the window and create the screen
 size = (SCREEN_WIDTH, SCREEN_HEIGHT)
@@ -54,8 +65,11 @@ done = False
 # Set the initial fullscreen state to False
 fullscreen = False
 
-
 while not done:
+
+    # Update local variable guiCars
+    guiCars = cars
+
     # --- Main event loop
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -75,31 +89,39 @@ while not done:
     # rect = pygame.Rect(0, 0, 20, 20)
     # pygame.draw.rect(screen, PALE_BLUE, rect, width=0)
 
-    # Clear the screen to white
+    # Clear the screen to pale blue
     screen.fill(PALE_BLUE)
 
-    # Loop through the cars and draw their information
-    # Create a text string with the car's information
-    text = "Car: ({0}, {1}) - Orientation = {2} - Speed: {3} - Velocity: {4}".format(
-        int(guiCar.x), int(guiCar.y), int(guiCar.orientation), guiCar.speed, guiCar.velocity)
-
-    # Render the text as a surface
-    text_surface = font.render(text, True, BLACK)
-
-    # Text position
-    text_x = text_surface.get_width()/8
-    text_y = text_surface.get_height()/2
-
-    # Draw the text on the screen
-    screen.blit(text_surface, [text_x, text_y])
-
-    moveCar(guiCar)
+    # moveCar(guiCar)
 
     # Display the image on the screen
     screen.blit(image, (image_x, image_y))
 
-    # Draw the car
-    pygame.draw.circle(screen, (255, 0, 0), (circuitPosX + (guiCar.x)*SCALE, circuitPosY + (guiCar.y)*SCALE), 5)
+
+    # Loop through the cars and draw them and their information
+    # Create a text string with the car's information
+    Y_DISPLACEMENT = 25
+    count = 0
+    for car in guiCars:
+        text = "Car {0}: ({1}, {2}) - Orientation = {3} - Speed: {4} - Velocity: {5}".format(
+            count, int(car.x), int(car.y), int(car.orientation), car.speed, car.velocity)
+        # Render the text as a surface
+        text_surface = font.render(text, True, BLACK)
+
+        # Text position
+        text_x = text_surface.get_width()/8
+        text_y = text_surface.get_height()/2 + count * Y_DISPLACEMENT
+
+        # Draw the text on the screen
+        screen.blit(text_surface, [text_x, text_y])
+
+        # Draw the car
+        pygame.draw.rect(screen, (255, 0, 0), (MOVE_MAP_X +  CIRCUIT_POS_X + (car.x)*SCALE, 
+                                               MOVE_MAP_Y + CIRCUIT_POS_Y + (car.y)*SCALE, 10, 10), 5)
+
+        count = count + 1
+
+
 
     # --- Go ahead and update the screen
     pygame.display.update()

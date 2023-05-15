@@ -148,10 +148,10 @@ directions[7][4] = a3
 directions[7][5] = a3
 directions[7][6] = a3
 directions[7][7] = a2
-directions[7][8] = a1
-directions[7][9] = a12
-directions[7][10] = a12
-directions[7][11] = a11
+directions[7][8] = a12
+directions[7][9] = a11
+directions[7][10] = a10
+directions[7][11] = a10
 directions[7][12] = a11
 directions[7][13] = a11
 directions[7][14] = a11
@@ -172,6 +172,21 @@ directions[9][6] = a3
 directions[9][7] = a2
 
 # top right zone =====================================================================================================
+
+directions[14][7] = a2
+directions[15][6] = a2
+directions[15][7] = a1
+directions[16][6] = a1
+directions[16][7] = a1
+directions[17][6] = a12
+directions[17][7] = a12
+directions[18][6] = a12
+directions[18][5] = a12
+directions[19][5] = a11
+directions[19][4] = a11
+directions[19][3] = a10
+directions[18][2] = a9
+directions[18][1] = a9
 
 directions[16][1] = a9
 directions[16][2] = a10

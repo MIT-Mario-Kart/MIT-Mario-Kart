@@ -1,11 +1,11 @@
 import Algo.Car as Car
 import math
 
-ANGLE_PRECISION = 5       # in degrees
-FLOAT_PRECISION = 0.00005
+MAX_VELOCITY = 7
+ANGLE_UNIT = 15
 
-MAX_VELOCITY = 5
-ANGLE_UNIT = 5
+ANGLE_PRECISION = ANGLE_UNIT       # in degrees
+FLOAT_PRECISION = 0.00005
 
 MAX_ACC = 1
 MAX_DECEL = -MAX_ACC
@@ -13,8 +13,8 @@ ACC_UNIT = 0.9              # it's normal for this to be > MAX_ACC
 
 BRAKE = 0.0
 USR = -1.0
-RED_V = 0.25 * MAX_VELOCITY
-BLUE_V = 0.5 * MAX_VELOCITY
+RED_V = 0.4 * MAX_VELOCITY
+BLUE_V = 0.8 * MAX_VELOCITY
 GREEN_V = MAX_VELOCITY
 
 # car: (...)

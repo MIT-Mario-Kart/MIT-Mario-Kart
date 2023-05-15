@@ -39,6 +39,11 @@ def moveCar(car: Car):
     find_info_flowmap(car)
     calculateDeltaCar(car)
 
+    coeff = 1.0
+
+    if car.id == cars[0].id:
+        coeff =  0.9
+
     if car.x <= 60 and car.y <= 30:
         updateMov.updateCarMovement(car, updateMov.BLUE_V)
         car.speed = "BLUE"
@@ -67,13 +72,15 @@ def moveCar(car: Car):
 
     # updateMov.updateCarMovement(car, updateMov.GREEN_V)
 
-    print(f"Updated prediction coords ({car.predicted_x}, {car.predicted_y}), cur dir: {car.orientation}  velocity: {car.velocity} flowmap orientation: {car.fm_orientation} delta: {car.delta}and desired_orientation: {car.desired_orientation} for {car.id}")
+    # print(f"Updated prediction coords ({car.predicted_x}, {car.predicted_y}), cur dir: {car.orientation}  velocity: {car.velocity} flowmap orientation: {car.fm_orientation} delta: {car.delta}and desired_orientation: {car.desired_orientation} for {car.id}")
 
 def updateCarMovement():
     threading.Timer(0.25, updateCarMovement).start()
     for car in cars:
         moveCar(car)
-
+        car.left_circle, car.right_circle = ovt.calculateCircles(car)
+    for car in cars:
+        ovt.overtake(car, cars)
 
 # updateAICarMovements()
 
@@ -243,8 +250,8 @@ def calculateDeltaCar(car):
 
     # sendCarInfo(car, car.delta)
 
-# def find_velocity_and_orientation():
-#     car.orientation, car.velocity = calcOrientation([[car.old_x, car.old_y], [car.x, car.y]])
+def find_velocity_and_orientation():
+    car.orientation, car.velocity = calcOrientation([[car.old_x, car.old_y], [car.x, car.y]])
 
 def find_info_flowmap(car: Car):
     # Assumes that coord x and y are between 0 and 199
