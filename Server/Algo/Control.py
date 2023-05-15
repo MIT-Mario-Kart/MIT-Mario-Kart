@@ -6,6 +6,7 @@ import re
 from Algo.Car import Car
 from Algo.FlowMaps.circuit20x20 import directions as fmdir
 import Algo.Overtake.overtake as ovt
+import Algo.FlowMaps.powerups as pu
 from Algo.Grid import Grid
 import Algo.UpdateMovements as updateMov
 from Algo.Orientation import calcOrientation
@@ -76,6 +77,13 @@ def updateCarMovement():
 
 def parseCoordFromLine(coordinates):
     return [int(coord.rstrip()) for coord in coordinates.split(',')]
+
+def getPowerUp(pow):
+    return int(pow.rstrip())
+
+def updatePowerUp(car: Car, pow):
+    car.powerup = getPowerUp(pow)
+
 
 def sendCarInfo(car: Car, toSend):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -160,8 +168,14 @@ def parseInfo(info):
                     car.x, car.y = grid.getCircuitCoords(val)
                 # find_velocity_and_orientation(car)
                 ovt.calculateCircles(car)
+
         for car in cars:
+            if (car.powerup == 1):
+                pu.powerUp(car, cars)
+
             ovt.overtake(car, cars)
+
+        
         for car in cars:
             # moveCar(car)
             pass
@@ -181,12 +195,8 @@ def parseInfo(info):
     else:
         car = dict_cars.get(id)
         if car:
-            for i in range(1, len(info)):
-                getCoordForCar(car, info[i])
-                find_info_flowmap(car)
-                print(f"Received coords ({car.x}, {car.y}), cur dir: {car.orientation} and desired dir: {car.desired_orientation} for {car.id}")
-                # moveCar(car)
-                return car.delta
+            updatePowerUp(car, info[1])
+            sendCarInfo(car, f"{car.delta}, {car.a}")
         else:
             print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 

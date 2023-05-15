@@ -1,5 +1,6 @@
 import time
 import Car as c
+import random
 
 SLOW, NORMAL, FAST = range(3)
 
@@ -33,10 +34,24 @@ def slowdown(mycar, cars, sec):
 
 def inversion(cars, sec):
     for car in cars:
-        if (c.isPlayer(car)):
+        if (not(car.ai)):
             car.inverted = 1
             timer(sec)
             car.inverted = 0
+
+
+def powerUp(myCar, otherCars):
+    pu = random.randint(0,2)
+    match pu:
+        case 0:
+            speedup(myCar, 5)
+        case 1:
+            slowdown(myCar, otherCars, 5)
+        case 2:
+            inversion(otherCars, 5)
+        case _:
+            speedup(myCar, 5)
+    
 
 
 
