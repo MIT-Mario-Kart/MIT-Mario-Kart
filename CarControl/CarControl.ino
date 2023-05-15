@@ -37,6 +37,7 @@ void setup() {
     Serial.println("Connecting to WiFi...");
   }
   Serial.println("Connected to WiFi.");
+  Serial.println(WiFi.localIp());
 }
 
 void loop() {

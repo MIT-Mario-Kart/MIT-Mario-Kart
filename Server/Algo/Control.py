@@ -105,9 +105,9 @@ def recvInfo(info, needToBeDecoded = True):
     return parseInfo(info)
 
 def parseJson(recv_data):
-    print("received")
-    print(recv_data)
-    recv_data = recv_data.rstrip("CAL")
+    # print("received")
+    # print(recv_data)
+    recv_data = recv_data.rstrip()
     data = json.loads(recv_data)
     point_regex = r"{(\d+), (\d+)}"
     
@@ -170,21 +170,27 @@ def parseInfo(info):
                     car.y = car.predicted_y # todo prevent errors because of threads
                 else:
                     car.x, car.y = grid.getCircuitCoords(val)
+                    print(f"{car.x}, {car.y}")
                 # find_velocity_and_orientation(car)
                 ovt.calculateCircles(car)
-
-        for car in cars:
-
-            ovt.overtake(car, cars)
-
-        
-        for car in cars:
+        # for car in cars:
+            # ovt.overtake(car, cars)
+        # for car in cars:
             # moveCar(car)
-            pass
+            # pass
 
     elif id == stopID:
         print(f"Stopped {cars[0].id}")
-        return "-1 0"
+        return "-1"
+    elif id == "CAR_ID_TEST":
+        for car in cars:
+            # car.old_x = car.x
+            # car.old_y = car.y
+            # car.x = car.predicted_x # todo prevent errors because of threads
+            # car.y = car.predicted_y # todo prevent errors because of threads
+            # min(int(car.delta) +5, 180)
+            # max(int(car.delta) - 20, 0)
+            return max(int(car.delta) - 35, 0)
     else:
         for car in cars:
             if id == car.id:

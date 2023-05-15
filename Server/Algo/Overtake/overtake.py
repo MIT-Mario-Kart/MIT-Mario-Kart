@@ -37,7 +37,7 @@ def overtake(mycar, otherCars):
   myPos = (mycar.x, mycar.y)
 
   for c in otherCars:
-    pos = c[0]
+    pos = (c.x, c.y)
     leftC = c[1]
     rightC = c[2]    
     distance = math.dist(myPos, pos)
