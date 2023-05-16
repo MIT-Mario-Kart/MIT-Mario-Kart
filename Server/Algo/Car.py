@@ -17,7 +17,7 @@ class Car:
     self.fm_orientation = 0
     self.old_delta = 90
     self.delta = 90 # steering angle
-    self.a = 0 # acceleration
+    self.a = 1 # acceleration
     self.ai = ai
     self.speed = "GREEN"
     self.powerup = powerup
