@@ -1,4 +1,5 @@
 import pygame
+import Game
 
 from Algo.Car import Car
 from Algo.FlowMaps.circuit20x20 import directions as fmdir
@@ -8,64 +9,68 @@ from Algo.Control import cars
 from Algo.Control import updateCarMovement
 from Algo.Overtake.overtake import *
 
+
 # Define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-PALE_BLUE = (175, 215, 238)
+GREY = Game.Game.GRIS_CLAIR
 
-# Set the width and height of the screen [width, height]
-SCREEN_WIDTH = 1600
-SCREEN_HEIGHT = 1000
+player1 = Game.Player("Player 1", False, 1)
+player2 = Game.Player("Player 2", False, 2)
+
+players = [player1, player2]
+
+gameStarted = False
+game = Game.Game(players)
+game.gui_init()
+screen = game.get_window()
 
 
+SCALE = 2.75
+#CIRCUIT_POS_X = 285
+CIRCUIT_POS_X = 256
+CIRCUIT_POS_Y = 203
 
-SCALE = 3.60
-
-CIRCUIT_POS_X = 285
-CIRCUIT_POS_Y = 228
-
-MOVE_MAP_X = 0
+MOVE_MAP_X = -100
 MOVE_MAP_Y = 0
 
-
-# List of cars
-# guiCar = Car(1, "s", 160, 20, 180, True)
-
-# Initialize PyGame
-pygame.init()
-
-updateCarMovement()
-
-# Set the size of the window and create the screen
-size = (SCREEN_WIDTH, SCREEN_HEIGHT)
-screen = pygame.display.set_mode(size)
-
-# Set the window title
+# # Set the window title
 pygame.display.set_caption("Car Information")
 
-# Create a font for the text
+# # Create a font for the text
 font = pygame.font.Font(None, 36)
 
-# Load the image
+# # Load the image
 image = pygame.image.load("circuit.jpeg")
-# Get the image size
+# # Get the image size
 image_width = image.get_width()
 image_height = image.get_height()
-# Set the image position
+# # Set the image position
 image_x = 200 # 400 = screen center
 image_y = 150 # 300 = screen center
-image = pygame.transform.scale(image, (800, 800))
+image = pygame.transform.scale(image, (600, 600))
 
-# Set up the clock to control the frame rate
+# # Set up the clock to control the frame rate
 clock = pygame.time.Clock()
 
-# Loop until the user clicks the close button
+# # Loop until the user clicks the close button
 done = False
 
-# Set the initial fullscreen state to False
-fullscreen = False
+# # Set the initial fullscreen state to False
+# fullscreen = False
 
 while not done:
+    
+    for player in players:
+        player.update(Game.Game.second)
+        
+    if game.running == True and gameStarted == False:
+        gameStarted = True
+        updateCarMovement()
+        
+    game.gui_update()
+    
+    
 
     # Update local variable guiCars
     guiCars = cars
@@ -90,12 +95,12 @@ while not done:
     # pygame.draw.rect(screen, PALE_BLUE, rect, width=0)
 
     # Clear the screen to pale blue
-    screen.fill(PALE_BLUE)
+    # screen.fill(GREY)
 
     # moveCar(guiCar)
 
     # Display the image on the screen
-    screen.blit(image, (image_x, image_y))
+    screen.blit(image, (image_x + MOVE_MAP_X, image_y + MOVE_MAP_Y))
 
 
     # Loop through the cars and draw them and their information
@@ -127,7 +132,7 @@ while not done:
     pygame.display.update()
 
     # --- Limit to 60 frames per second
-    clock.tick(4)
+    clock.tick(60)
 
 # Close the PyGame window and quit
 pygame.quit()
