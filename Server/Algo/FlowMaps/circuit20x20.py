@@ -76,14 +76,14 @@ directions[1][17] = a3
 directions[2][13] = a5
 directions[2][14] = a5
 directions[2][15] = a4
-directions[2][16] = a4
-directions[2][17] = a4
+directions[2][16] = a3
+directions[2][17] = a3
 directions[2][18] = a3
 
 directions[3][13] = a5
 directions[3][14] = a4
 directions[3][15] = a4
-directions[3][16] = a4
+directions[3][16] = a3
 directions[3][17] = a3
 directions[3][18] = a3
 
