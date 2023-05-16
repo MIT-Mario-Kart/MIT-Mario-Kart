@@ -2,7 +2,6 @@
 #include <Servo.h>
 #include <dummy.h>
 #include <math.h>
-#include <millisDelay.h>
 
 // Pins
 #define PIN_FORWARD 12 // D6 (D2 = 4)
@@ -44,7 +43,10 @@ Zone currZone = green;
 
 int powerUp = 0;
 double acceleration = 1.0;
-millisDelay puDelay;
+const long int PU_MAX = 5000;
+long int puDelay = 0;
+bool timerStarted = false;
+bool sendPu = false;
 
 bool isInMargin(int color, int theorical, int approx){
   int isIn = false;
@@ -150,9 +152,14 @@ void setup() {
 void loop() {
 
   String data = "";
-
-    // Connect to the server
-    WiFiClient client;
+   if (!sendPu) {// Connect to the server
+    if (timerStarted && ((millis() - puDelay) > PU_MAX)){
+          sendReset();
+          timerStarted = false;
+          puDelay = 0;
+        }
+    else {
+          WiFiClient client;
     if (client.connect(serverAddress, serverPort)) {
       // Serial.println("Connected to server.");
       
@@ -199,16 +206,7 @@ void loop() {
           // printf("dir: %d\n", dir);
 
           myservo.write(dir);
-          client.stop();
-          // Serial.println("Disconnected from server.");
-        }
-
-        if (puDelay.justFinished()){
-          sendReset()
-        }
-
-
-        switch (a) {
+          switch (a) {
             case 0:
                 acceleration = 0.8;
                 break;
@@ -237,8 +235,19 @@ void loop() {
                 speed_percentage = 1;
                 break;
         }
-
-
+          client.stop();
+          // Serial.println("Disconnected from server.");
+        }
+      }
+     } else {
+          digitalWrite(PIN_FORWARD, LOW);
+          digitalWrite(PIN_REVERSE, LOW);
+          Serial.println("Connection to server failed.");
+        }
+        }} else {
+      sendPowUp();
+      sendPu = false;
+     }
         // For now the car moves forward all the time
         analogWrite(PIN_FORWARD, 120 * speed_percentage * acceleration);
         digitalWrite(PIN_REVERSE, LOW);
@@ -259,12 +268,13 @@ void loop() {
           redColor = 255;
         }
         if (redColor < 0) {
+          Serial.println("R -0");
           redColor = 0;
         }
-        /*Output of frequency mapped to 0-255*/
-        /* Serial.print("R = ");
+        // Output of frequency mapped to 0-2
+        Serial.print("R = ");
         Serial.print(redColor);
-        Serial.print(" "); */
+        Serial.print(" "); 
 
 
         digitalWrite(S2, HIGH);
@@ -278,13 +288,13 @@ void loop() {
           greenColor = 255;
         }
         if (greenColor < 0) {
+          Serial.println("G -0");
           greenColor = 0;
         }
         /*Output of frequency mapped to 0-255*/
-        /* Serial.print("G = ");
+        Serial.print("G = ");
         Serial.print(greenColor);
-        Serial.print(" "); */
-        
+        Serial.print(" ");         
         
         digitalWrite(S2, LOW);
         digitalWrite(S3, HIGH);
@@ -296,14 +306,15 @@ void loop() {
           blueColor = 255;
         }
         if (blueColor < 0) {
+          Serial.println("B -0");
           blueColor = 0;
         }
         /*Output of frequency mapped to 0-255*/
-        /* Serial.print("B = ");
+        Serial.print("B = ");
         Serial.print(blueColor);
         Serial.print(" ");
 
-        Serial.println(""); */
+        Serial.println("");
 
         
         
@@ -314,7 +325,7 @@ void loop() {
         if (isInMargin(redColor, 255, 30) && isInMargin(greenColor, 55, 30) && isInMargin(blueColor, 80, 30)) {
           if (currZone != red){
             currZone = red;
-            sendPowUp();
+            sendPu = true;
             Serial.println("RED");
           }
         }
@@ -323,7 +334,7 @@ void loop() {
         if (isInMargin(redColor, 50, 30) && isInMargin(greenColor, 125, 30) && isInMargin(blueColor, 30, 30)) {
           if (currZone != green){
             currZone = green;
-            sendPowUp();
+            sendPu = true;
             Serial.println("GREEN");
           }
         }
@@ -332,7 +343,7 @@ void loop() {
         if (isInMargin(redColor, 35, 30) && isInMargin(greenColor, 130, 30) && isInMargin(blueColor, 255, 30)) {
           if (currZone != blue){
             currZone = blue;
-            sendPowUp();
+            sendPu = true;
             Serial.println("BLUE");
           }
         }  
@@ -341,9 +352,10 @@ void loop() {
         if (isInMargin(redColor, 150, 30) && isInMargin(greenColor, 20, 30) && isInMargin(blueColor, 20, 30)) {
           if (powerUp == 0){
             powerUp = 1; // to change back to zero when sent once
-            sendPowUp();
-            puDelay.start(5000);
+            sendPu = true;
+            puDelay = millis();
             sendReset();
+            timerStarted = true;
             Serial.println("POWER UP");
           }
         }
@@ -352,14 +364,9 @@ void loop() {
         if (isInMargin(redColor, 240, 30) && isInMargin(greenColor, 240, 30) && isInMargin(blueColor, 230, 30)) {
           if (powerUp == 1){
               powerUp = 0;
-              sendPowUp();
+              sendPu = true;
               Serial.println("CIRCUIT");
           } 
         } 
-        } 
-      } else {
-          digitalWrite(PIN_FORWARD, LOW);
-          digitalWrite(PIN_REVERSE, LOW);
-          Serial.println("Connection to server failed.");
-        }
-      }
+      } 
+      
