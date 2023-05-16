@@ -11,6 +11,7 @@ from Algo.Grid import Grid
 import Algo.UpdateMovements as updateMov
 from Algo.Orientation import calcOrientation
 # constant definitions
+POWERUP = 1
 
 # initialise IDs
 calibrationID = "CAL"
@@ -184,29 +185,29 @@ def parseInfo(info):
     elif id == stopID:
         print(f"Stopped {cars[0].id}")
         return "-1 0"
-    elif id == "CAR_ID_TEST":
-        for car in cars:
-            # car.old_x = car.x
-            # car.old_y = car.y
-            # car.x = car.predicted_x # todo prevent errors because of threads
-            # car.y = car.predicted_y # todo prevent errors because of threads
-            # min(int(car.delta) +5, 180)
-            # max(int(car.delta) - 20, 0)
-            return f"{min(int(car.delta) +5, 180)} {car.a}"
     else:
         for car in cars:
             if id == car.id:
                 return f"{min(int(car.delta) +5, 180)} {car.a}"
             elif id == car.id_pu:
                 updatePowerUp(car, info[1])
-                if (car.powerup == 1):
-                    pu.powerUp(car)
-                return f"{min(int(car.delta) +5, 180)} {car.a}"
+                if car.ai:
+                    if (car.powerup == POWERUP):
+                        pu.powerUp(car)
+                        break
+                    else:
+                        car.zone = car.powerup
+                        break
+                else:
+                    inversion = 0
+                    if car.inverted:
+                        inversion = 1
+                    return f"{inversion} {car.a}"
             elif id == car.id_reset:
                 car.a = 1
-                return f"{min(int(car.delta) +5, 180)} {car.a}"
-        else:
-            print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
+                return f"{min(int(car.delta) +5, 180)} {car.a} {car.zone}"
+        # else:
+        #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 
 def getCoordForCar(car: Car, coordinates):
     car.old_x = car.x

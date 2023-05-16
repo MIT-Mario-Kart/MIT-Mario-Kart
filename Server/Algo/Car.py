@@ -18,6 +18,8 @@ class Car:
     self.old_delta = 90
     self.delta = 90 # steering angle
     self.a = 1 # acceleration
+    self.zone = 1
     self.ai = ai
     self.speed = "GREEN"
     self.powerup = powerup
+    self.inverted = False
