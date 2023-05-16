@@ -1,36 +1,21 @@
 #include <ESP8266WiFi.h>
+#include <WiFiClient.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+
+#include <uri/UriBraces.h>
+#include <uri/UriRegex.h>
+
 #include <Servo.h>
-#include <dummy.h>
-#include <math.h>
 
-// Pins
-#define PIN_FORWARD 12 // D6 (D2 = 4)
-#define PIN_REVERSE 13 // D7 (D1 = 5)
-#define SERVO_PIN 15 // D8
+#ifndef STASSID
+#define STASSID "Arthur"
+#define STAPSK "testtest"
+#endif
 
-#define CAR_ID "CAR_ID_TEST"
-#define CAR_ID_RESET "CAR_ID_RESET"
-#define CAR_ID_PU "CAR_ID_PU"
-
-// Connection constants
-const char* ssid = "Rok's iPhone";       // your network SSID (name)
-const char* password = "babalilo";       // your network password
-const char* serverAddress = "172.20.10.2";   // server address
-const int serverPort = 8899;                   // server port
-
-WiFiClient client;
-
-const int RED = 2;
-const int GREEN = 3;
-const int BLUE = 4;
-
-// Global variables
+const char *ssid = STASSID;
+const char *password = STAPSK;
 Servo myservo;
-double speed_percentage = 1;
-int dir = 0;
-double received_acc = 1.0;
-double acceleration = 1.0;
-int currZone = GREEN;
 const char webpageCode[] =
 R"=====(
 <!DOCTYPE HTML>
@@ -593,23 +578,51 @@ var JoyStick = (function(container, parameters, callback)
 
 ESP8266WebServer server(80);
 
-void setup() {
+void handleJoystickData(){
+  int angle = server.arg(0).toInt();
+  int direction = server.arg(1).toInt();
 
-  // Pin stuff
-  pinMode(PIN_FORWARD,OUTPUT); // D6 F (project)
-  pinMode(PIN_REVERSE,OUTPUT); // D7 R (project)
-  myservo.attach(SERVO_PIN); // D8 (project)
+  myservo.write(angle);
 
-  // Start serial communication for debugging
-  Serial.begin(115200);
-
-  // Connect to Wi-Fi network
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    Serial.println("Connecting to WiFi...");
+  if(direction == 1){
+    digitalWrite(12, 1);
+    digitalWrite(13, 0);
+  }else if(direction == -1){
+    digitalWrite(12, 0);
+    digitalWrite(13, 1);
+  }else if(direction == 0){
+    digitalWrite(12, 0);
+    digitalWrite(13, 0);
   }
-  Serial.println("Connected to WiFi.");
+
+  //return an HTTP 200
+  server.send(200, "text/plain", "");   
+}
+
+void webpage(){
+  server.send(200, "text/html", webpageCode);
+}
+
+void setup(void) {
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+
+  myservo.attach(15);
+
+  Serial.begin(115200);
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid, password);
+  Serial.println("");
+
+  // Wait for connection
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("");
+  Serial.print("Connected to ");
+  Serial.println(ssid);
+  Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 
   server.begin();
@@ -619,129 +632,6 @@ void setup() {
   server.on("/data.html", handleJoystickData);  
 }
 
-void webpage(){
-  server.send(200, "text/html", webpageCode);
-}
-
-void handleJoystickData(){
-  int angle = server.arg(0).toInt();
-  int direction = server.arg(1).toInt();
-
-  myservo.write(angle);
-
-  if(direction == 1){
-    acceleration = 1;
-  }else if(direction == -1){
-    acceleration = 0;
-  }else if(direction == 0){
-    acceleration = 0;
-  }
-
-  //return an HTTP 200
-  server.send(200, "text/plain", "");   
-}
-
-void loop() {
-
-  String data = "";
-    
-  WiFiClient client;
-  if (client.connect(serverAddress, serverPort)) {
-      // Serial.println("Connected to server.");
-      
-      // Send dummy data
-      client.write(CAR_ID);
-      // Serial.println("Sent data to server.");
-
-      int a = 1;
-
-      // Wait for a response from the server
-      while (client.connected()) {
-
-        if (client.available()) {
-          // Read data from the server
-          data = client.readStringUntil('\n');
-          // Serial.print("Received data: ");
-          // Serial.println(data);
-          // Close the connection
-
-          char rcvd[data.length()+1];
-          data.toCharArray(rcvd, data.length()+1);
-
-          char* token;  // Pointer to the current token
-          const char delim[] = " ";  // The delimiter (a space in this case)
-
-          // Use strtok() to separate the string into tokens
-          token = strtok(rcvd, delim);
-
-          int count = 1;
-
-          while (token != nullptr && count <= 3) {
-              if(count == 1) {
-                dir = atoi(token);
-              } else if(count == 2) {
-                a = atoi(token);
-              } else if(count == 3) {
-                currZone = atoi(token);
-              } else {
-                break;
-              }
-
-              // Get the next token
-              token = strtok(nullptr, delim);
-              ++count;
-          }
-
-          // printf("%s\n", data);
-          // printf("dir: %d\n", dir);
-      switch (a) {
-        case 0:
-            received_acc = 0.8;
-            break;
-        case 1:
-            received_acc = 1.0;
-            break;
-        case 2:
-            received_acc = 1.2;
-            break;
-        default:
-            received_acc = 1.0;
-            break;
-        }
-
-        switch (currZone) {
-            case RED:
-                speed_percentage = 0.5;
-                break;
-            case BLUE:
-                speed_percentage = 0.75;
-                break;
-            case GREEN:
-                speed_percentage = 1;
-                break;
-            default:
-                speed_percentage = 1;
-                break;
-        }
-          client.stop();
-          // Serial.println("Disconnected from server.");
-        }
-      }
-     } else {
-          digitalWrite(PIN_FORWARD, LOW);
-          digitalWrite(PIN_REVERSE, LOW);
-          //Serial.println("Connection to server failed.");
-        }
-
-  // For now the car moves forward all the time
-  if (received_acc != acceleration) {
-    acceleration = received_acc;
-  }
-  analogWrite(PIN_FORWARD, 120 * speed_percentage * acceleration);
-  digitalWrite(PIN_REVERSE, LOW);
-     
+void loop(void) {
   server.handleClient();
-      
 }
-      
-      
