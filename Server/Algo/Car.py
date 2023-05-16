@@ -1,6 +1,8 @@
 class Car:
-  def __init__(self, id, server, x=0, y=0, orientation=0, desired_velocity= 0, ai=True, powerup = 0):
+  def __init__(self, id, id_pu, id_reset, server, x=0, y=0, orientation=0, desired_velocity= 0, ai=True, powerup = 0):
     self.id = id
+    self.id_pu = id_pu
+    self.id_reset = id_reset
     self.server = server
     self.old_x = x
     self.old_y = y

@@ -2,6 +2,7 @@
 #include <Servo.h>
 #include <dummy.h>
 #include <math.h>
+#include <millisDelay.h>
 
 // Pins
 #define PIN_FORWARD 12 // D6 (D2 = 4)
@@ -16,6 +17,8 @@
 #define sensorOut 16 // D0 or13
 
 #define CAR_ID "CAR_ID_TEST"
+#define CAR_ID_RESET "CAR_ID_RESET"
+#define CAR_ID_PU "CAR_ID_PU"
 
 // Connection constants
 const char* ssid = "S21Babou";       // your network SSID (name)
@@ -41,6 +44,7 @@ Zone currZone = green;
 
 int powerUp = 0;
 double acceleration = 1.0;
+millisDelay puDelay;
 
 bool isInMargin(int color, int theorical, int approx){
   int isIn = false;
@@ -60,7 +64,22 @@ void sendPowUp() {
   WiFiClient client;
   if (client.connect(serverAddress, serverPort)) {
     // send 0 or 1 so the server knows when to start the power up code
-    sprintf(toSend, "%s\n%d", CAR_ID, powerUp);
+    sprintf(toSend, "%s\n%d", CAR_ID_PU, powerUp);
+    client.write(toSend, 40);
+  }
+}
+
+void sendReset() {
+
+  char toSend[40];
+  // Connect to the server
+  Serial.print(currZone);
+  Serial.print(" : ");
+  Serial.println("RESET");
+  WiFiClient client;
+  if (client.connect(serverAddress, serverPort)) {
+    // send 0 or 1 so the server knows when to start the power up code
+    sprintf(toSend, "%s", CAR_ID_RESET);
     client.write(toSend, 40);
   }
 }
@@ -183,6 +202,11 @@ void loop() {
           client.stop();
           // Serial.println("Disconnected from server.");
         }
+
+        if (puDelay.justFinished()){
+          sendReset()
+        }
+
 
         switch (a) {
             case 0:
@@ -318,6 +342,8 @@ void loop() {
           if (powerUp == 0){
             powerUp = 1; // to change back to zero when sent once
             sendPowUp();
+            puDelay.start(5000);
+            sendReset();
             Serial.println("POWER UP");
           }
         }

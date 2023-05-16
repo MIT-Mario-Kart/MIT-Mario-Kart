@@ -20,7 +20,7 @@ calibrationColor = "yellow"
 
 # initialise car objects
 #car1 = Car("CAR1", ("172.20.10.6", 9999), x=160, y=20, orientation=180)
-car1 = Car("CAR1", ("192.168.199.228", 9999), x=160, y=20, orientation=180)
+car1 = Car("CAR_ID_TEST", "CAR_ID_PU", "CAR_ID_RESET", ("192.168.199.228", 9999), x=160, y=20, orientation=180)
 # car2 = Car("CAR2", ("172.20.10.8", 9999), x=160, y=20, orientation=270)
 dict_cars = {}
 cars = [car1] 
@@ -171,8 +171,6 @@ def parseInfo(info):
                 ovt.calculateCircles(car)
 
         for car in cars:
-            if (car.powerup == 1):
-                pu.powerUp(car, cars)
 
             ovt.overtake(car, cars)
 
@@ -183,7 +181,7 @@ def parseInfo(info):
 
     elif id == stopID:
         print(f"Stopped {cars[0].id}")
-        return "-1"
+        return "-1 0"
     elif id == "CAR_ID_TEST":
         for car in cars:
             # car.old_x = car.x
@@ -192,12 +190,19 @@ def parseInfo(info):
             # car.y = car.predicted_y # todo prevent errors because of threads
             # min(int(car.delta) +5, 180)
             # max(int(car.delta) - 20, 0)
-            return min(int(car.delta) +5, 180)
+            return f"{min(int(car.delta) +5, 180)} {car.a}"
     else:
-        car = dict_cars.get(id)
-        if car:
-            updatePowerUp(car, info[1])
-            sendCarInfo(car, f"{car.delta}, {car.a}")
+        for car in cars:
+            if id == car.id:
+                return f"{min(int(car.delta) +5, 180)} {car.a}"
+            elif id == car.id_pu:
+                updatePowerUp(car, info[1])
+                if (car.powerup == 1):
+                    pu.powerUp(car, cars)
+                return f"{min(int(car.delta) +5, 180)} {car.a}"
+            elif id == car.id_reset:
+                car.a = 1
+                return f"{min(int(car.delta) +5, 180)} {car.a}"
         else:
             print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 
