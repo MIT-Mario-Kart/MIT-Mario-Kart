@@ -46,13 +46,11 @@ def inversion(myCar):
 
 def powerUp(myCar):
     pu = random.randint(0,1)
-    match pu:
-        case 0:
-            speedup(myCar)
-        case 1:
-            slowdown(myCar)
-        case _:
-            speedup(myCar)
+
+    if pu == 1:
+        slowdown(myCar)
+    else:
+        speedup(myCar)
     
 
 

@@ -20,10 +20,10 @@
 #define CAR_ID_PU "CAR_ID_PU"
 
 // Connection constants
-const char* ssid = "S21Babou";       // your network SSID (name)
-const char* password = "sltcbabou";       // your network password
-const char* serverAddress = "192.168.199.19";   // server address
-const int serverPort = 8899;                   // server port
+const char* ssid = "Arthur";       // your network SSID (name)
+const char* password = "testtest";       // your network password
+const char* serverAddress = "172.20.10.4";   // server address
+const int serverPort = 8893;                   // server port
 
 WiFiServer ardServer(9999);
 WiFiClient client;
@@ -58,7 +58,7 @@ bool isInMargin(int color, int theorical, int approx){
 
 void sendPowUp() {
 
-  char toSend[40];
+  char toSend[14];
   // Connect to the server
   Serial.print(currZone);
   Serial.print(" : ");
@@ -73,7 +73,6 @@ void sendPowUp() {
 
 void sendReset() {
 
-  char toSend[40];
   // Connect to the server
   Serial.print(currZone);
   Serial.print(" : ");
@@ -81,8 +80,7 @@ void sendReset() {
   WiFiClient client;
   if (client.connect(serverAddress, serverPort)) {
     // send 0 or 1 so the server knows when to start the power up code
-    sprintf(toSend, "%s", CAR_ID_RESET);
-    client.write(toSend, 40);
+    client.write(CAR_ID_RESET);
   }
 }
 
@@ -131,7 +129,7 @@ void setup() {
   LOW/LOW=AUS, LOW/HIGH=2%,
   HIGH/LOW=20%, HIGH/HIGH=100%*/
   digitalWrite(S0, HIGH);
-  digitalWrite(S1, LOW);
+  digitalWrite(S1, HIGH);
 
   // Start serial communication for debugging
   Serial.begin(115200);
@@ -157,6 +155,7 @@ void loop() {
           sendReset();
           timerStarted = false;
           puDelay = 0;
+          #powerUp = 0;
         }
     else {
           WiFiClient client;
@@ -242,7 +241,7 @@ void loop() {
      } else {
           digitalWrite(PIN_FORWARD, LOW);
           digitalWrite(PIN_REVERSE, LOW);
-          Serial.println("Connection to server failed.");
+          //Serial.println("Connection to server failed.");
         }
         }} else {
       sendPowUp();
@@ -268,13 +267,13 @@ void loop() {
           redColor = 255;
         }
         if (redColor < 0) {
-          Serial.println("R -0");
+          Serial.print("R -0");
           redColor = 0;
         }
         // Output of frequency mapped to 0-2
-        Serial.print("R = ");
-        Serial.print(redColor);
-        Serial.print(" "); 
+        //Serial.print("R = ");
+        //Serial.print(redColor);
+        //Serial.print(" "); 
 
 
         digitalWrite(S2, HIGH);
@@ -288,13 +287,13 @@ void loop() {
           greenColor = 255;
         }
         if (greenColor < 0) {
-          Serial.println("G -0");
+          Serial.print("G -0");
           greenColor = 0;
         }
         /*Output of frequency mapped to 0-255*/
-        Serial.print("G = ");
-        Serial.print(greenColor);
-        Serial.print(" ");         
+        //Serial.print("G = ");
+        //Serial.print(greenColor);
+        //Serial.print(" ");         
         
         digitalWrite(S2, LOW);
         digitalWrite(S3, HIGH);
@@ -306,15 +305,19 @@ void loop() {
           blueColor = 255;
         }
         if (blueColor < 0) {
-          Serial.println("B -0");
+          Serial.print("B -0");
           blueColor = 0;
         }
         /*Output of frequency mapped to 0-255*/
-        Serial.print("B = ");
-        Serial.print(blueColor);
-        Serial.print(" ");
+        //Serial.print("B = ");
+        //Serial.print(blueColor);
+        //Serial.print(" ");
 
         Serial.println("");
+
+        //Serial.println("-------");
+
+        Serial.println(acceleration);
 
         
         

@@ -94,10 +94,12 @@ def sendCarInfo(car: Car, toSend):
         s.sendall(str(toSend).encode())
         s.close()
 
-def recvInfo(info):
+def recvInfo(info, needToBeDecoded = True):
     # print(info)
     # receiving coordinates from client
-    info = info.decode()
+    if(needToBeDecoded):
+        info = info.decode()
+        
     info = [inf for inf in info.split('\n') if inf != ""]
     return parseInfo(info)
 
@@ -198,7 +200,7 @@ def parseInfo(info):
             elif id == car.id_pu:
                 updatePowerUp(car, info[1])
                 if (car.powerup == 1):
-                    pu.powerUp(car, cars)
+                    pu.powerUp(car)
                 return f"{min(int(car.delta) +5, 180)} {car.a}"
             elif id == car.id_reset:
                 car.a = 1

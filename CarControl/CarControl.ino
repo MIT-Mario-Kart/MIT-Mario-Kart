@@ -9,10 +9,10 @@
 #define CAR_ID "CAR_ID_TEST"
 
 // Connection constants
-const char* ssid = "Rok's iPhone";       // your network SSID (name)
-const char* password = "babalilo";       // your network password
-const char* serverAddress = "172.20.10.2";   // server address
-const int serverPort = 8899;                   // server port
+const char* ssid = "albert";       // your network SSID (name)
+const char* password = "aaaabbbb";       // your network password
+const char* serverAddress = "172.20.10.6";   // server address
+const int serverPort = 3333;                   // server port
 
 // Global variables
 Servo myservo;

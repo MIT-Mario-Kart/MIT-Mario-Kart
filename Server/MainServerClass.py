@@ -18,7 +18,17 @@ class handler(BaseRequestHandler):
                 # print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
                 break # exits handler, framework closes socket
             print(f'Received: {msg}')
-            toSend = recvInfo(msg)
+            
+            # If the string contains CR_ID_PU then it's coming from the car
+            # We need to get rid of the end of the string
+            # 'CAR_ID_RESET\x00\x03\x00\x00\xe4\xe9\xfe?Z\x00\x00\x00\x0c\x00\x00\x00DS @\xc4\x88\xfe?\xfc\xff\xff\xff'
+            
+            if "CAR_ID_PU" in str(msg):
+                msg = str(msg).split("\\n")[0][2:] + "\n" + str(msg).split("\\n")[1][0]
+                toSend = recvInfo(msg, False)
+            else:
+                toSend = recvInfo(msg)
+                
             if toSend != None:
                 if toSend == "CAL":
                     self.sendToCameraAck()
