@@ -116,7 +116,7 @@ while not done:
         screen.blit(text_surface, [text_x, text_y])
 
         # Draw the car
-        pygame.draw.rect(screen, (255, 0, 0), (MOVE_MAP_X +  CIRCUIT_POS_X + (car.x)*SCALE, 
+        pygame.draw.rect(screen, car.colour, (MOVE_MAP_X +  CIRCUIT_POS_X + (car.x)*SCALE, 
                                                MOVE_MAP_Y + CIRCUIT_POS_Y + (car.y)*SCALE, 10, 10), 5)
 
         count = count + 1
