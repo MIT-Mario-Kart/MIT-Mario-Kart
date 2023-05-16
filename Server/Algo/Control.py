@@ -205,7 +205,7 @@ def parseInfo(info):
                     return f"{inversion} {car.a}"
             elif id == car.id_reset:
                 car.a = 1
-                return f"{min(int(car.delta) +5, 180)} {car.a} {car.zone}"
+                break
         # else:
         #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 

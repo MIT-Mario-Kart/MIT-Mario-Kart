@@ -1,5 +1,4 @@
-#include <ESP8266WiFi.h>
-#include <Servo.h>
+#include <WiFi.h>
 #include <dummy.h>
 #include <math.h>
 
@@ -36,7 +35,7 @@ Zone currZone = green;
 int powerUp = 0;
 const long int PU_MAX = 5000;
 long int puDelay = 0;
-bool timerStarted = false;
+bool timerIsStarted = false;
 
 
 bool isInMargin(int color, int theorical, int approx){
@@ -51,7 +50,7 @@ void sendPowUp() {
 
   char toSend[14];
   // Connect to the server
-  Serial.print(currZone);
+  Serial.print("PU");
   Serial.print(" : ");
   Serial.println(powerUp);
   WiFiClient client;
@@ -65,8 +64,8 @@ void sendPowUp() {
 void sendReset() {
 
   // Connect to the server
-  Serial.print(currZone);
-  Serial.print(" : ");
+  //Serial.print(currZone);
+  //Serial.print(" : ");
   Serial.println("RESET");
   WiFiClient client;
   if (client.connect(serverAddress, serverPort)) {
@@ -76,12 +75,12 @@ void sendReset() {
 }
 
 //Calibration values (must be updated before updated before each use)
-int redMin = 19285.71;
-int redMax = 62500.00;
-int greenMin = 16949.15;
-int greenMax = 31250.00;
-int blueMin = 20408.16;
-int blueMax = 35714.29;
+int redMin = 9174;
+int redMax = 33333;
+int greenMin = 9615;
+int greenMax = 14705;
+int blueMin = 12987;
+int blueMax = 26315;
 int redColor = 0;
 int greenColor = 0;
 int blueColor = 0;
@@ -129,11 +128,13 @@ void loop() {
 
   String data = "";
 
-    if (timerStarted && ((millis() - puDelay) > PU_MAX)){
+    if (timerIsStarted && ((millis() - puDelay) > PU_MAX)){
           sendReset();
-          timerStarted = false;
+          timerIsStarted = false;
           puDelay = 0;
-          //powerUp = 0;
+          powerUp = currZone + 1;
+          Serial.println("POWER UP ZERO");
+
         }
 
      
@@ -153,9 +154,13 @@ void loop() {
           redColor = 255;
         }
         if (redColor < 0) {
-          Serial.print("R -0");
+          //Serial.print("R -0");
           redColor = 0;
         }
+        // Serial.print("R ");
+        // Serial.print(redColor);
+        // Serial.print("   ");
+        
         // Output of frequency mapped to 0-2
         //Serial.print("R = ");
         //Serial.print(redColor);
@@ -173,9 +178,13 @@ void loop() {
           greenColor = 255;
         }
         if (greenColor < 0) {
-          Serial.print("G -0");
+          //Serial.print("G -0");
           greenColor = 0;
         }
+
+        // Serial.print("G ");
+        // Serial.print(greenColor);
+        // Serial.print("   ");
         /*Output of frequency mapped to 0-255*/
         //Serial.print("G = ");
         //Serial.print(greenColor);
@@ -191,15 +200,19 @@ void loop() {
           blueColor = 255;
         }
         if (blueColor < 0) {
-          Serial.print("B -0");
+          //Serial.print("B -0");
           blueColor = 0;
         }
+
+        // Serial.print("B ");
+        // Serial.print(blueColor);
+        // Serial.print("   ");
         /*Output of frequency mapped to 0-255*/
         //Serial.print("B = ");
         //Serial.print(blueColor);
         //Serial.print(" ");
 
-        Serial.println("");
+        Serial.print("");
 
         //Serial.println("-------");
         
@@ -207,7 +220,7 @@ void loop() {
         digitalWrite(S3, LOW);
 
         // check if the sensor detects a red tape
-        if (isInMargin(redColor, 83, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
+        if (isInMargin(redColor, 245, 30) && isInMargin(greenColor, 20, 30) && isInMargin(blueColor, 8, 30)) {
           if (currZone != red){
             currZone = red;
             powerUp = RED;
@@ -217,7 +230,7 @@ void loop() {
         }
 
         // check if the sensor detects a green tape
-        if (isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
+        if (isInMargin(redColor, 20, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 0, 30)) {
           if (currZone != green){
             currZone = green;
             powerUp = GREEN;
@@ -227,7 +240,7 @@ void loop() {
         }
 
         // check if the sensor detects a blue tape
-        if (isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 123, 30)) {
+        if (isInMargin(redColor, 6, 30) && isInMargin(greenColor, 170, 30) && isInMargin(blueColor, 240, 30)) {
           if (currZone != blue){
             currZone = blue;
             powerUp = BLUE;
@@ -236,22 +249,21 @@ void loop() {
           }
         }  
 
-        // check if the sensor detects a white tape
-        if (isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 255, 30)) {
-          if (powerUp == 0){
+        // check if the sensor detects a black tape
+        if (isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
+          Serial.println("POWER UP");
+          if (powerUp != 1){
             powerUp = 1; // to change back to zero when sent once
             sendPowUp();
             puDelay = millis();
-            sendReset();
-            timerStarted = true;
-            Serial.println("POWER UP");
+            timerIsStarted = true;
           }
         }
 
         // check if the sensor detects the circuit to reset powerup
-        if (isInMargin(redColor, 97, 30) && isInMargin(greenColor, 86, 30) && isInMargin(blueColor, 0, 30)) {
+        if (isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 135, 30)) {
+          powerUp = 0;
           if (powerUp == 1){
-              powerUp = 0;
               sendPowUp();
               Serial.println("CIRCUIT");
           } 
