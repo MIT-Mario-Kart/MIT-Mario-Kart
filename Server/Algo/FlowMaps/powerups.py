@@ -13,7 +13,6 @@ def timer(sec):
 
 # recommended sec is 5
 def speedup(mycar): 
-    prev = mycar.a
     mycar.a = FAST
 # recommended sec is 3
 # intesity can go from 0 to 0.9 (0 -> freeze)
@@ -49,11 +48,11 @@ def powerUp(myCar):
     pu = random.randint(0,1)
     match pu:
         case 0:
-            speedup(myCar, 5)
+            speedup(myCar)
         case 1:
-            slowdown(myCar, 5)
+            slowdown(myCar)
         case _:
-            speedup(myCar, 5)
+            speedup(myCar)
     
 
 
