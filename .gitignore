@@ -13,11 +13,6 @@ time_test.c
 time_test
 PathArgServerTest/
 /Server/__pycache__/*
-Server/Algo/FlowMaps/__pycache__/powerups.cpython-311.pyc
-Server/Algo/FlowMaps/__pycache__/circuit20x20.cpython-311.pyc
-Server/Algo/Overtake/__pycache__/overtake.cpython-311.pyc
-Server/Algo/__pycache__/UpdateMovements.cpython-311.pyc
-Server/Algo/__pycache__/Grid.cpython-311.pyc
-Server/Algo/__pycache__/Car.cpython-311.pyc
-Server/Algo/__pycache__/Control.cpython-311.pyc
-Server/Algo/__pycache__/Orientation.cpython-311.pyc
+Server/Algo/FlowMaps/__pycache__/
+Server/Algo/Overtake/__pycache__/
+Server/Algo/__pycache__/
