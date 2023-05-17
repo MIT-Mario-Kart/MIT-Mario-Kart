@@ -4,39 +4,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 
-
-
-class Car:
-  def init(self, name, server, x=0, y=0, interaction_index=0, index=0, move=False):
-    self.name = name
-    self.server = server
-    self.x = x
-    self.y = y
-    self.interaction_index = interaction_index
-    self.index = index # to be incremented every time we reach a given checkpoint
-    self.move = move
-    self.velocity = 0
-    self.orientation = 0
-    self.desired_orientation = 0
-    self.delta = 0 # steering angle
-    self.a = 0 # acceleration
-
-
-
 # leftCircle has to be claculated with claculateCircles()
-def isInLeftCircle(pos, leftCircle):
+def isInLeftCircle(pos, leftCircle: Wedge):
   transformed_pos = leftCircle.get_transform().transform(pos)
   return leftCircle.contains_point(transformed_pos)
 
 # rightCircle has to be claculated with claculateCircles()
-def isInRightCircle(pos, rightCircle):
+def isInRightCircle(pos, rightCircle: Wedge):
   transformed_pos = rightCircle.get_transform().transform(pos)
   return rightCircle.contains_point(transformed_pos)
 
 
 
 def calculateCircles(mycar):
-
   radius = 10
   dir = mycar.orientation
   myPos = (mycar.x, mycar.y)
@@ -56,14 +36,19 @@ def overtake(mycar, otherCars):
   myPos = (mycar.x, mycar.y)
 
   for c in otherCars:
-    pos = c[0]
-    leftC = c[1]
-    rightC = c[2]    
-    distance = math.dist(myPos, pos)
-    sensibility = 3 # to test
+    if mycar != c:
+      pos = (c.x, c.y)
+      leftC = c.left_circle
+      rightC = c.right_circle   
+      distance = math.dist(myPos, pos)
+      if distance < 0.2 :
+            distance = 1
+      sensibility = 4 # to test
 
-    if (isInLeftCircle(myPos, leftC)):
-      mycar.delta = mycar.delta + distance * sensibility
+      if (isInLeftCircle(myPos, leftC)):
+        mycar.delta = mycar.delta + (distance / sensibility)
+        mycar.orientation = mycar.delta + (distance / sensibility)
 
-    if (isInRightCircle(myPos, rightC)):
-      mycar.delta = mycar.delta - distance * sensibility
+      if (isInRightCircle(myPos, rightC)):
+        mycar.delta = mycar.delta - (distance / sensibility)
+        mycar.orientation = mycar.delta - (distance / sensibility)
