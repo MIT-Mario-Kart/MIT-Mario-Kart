@@ -8,6 +8,13 @@
 #define PIN_REVERSE 13 // D7 (D1 = 5)
 #define SERVO_PIN 15 // D8
 
+// Assignment of the sensor pins
+#define S0 5 // D1 or 12
+#define S1 4 // D2 or 2
+#define S2 0 // D3 or 14
+#define S3 2 // D4 or 15
+#define sensorOut 16 // D0 or13
+
 #define CAR_ID "CAR_ID_TEST"
 #define CAR_ID_RESET "CAR_ID_RESET"
 #define CAR_ID_PU "CAR_ID_PU"
@@ -20,9 +27,7 @@ const int serverPort = 8899;                   // server port
 
 WiFiClient client;
 
-const int RED = 2;
-const int GREEN = 3;
-const int BLUE = 4;
+
 
 // Global variables
 Servo myservo;
@@ -30,7 +35,31 @@ double speed_percentage = 1;
 int dir = 0;
 double received_acc = 1.0;
 double acceleration = 1.0;
-int currZone = GREEN;
+int powerUp = 0;
+
+/* 
+double acceleration = 1.0;
+const long int PU_MAX = 5000;
+long int puDelay = 0;
+bool timerStarted = false;
+bool sendPu = false; */
+
+void sendPowUp() {
+
+  char toSend[14];
+  // Connect to the server
+  Serial.print("CURRENT ZONE / POWERUP SENT : ");
+  Serial.print(currZone);
+  Serial.print(" / ");
+  Serial.println(powerUp);
+  WiFiClient client;
+  if (client.connect(serverAddress, serverPort)) {
+    // send 0 or 1 so the server knows when to start the power up code
+    sprintf(toSend, "%s\n%d", CAR_ID_PU, powerUp);
+    client.write(toSend, 40);
+  }
+}
+
 const char webpageCode[] =
 R"=====(
 <!DOCTYPE HTML>
@@ -599,6 +628,18 @@ void setup() {
   pinMode(PIN_FORWARD,OUTPUT); // D6 F (project)
   pinMode(PIN_REVERSE,OUTPUT); // D7 R (project)
   myservo.attach(SERVO_PIN); // D8 (project)
+  /*definition of the sensor pins*/
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(sensorOut, INPUT);
+  /*Scaling the output frequency
+  S0/S1
+  LOW/LOW=AUS, LOW/HIGH=2%,
+  HIGH/LOW=20%, HIGH/HIGH=100%*/
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, HIGH);
 
   // Start serial communication for debugging
   Serial.begin(115200);
@@ -709,20 +750,7 @@ void loop() {
             break;
         }
 
-        switch (currZone) {
-            case RED:
-                speed_percentage = 0.5;
-                break;
-            case BLUE:
-                speed_percentage = 0.75;
-                break;
-            case GREEN:
-                speed_percentage = 1;
-                break;
-            default:
-                speed_percentage = 1;
-                break;
-        }
+        
           client.stop();
           // Serial.println("Disconnected from server.");
         }
@@ -732,12 +760,82 @@ void loop() {
           digitalWrite(PIN_REVERSE, LOW);
           //Serial.println("Connection to server failed.");
         }
+      digitalWrite(S2, LOW);
+        digitalWrite(S3, LOW);
+        
+          /*Frequency measurement of the specified color and its as- signment to an RGB value between 0-255*/
+        float(redEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
+        float(redFrequency) = (1 / (redEdgeTime / 1000000)); redColor = map(redFrequency, redMax, redMin, 255, 0); 
+        if (redColor > 255) {
+          redColor = 255;
+        }
+        if (redColor < 0) {
+          redColor = 0;
+        }
+        // Output of frequency mapped to 0-2
+        //Serial.print("R = ");
+        //Serial.print(redColor);
+        //Serial.print(" "); 
+
+
+        digitalWrite(S2, HIGH);
+        digitalWrite(S3, HIGH);
+        /*Frequency measurement of the specified color and its as-
+        signment to an RGB value between 0-255*/
+        float(greenEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
+        float(greenFrequency) = (1 / (greenEdgeTime / 1000000));
+        greenColor = map(greenFrequency, greenMax, greenMin, 255, 0);
+        if (greenColor > 255) {
+          greenColor = 255;
+        }
+        if (greenColor < 0) {
+          greenColor = 0;
+        }
+        /*Output of frequency mapped to 0-255*/
+        //Serial.print("G = ");
+        //Serial.print(greenColor);
+        //Serial.print(" ");         
+        
+        digitalWrite(S2, LOW);
+        digitalWrite(S3, HIGH);
+        /*Frequency measurement of the specified color and its as-
+        signment to an RGB value between 0-255*/
+        float(blueEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
+        float(blueFrequency) = (1 / (blueEdgeTime / 1000000)); blueColor = map(blueFrequency, blueMax, blueMin, 255, 0); 
+        if (blueColor > 255) {
+          blueColor = 255;
+        }
+        if (blueColor < 0) {
+          blueColor = 0;
+        }
+
+
+        // check if the sensor detects a black tape
+        if (isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
+          if (powerUp == 0){
+            powerUp = 1; // to change back to zero when sent once
+            sendPu = true;
+            puDelay = millis();
+            sendReset();
+            timerStarted = true;
+            Serial.println("POWER UP");
+          }
+        }
+
+        // check if the sensor detects the circuit to reset powerup
+        if (isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 135, 30)) {
+          if (powerUp == 1){
+              powerUp = 0;
+              sendPu = true;
+              Serial.println("CIRCUIT");
+          } 
+        } 
 
   // For now the car moves forward all the time
   if (received_acc != acceleration) {
     acceleration = received_acc;
   }
-  analogWrite(PIN_FORWARD, 120 * speed_percentage * acceleration);
+  analogWrite(PIN_FORWARD, 120 * acceleration);
   digitalWrite(PIN_REVERSE, LOW);
      
   server.handleClient();
