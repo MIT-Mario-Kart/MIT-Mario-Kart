@@ -9,7 +9,6 @@ from Algo.Control import cars
 from Algo.Control import updateCarMovement
 from Algo.Overtake.overtake import *
 
-
 # Define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)

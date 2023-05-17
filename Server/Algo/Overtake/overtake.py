@@ -41,6 +41,8 @@ def overtake(mycar, otherCars):
       leftC = c.left_circle
       rightC = c.right_circle   
       distance = math.dist(myPos, pos)
+      if distance < 0.2 :
+            distance = 1
       sensibility = 4 # to test
 
       if (isInLeftCircle(myPos, leftC)):

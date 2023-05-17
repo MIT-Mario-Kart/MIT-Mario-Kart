@@ -162,6 +162,7 @@ def parseInfo(info):
         return "CAL"
     
     elif id == camID:
+        print(info)
         points = parseJson(info[1])
         for id, val in points.items():
             # id will be the color of the car (green or blue for now)
