@@ -44,13 +44,9 @@ def overtake(mycar, otherCars):
       sensibility = 4 # to test
 
       if (isInLeftCircle(myPos, leftC)):
-        mycar.delta = mycar.delta + distance * sensibility
-        mycar.orientation = mycar.delta + distance * sensibility
+        mycar.delta = mycar.delta + (distance / sensibility)
+        mycar.orientation = mycar.delta + (distance / sensibility)
 
       if (isInRightCircle(myPos, rightC)):
-        mycar.delta = mycar.delta - distance * sensibility
-        mycar.orientation = mycar.delta - distance * sensibility
-
-    
-
-
+        mycar.delta = mycar.delta - (distance / sensibility)
+        mycar.orientation = mycar.delta - (distance / sensibility)
