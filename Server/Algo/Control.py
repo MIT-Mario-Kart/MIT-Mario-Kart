@@ -4,6 +4,7 @@ import  json
 import re
 
 from Algo.Car import Car
+from Algo.Car import RED_C, BLUE_C, GREEN_C
 from Algo.FlowMaps.circuit20x20 import directions as fmdir
 import Algo.Overtake.overtake as ovt
 import Algo.FlowMaps.powerups as pu
@@ -20,10 +21,12 @@ stopID = "STOP"
 calibrationColor = "yellow"
 
 # initialise car objects
-car1 = Car("CAR1", "Test", "Test", ("172.20.10.6", 9999), Car.BLUE_C, x=160, y=20, orientation=180)
-# car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), Car.RED_C, x=140, y=20, orientation=180)
+car1 = Car("CAR1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
+car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
+car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
+
 dict_cars = {}
-cars = [car1] 
+cars = [car1, car2, car3] 
 for car in cars:
     dict_cars[car.id] = car
 
