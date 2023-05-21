@@ -2,7 +2,6 @@
 #include <Servo.h>
 #include <dummy.h>
 #include <math.h>
-#include <SoftwareSerial.h>
 #include <ESP8266WebServer.h>
 
 // Pins
@@ -21,20 +20,13 @@
 #define S3 2            // D4
 #define sensorOut 14    // D5
 
-#define RX_PIN 3        // RX (blue)
-#define TX_PIN 1        // TX (green)
-#define BAUD_RATE 115200
-#define BREAK_CHAR "\n"
-SoftwareSerial ESPSerial(RX_PIN, TX_PIN);
-int RXDelay = 0;
-
 // Connection constants
 const char* ssid = "Dan the Pol";               // your network SSID (name)
 const char* password = "RETR0ProkT765";         // your network password
 
 WiFiClient client;
 
-// ------------------- ESP32 colour sensor code --------------------
+// ------------------- Colour sensor code --------------------
 enum Zone {
   red,
   green,
@@ -95,17 +87,6 @@ const int RED = 2;
 const int GREEN = 3;
 const int BLUE = 4;
 // ---------------------------------------------------------------
-
-
-
-void sendIP() {
-  String IP = WiFi.localIP().toString();
-  IP.concat(BREAK_CHAR);
-  char IP_ca[IP.length() + 1];
-  IP.toCharArray(IP_ca, IP.length());
-  ESPSerial.write(IP_ca);
-}
-
 
 // Global variables
 Servo myservo;
@@ -713,14 +694,17 @@ void handleJoystickData(){
 
 
 
+// --------------------------------------------------------
+
+
 
 
 void setup() {
 
   // Pin stuff
-  pinMode(PIN_FORWARD,OUTPUT); // D6 F (project)
-  pinMode(PIN_REVERSE,OUTPUT); // D7 R (project)
-  myservo.attach(SERVO_PIN); // D8 (project)
+  pinMode(PIN_FORWARD,OUTPUT);
+  pinMode(PIN_REVERSE,OUTPUT);
+  myservo.attach(SERVO_PIN);
 
     /*definition of the sensor pins*/
   pinMode(S0, OUTPUT);
@@ -736,7 +720,7 @@ void setup() {
   digitalWrite(S0, HIGH);
   digitalWrite(S1, HIGH);
 
-  ESPSerial.begin(BAUD_RATE);
+  Serial.begin(115200);
 
   // Connect to Wi-Fi network
   WiFi.begin(ssid, password);
@@ -748,19 +732,12 @@ void setup() {
   server.begin();
 
   server.on("/", webpage);
-  server.on("/data.html", handleJoystickData);  
+  server.on("/data.html", handleJoystickData);
 }
-
-
-
-
-
 
 void loop() {
 
-  // -------------- ESP32 ---------------
-
-  // Reset powerups
+ // Reset powerups
   if (timerIsStarted && ((millis() - puDelay) > PU_MAX)) {
     sendReset();
     timerIsStarted = false;
@@ -772,7 +749,7 @@ void loop() {
     isPowerupd = false;
     invertControls = false;
   }
-
+  
   // Color sensor =======================================================================================================================================
 
   /*Determination of the photodiode type during measurement
@@ -857,84 +834,5 @@ void loop() {
       zoneOrPowUp = 0;
       sendZoneOrPowUp();
     }
-  }
-
-
-
-  // --------------------------------------------------
-
-
-
-  // Receiving powerups
-
-  String data = "";
-
-  // if (ESPSerial.available() > 0 && RXDelay == 0 && !isPowerupd) {
-    
-  //   while(ESPSerial.available()) {
-  //     char next = ESPSerial.read();
-  //     if(next == '\n') {
-  //       break;
-  //     } else {
-  //       data.concat(next);
-  //     }
-  //   }
-
-  //   char rcvd[data.length()+1];
-  //   data.toCharArray(rcvd, data.length());
-  //   receivedPowerup = atoi(rcvd);
-  // }
-
-  // Powerup management
-
-  if(receivedPowerup == PU_STOP) {
-
-    isPowerupd = false;
-    speed_percentage = 0;
-    
-  } else if(isPowerupd) {
-
-      // Should be ok
-
-  } else if(receivedPowerup == PU_SLOWDOWN) {
-
-    isPowerupd = true;
-    speed_percentage = SLOWDOWN_PRCNT;
-
-  } else if(receivedPowerup == PU_SPEEDUP) {
-
-    isPowerupd = true;
-    speed_percentage = SPEEDUP_PRCNT;
-
-  } else if(receivedPowerup == PU_INVERT) {
-
-    isPowerupd = true;
-    invertControls = true;
-
-  }
-
-
-  // Controlling motors
-
-  if(acceleration == 1) {
-
-    analogWrite(PIN_FORWARD, 120 * speed_percentage);
-    digitalWrite(PIN_REVERSE, LOW);
-
-  } else if (acceleration == 0) {
-
-    digitalWrite(PIN_FORWARD, LOW);
-    digitalWrite(PIN_REVERSE, LOW);
-
-  } else if(acceleration == -1) {
-
-    digitalWrite(PIN_FORWARD, LOW);
-    analogWrite(PIN_REVERSE, 120 * speed_percentage);
-
-  }
-  
-  server.handleClient(); 
-  if(!isPowerupd){
-    RXDelay = (RXDelay + 1) % 100;
   }
 }
