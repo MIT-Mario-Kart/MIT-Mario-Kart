@@ -302,7 +302,8 @@ def calculateDeltaCar(car : Car):
     left = car.fm_orientation - car.orientation
     left = left + 360 if left < 0 else left
 
-    car.old_delta = car.delta
+    old_delta = car.delta 
+    tmp_delta = car.delta
     if (left <= right):
         car.desired_orientation = left
 
