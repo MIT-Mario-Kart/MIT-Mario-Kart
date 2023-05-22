@@ -758,9 +758,7 @@ void setup() {
 
 void loop() {
 
-  // -------------- ESP32 ---------------
-
-  // Reset powerups
+  // -------------- Reset powerups ---------------
   if (timerIsStarted && ((millis() - puDelay) > PU_MAX)) {
     sendReset();
     timerIsStarted = false;
@@ -773,7 +771,9 @@ void loop() {
     invertControls = false;
   }
 
-  // Color sensor =======================================================================================================================================
+  // --------------------------------------------
+
+  //------------------------------- Colour sensor -------------------------------
 
   /*Determination of the photodiode type during measurement
     S2/S3
@@ -859,13 +859,9 @@ void loop() {
     }
   }
 
+  // ---------------------------------------------------------------------------- 
 
-
-  // --------------------------------------------------
-
-
-
-  // Receiving powerups
+  // ------------------------- Receiving powerups -------------------------
 
   String data = "";
 
@@ -885,7 +881,11 @@ void loop() {
   //   receivedPowerup = atoi(rcvd);
   // }
 
-  // Powerup management
+  //. --------------------------------------------------------------------
+
+
+  // ------------------ Powerup management ----------------------
+
 
   if(receivedPowerup == PU_STOP) {
 

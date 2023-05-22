@@ -95,7 +95,6 @@ def getPowerUp(pow):
 def updatePowerUp(car: Car, pow):
     car.powerup = getPowerUp(pow)
 
-
 def sendCarInfo(car: Car, toSend):
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         # s.bind(('172.20.10.2', 7777))

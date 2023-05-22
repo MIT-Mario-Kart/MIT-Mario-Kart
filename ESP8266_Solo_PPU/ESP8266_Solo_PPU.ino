@@ -3,19 +3,16 @@
 #include <dummy.h>
 #include <math.h>
 #include <ESP8266WebServer.h>
+#include <cstdlib>
 
 // Pins
 #define PIN_FORWARD 12    // D6
 #define PIN_REVERSE 13    // D7
 #define SERVO_PIN 15      // D8
 
-#define CAR_ID "CAR_ID_TEST"
-#define CAR_ID_RESET "CAR_ID_RESET"
-#define CAR_ID_PU "CAR_ID_PU"
-
 // Assignment of the sensor pins
 #define S0 4            // D2
-#define S1 16           // D0
+#define S1 5           // D1
 #define S2 0            // D3
 #define S3 2            // D4
 #define sensorOut 14    // D5
@@ -48,22 +45,6 @@ bool isInMargin(int color, int theorical, int approx){
   return isIn;
 }
 
-void sendZoneOrPowUp() {
-
-  char toSend[14];
-  sprintf(toSend, CAR_ID_PU "%d" BREAK_CHAR, zoneOrPowUp);
-  // Length of sent string (of characters to send) is 11, counting BREAK_CHAR
-  ESPSerial.write(toSend, 11);
-
-}
-
-void sendReset() {
-
-  // 13 characters to send
-  ESPSerial.write(CAR_ID_RESET BREAK_CHAR);
-  
-}
-
 //Calibration values (must be updated before updated before each use)
 int redMin = 9174;
 int redMax = 33333;
@@ -93,7 +74,7 @@ Servo myservo;
 double speed_percentage = 1;
 int dir = 0;
 double received_acc = 1.0;
-double acceleration = 1.0;
+double acceleration = 0.0;
 const char webpageCode[] =
 R"=====(
 <!DOCTYPE HTML>
@@ -662,11 +643,29 @@ ESP8266WebServer server(80);
 #define PU_SPEEDUP 3
 #define PU_INVERT 4
 
-#define SLOWDOWN_PRCNT 0.8
-#define SPEEDUP_PRCNT 1.2
+#define SLOWDOWN_PRCNT 0.86
+#define SPEEDUP_PRCNT 1.15
+#define NORMAL_SPEED 220
 int receivedPowerup = PU_NONE;
 bool isPowerupd = false;
 bool invertControls = false;
+
+void activatePowerup() {
+
+  srand((unsigned) time(NULL));
+  receivedPowerup = (abs(rand()) % 3) + 2;
+
+  if(receivedPowerup == PU_SLOWDOWN){
+    Serial.println("Slowdown");
+  } else if(receivedPowerup == PU_SPEEDUP) {
+    Serial.println("Speedup");
+  } else if(receivedPowerup == PU_INVERT) {
+    Serial.println("Invert");
+  } else {
+    Serial.println("Error on PU");
+  }
+
+}
 
 void webpage(){
   server.send(200, "text/html", webpageCode);
@@ -688,7 +687,7 @@ void handleJoystickData(){
   acceleration = direction;
 
   //return an HTTP 200
-  server.send(200, "text/plain", "");   
+  server.send(200, "text/plain", "");
 }
 
 
@@ -726,20 +725,27 @@ void setup() {
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
-    sendIP();
   }
 
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
   server.begin();
 
   server.on("/", webpage);
   server.on("/data.html", handleJoystickData);
 }
 
+
+
+
+
+
+
 void loop() {
 
  // Reset powerups
   if (timerIsStarted && ((millis() - puDelay) > PU_MAX)) {
-    sendReset();
+    
     timerIsStarted = false;
     puDelay = 0;
     zoneOrPowUp = currZone + 1;
@@ -748,9 +754,10 @@ void loop() {
     receivedPowerup = PU_NONE;
     isPowerupd = false;
     invertControls = false;
+    Serial.println("Powerup reset");
   }
-  
-  // Color sensor =======================================================================================================================================
+
+  //------------------------------- Colour sensor -------------------------------
 
   /*Determination of the photodiode type during measurement
     S2/S3
@@ -799,32 +806,33 @@ void loop() {
   digitalWrite(S2, HIGH);
   digitalWrite(S3, LOW);
 
+
   if(isInMargin(redColor, 245, 30) && isInMargin(greenColor, 20, 30) && isInMargin(blueColor, 8, 30)) {
     // check if the sensor detects a RED tape
     if (currZone != red){
       currZone = red;
       zoneOrPowUp = RED;
-      sendZoneOrPowUp();
+
     }
   } else if(isInMargin(redColor, 20, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a GREEN tape
     if (currZone != green){
       currZone = green;
       zoneOrPowUp = GREEN;
-      sendZoneOrPowUp();
+
     }
   } else if(isInMargin(redColor, 6, 30) && isInMargin(greenColor, 170, 30) && isInMargin(blueColor, 240, 30)) {
     // check if the sensor detects a BLUE tape
     if (currZone != blue){
       currZone = blue;
       zoneOrPowUp = BLUE;
-      sendZoneOrPowUp();
+
     }
   } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a black tape (POWERUP)
-    if (zoneOrPowUp != 1){
-      zoneOrPowUp = 1; // to change back to zero when sent once
-      sendZoneOrPowUp();
+    if (zoneOrPowUp != 1 && !isPowerupd) {
+      zoneOrPowUp = 1;            // to change back to zero when sent once
+      activatePowerup();
       puDelay = millis();
       timerIsStarted = true;
     }
@@ -832,7 +840,63 @@ void loop() {
      // check if the sensor detects the CIRCUIT to reset powerup
     if (zoneOrPowUp != 0){ 
       zoneOrPowUp = 0;
-      sendZoneOrPowUp();
+      Serial.println("Circuit");
     }
   }
+
+  // ----------------------------------------------------------------------------
+
+  //------------------ Powerup management ----------------------
+
+
+  if(receivedPowerup == PU_STOP) {
+
+    isPowerupd = false;
+    speed_percentage = 0;
+    
+  } else if(isPowerupd) {
+
+      // Should be ok]
+
+  } else if(receivedPowerup == PU_SLOWDOWN) {
+
+    isPowerupd = true;
+    speed_percentage = SLOWDOWN_PRCNT;
+
+  } else if(receivedPowerup == PU_SPEEDUP) {
+
+    isPowerupd = true;
+    speed_percentage = SPEEDUP_PRCNT;
+
+  } else if(receivedPowerup == PU_INVERT) {
+
+    isPowerupd = true;
+    invertControls = true;
+
+  } else if(receivedPowerup == PU_NONE) {
+
+    speed_percentage = 1;
+
+  }
+
+  // Controlling motors
+
+  if(acceleration == 1) {
+
+    analogWrite(PIN_FORWARD, NORMAL_SPEED * speed_percentage);
+    digitalWrite(PIN_REVERSE, LOW);
+
+  } else if (acceleration == 0) {
+
+    digitalWrite(PIN_FORWARD, LOW);
+    digitalWrite(PIN_REVERSE, LOW);
+
+  } else if(acceleration == -1) {
+
+    digitalWrite(PIN_FORWARD, LOW);
+    analogWrite(PIN_REVERSE, NORMAL_SPEED * speed_percentage);
+
+  }
+  
+  server.handleClient(); 
 }
