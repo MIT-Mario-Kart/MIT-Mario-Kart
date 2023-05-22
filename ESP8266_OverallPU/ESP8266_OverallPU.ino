@@ -16,7 +16,7 @@
 
 // Assignment of the sensor pins
 #define S0 4            // D2
-#define S1 16           // D0
+#define S1 5            // D1
 #define S2 0            // D3
 #define S3 2            // D4
 #define sensorOut 14    // D5
