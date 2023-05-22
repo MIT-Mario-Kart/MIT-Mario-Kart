@@ -1,10 +1,11 @@
 # xy orientation delta(servo) et xy autres voitures
 import math
-import numpy as np
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 
-# leftCircle has to be claculated with claculateCircles()
+
+# leftCircle has to be calculated with calculateCircles()
 def isInLeftCircle(pos, leftCircle: Wedge):
   transformed_pos = leftCircle.get_transform().transform(pos)
   return leftCircle.contains_point(transformed_pos)

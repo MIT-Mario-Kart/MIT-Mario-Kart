@@ -25,7 +25,7 @@ for x in range(1,4):
 
 for x in range(4,14):
     for y in range(16,19):
-        directions[x][y] = a3
+        directions[x][y] = 0
 
 for x in range(9,16):
     for y in range(13,16):
@@ -174,9 +174,9 @@ directions[9][7] = a2
 # top right zone =====================================================================================================
 
 directions[14][7] = a2
-directions[15][6] = a2
-directions[15][7] = a1
-directions[16][6] = a1
+directions[15][6] = a12
+directions[15][7] = a12
+directions[16][6] = a12
 directions[16][7] = a1
 directions[17][6] = a12
 directions[17][7] = a12
@@ -192,21 +192,21 @@ directions[16][1] = a9
 directions[16][2] = a10
 directions[16][3] = a10
 directions[16][4] = a12
-directions[16][5] = a2
-directions[16][6] = a2
+directions[16][5] = a12
+directions[16][6] = a12
 directions[16][7] = a1
 
 directions[17][1] = a9
 directions[17][2] = a10
 directions[17][3] = a11
 directions[17][4] = a12
-directions[17][5] = a1
-directions[17][6] = a1
+directions[17][5] = a12
+directions[17][6] = a12
 
-directions[18][2] = a10
-directions[18][3] = a11
-directions[18][4] = a12
-directions[18][5] = a1
+directions[18][2] = a9
+directions[18][3] = a9
+directions[18][4] = a11
+directions[18][5] = a12
 
 # outside zone =====================================================================================================
 
@@ -233,3 +233,6 @@ for x in range(8, 20):
 for x in range(0, 20):
     for y in range(0, 1):
         directions[x][y] = a6
+
+
+directions[18][13] = a9

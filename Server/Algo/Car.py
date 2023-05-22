@@ -1,5 +1,6 @@
 class Car:
-  def __init__(self, id, id_pu, id_reset, server, colour, x=0, y=0, orientation=0, desired_velocity= 0, ai=True, powerup = 0):
+  def __init__(self, id, id_pu, id_reset, server, colour, x=0, y=0, orientation=0, desired_velocity= 0, ai=True, powerup = 0, rank = 0):
+    self.rank = rank
     self.id = id
     self.id_pu = id_pu
     self.id_reset = id_reset
@@ -30,3 +31,6 @@ class Car:
 RED_C = (255, 0, 0)
 BLUE_C = (0, 0, 255)
 GREEN_C = (0, 255, 0)
+VIOLET_C = (238, 130, 238)
+ROSE_C = (255, 29, 206)
+BRUN_C = (88, 41, 0)
