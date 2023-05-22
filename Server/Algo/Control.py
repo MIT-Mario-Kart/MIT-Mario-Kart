@@ -221,20 +221,28 @@ def calculateDeltaCar(car):
     left = car.fm_orientation - car.orientation
     left = left + 360 if left < 0  else left
 
-    car.old_delta = car.delta
+    old_delta = car.delta 
+    tmp_delta = car.delta
     if (left <= right):
         car.desired_orientation = left
-        car.delta = 90 + (left/180) * 90
+        # tmp_delta = 90 + (left/180) * 90
+        tmp_delta = 90 + (left * 0.5)
         # car.delta = 180 if left <10 else 90
     else:
         # car.delta = 0 if right < 10 else 90
         if right == 0:
             right = 0.1
         car.desired_orientation = -right
-        car.delta = 90 - (right/180)*90
+        # tmp_delta = 90 - (right/180)*90
+        tmp_delta = 90 - (right * 0.5)
 
     if abs(car.delta - car.old_delta) < 10:
-        car.delta = car.old_delta
+        tmp_delta = old_delta
+    
+    # Sent angle needs to be between 60 and 120 => i.e. angle = 90 (straight) ± 30
+    rotation_from_center = (90 - abs(tmp_delta))/3
+    car.delta = 90 + rotation_from_center
+
 
     # sendCarInfo(car, car.delta)
 
