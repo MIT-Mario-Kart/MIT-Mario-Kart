@@ -6,13 +6,13 @@ from Server.Algo import Car
 class GridOccupation:
     busy_grid = []
 
-
     def __init__(self, pos_x, pos_y, width, nb_case):
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.width = width
         self.case_width = width / nb_case
-        self.busy_grid2 = [[0]*nb_case]*nb_case
+        self.busy_grid2 = [[0] * nb_case] * nb_case
+
     def addBusy(self, car_x, car_y):
         x_grid = car_x // self.case_width
         y_grid = car_y // self.case_width
@@ -21,8 +21,8 @@ class GridOccupation:
             self.busy_grid.append((x_grid, y_grid))
 
     def addBusy2(self, car_x, car_y):
-        x_grid = car_x // self.case_width
-        y_grid = car_y // self.case_width
+        x_grid = int(car_x // self.case_width)
+        y_grid = int(car_y // self.case_width)
 
         if self.isGridFree(x_grid, y_grid):
             self.busy_grid2[x_grid][y_grid] = 1
@@ -34,8 +34,8 @@ class GridOccupation:
         return not (x_grid, y_grid) in self.busy_grid
 
     def isGridFree2(self, car_x, car_y):
-        x_grid = car_x // self.case_width
-        y_grid = car_y // self.case_width
+        x_grid = int(car_x // self.case_width)
+        y_grid = int(car_y // self.case_width)
 
         return self.busy_grid2[x_grid][y_grid] == 0
 
@@ -47,7 +47,7 @@ class GridOccupation:
 
         return x_grid == x2_grid and y_grid == y2_grid
 
-    def setNextPositionOccupy(car: Car, grid, list_prediction: list, occupation_list: list):
+    def setNextPositionOccupy(self, car: Car):
 
         left = 0
         right = 0
@@ -69,6 +69,8 @@ class GridOccupation:
 
         SCALE = 2.75
 
+        occupation_list = []
+
         while SEARCH:
             while left < MAX_STEERING_ANGLE:
 
@@ -82,35 +84,6 @@ class GridOccupation:
 
                 carp_x_r += car.velocity * math.cos(math.radians(car.orientation - right))
                 carp_y_r -= car.velocity * math.sin(math.radians(car.orientation - right))
-
-                list_carp_l = []
-                list_carp_r = []
-
-                # x = carp_x_l * SCALE- OFFSET
-                # y = carp_y_l  * SCALE- OFFSET
-                # while x < carp_x_l * SCALE+ CAR_SIZE + OFFSET:
-                #   while y < carp_y_l * SCALE + CAR_SIZE + OFFSET:
-                #      list_carp_l.append((x,y))
-                #     x += BOX_SIZE
-                #    y += BOX_SIZE
-
-                # while x < carp_x_r * SCALE + CAR_SIZE + OFFSET:
-                # while y < carp_y_r * SCALE + CAR_SIZE + OFFSET:
-                #   list_carp_r.append((x,y))
-                #  x += BOX_SIZE
-                # y += BOX_SIZE
-
-                # for carp_l in list_carp_l:
-                #   if not grid.isGridFree(carp_l[0], carp_l[1]):
-                #      break
-                # ALL_TRUE_L = True
-                # print("l")
-
-                # for carp_x_r in list_carp_r:
-                #   if not grid.isGridFree(carp_x_r[0], carp_x_r[1]):
-                #      break
-                # ALL_TRUE_R = True
-                # print("r")
 
                 c1_l = (carp_x_l * SCALE - BOX_SIZE, carp_y_l * SCALE + CAR_SIZE / 2)
                 c2_l = (carp_x_l * SCALE - BOX_SIZE, carp_y_l * SCALE - CAR_SIZE / 2)
@@ -138,28 +111,15 @@ class GridOccupation:
                 c11_r = (carp_x_l * SCALE + CAR_SIZE + 3 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE / 2)
                 c12_r = (carp_x_l * SCALE + CAR_SIZE + 3 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE + BOX_SIZE)
 
-                if grid.isGridFree(c1_l[0], c1_l[1]) and grid.isGridFree(c2_l[0], c2_l[1]) and grid.isGridFree(c3_l[0],
+                if self.isGridFree(c1_l[0], c1_l[1]) and self.isGridFree(c2_l[0], c2_l[1]) and self.isGridFree(c3_l[0],
                                                                                                                c3_l[1]) \
-                        and grid.isGridFree(c4_l[0], c4_l[1]) and grid.isGridFree(c5_l[0], c5_l[1]) \
-                        and grid.isGridFree(c6_l[0], c6_l[1]) and grid.isGridFree(c7_l[0], c7_l[1]) \
-                        and grid.isGridFree(c8_l[0], c8_l[1]) and grid.isGridFree(c9_l[0], c9_l[1]) \
-                        and grid.isGridFree(c10_l[0], c10_l[1]) and grid.isGridFree(c11_l[0], c11_l[1]) \
-                        and grid.isGridFree(c12_l[0], c12_l[1]):
-                    # if ALL_TRUE_L:
-
-                    list_prediction.append(carp_x_l)
-                    list_prediction.append(carp_y_l)
-
+                        and self.isGridFree(c4_l[0], c4_l[1]) and self.isGridFree(c5_l[0], c5_l[1]) \
+                        and self.isGridFree(c6_l[0], c6_l[1]) and self.isGridFree(c7_l[0], c7_l[1]) \
+                        and self.isGridFree(c8_l[0], c8_l[1]) and self.isGridFree(c9_l[0], c9_l[1]) \
+                        and self.isGridFree(c10_l[0], c10_l[1]) and self.isGridFree(c11_l[0], c11_l[1]) \
+                        and self.isGridFree(c12_l[0], c12_l[1]):
                     car.predicted_x = carp_x_l
                     car.predicted_y = carp_y_l
-
-                    # for carp in list_carp_l:
-                    #   occupation_list.append(carp)
-                    # print(occupation_list)
-                    # print(carp)
-
-                    # print("list")
-                    # print(occupation_list)
 
                     occupation_list.append((c1_l[0], c1_l[1]))
                     occupation_list.append((c2_l[0], c2_l[1]))
@@ -177,25 +137,17 @@ class GridOccupation:
                     SEARCH = False
                     break
 
-                if grid.isGridFree(c1_r[0], c1_r[1]) and grid.isGridFree(c2_r[0], c2_r[1]) and grid.isGridFree(c3_r[0],
+                if self.isGridFree(c1_r[0], c1_r[1]) and self.isGridFree(c2_r[0], c2_r[1]) and self.isGridFree(c3_r[0],
                                                                                                                c3_r[1]) \
-                        and grid.isGridFree(c4_r[0], c4_r[1]) and grid.isGridFree(c5_r[0], c5_r[1]) \
-                        and grid.isGridFree(c6_r[0], c6_r[1]) and grid.isGridFree(c7_r[0], c7_r[1]) \
-                        and grid.isGridFree(c8_r[0], c8_r[1]) and grid.isGridFree(c9_r[0], c9_r[1]) \
-                        and grid.isGridFree(c10_r[0], c10_r[1]) and grid.isGridFree(c11_r[0], c11_r[1]) \
-                        and grid.isGridFree(c12_r[0], c12_r[1]):
+                        and self.isGridFree(c4_r[0], c4_r[1]) and self.isGridFree(c5_r[0], c5_r[1]) \
+                        and self.isGridFree(c6_r[0], c6_r[1]) and self.isGridFree(c7_r[0], c7_r[1]) \
+                        and self.isGridFree(c8_r[0], c8_r[1]) and self.isGridFree(c9_r[0], c9_r[1]) \
+                        and self.isGridFree(c10_r[0], c10_r[1]) and self.isGridFree(c11_r[0], c11_r[1]) \
+                        and self.isGridFree(c12_r[0], c12_r[1]):
                     # if ALL_TRUE_R:
-
-                    list_prediction.append(carp_x_r)
-                    list_prediction.append(carp_y_r)
 
                     car.predicted_x = carp_x_r
                     car.predicted_y = carp_y_r
-
-                    # for carp in list_carp_r:
-                    #   occupation_list.append(carp)
-                    # print(occupation_list)
-                    # print(carp)
 
                     occupation_list.append((c1_r[0], c1_r[1]))
                     occupation_list.append((c2_r[0], c2_r[1]))
@@ -222,7 +174,187 @@ class GridOccupation:
             left = 0
             right = 0
 
-        return list_prediction, occupation_list
+        for coor in occupation_list:
+            self.addBusy(coor[0], coor[1])
 
-        def setNextPositionOccupy2(car: Car, grid, list_prediction: list, occupation_list: list):
-            a = 0
+    def get_car_corners(self, center_x, center_y, angle, length, width):
+        half_length = length / 2
+        half_width = width / 2
+
+        # Convert the angle from degrees to radians
+        angle_rad = math.radians(angle)
+
+        # Calculate the cosine and sine of the angle
+        cos_angle = math.cos(angle_rad)
+        sin_angle = math.sin(angle_rad)
+
+        # Calculate the coordinates of the four corners
+        top_left = (center_x - half_length * cos_angle + half_width * sin_angle,
+                    center_y - half_length * sin_angle - half_width * cos_angle)
+        top_right = (center_x + half_length * cos_angle + half_width * sin_angle,
+                     center_y + half_length * sin_angle - half_width * cos_angle)
+        bottom_right = (center_x + half_length * cos_angle - half_width * sin_angle,
+                        center_y + half_length * sin_angle + half_width * cos_angle)
+        bottom_left = (center_x - half_length * cos_angle - half_width * sin_angle,
+                       center_y - half_length * sin_angle + half_width * cos_angle)
+
+        return top_left, top_right, bottom_right, bottom_left
+
+    def setNextPositionOccupy2(self, car: Car):
+        left = 0
+        right = 0
+
+        CAR_SIZE = 25
+        BOX_SIZE = 0.55
+
+        CAR_LENGHT = 25
+        CAR_WIDTH = 16
+        # LONGUEUR VOITURE 14cm
+        # LARGEUR VOITURE 9CM
+
+        # OFFSET = 1
+        # ALL_TRUE_L = False
+        # ALL_TRUE_R = False
+
+        MAX_STEERING_ANGLE = 25
+        SEARCH = True
+
+        SCALE = 2.75
+
+        while SEARCH:
+            while left < MAX_STEERING_ANGLE:
+                carp_x_l = car.predicted_x
+                carp_y_l = car.predicted_y
+                carp_x_r = car.predicted_x
+                carp_y_r = car.predicted_y
+
+                carp_x_l += car.velocity * math.cos(math.radians(car.orientation + left))
+                carp_y_l -= car.velocity * math.sin(math.radians(car.orientation + left))
+
+                carp_x_r += car.velocity * math.cos(math.radians(car.orientation - right))
+                carp_y_r -= car.velocity * math.sin(math.radians(car.orientation - right))
+
+                side_l = self.get_car_corners(carp_x_l, carp_y_l, car.orientation + left, CAR_LENGHT, CAR_WIDTH)
+                side_r = self.get_car_corners(carp_x_r, carp_y_r, car.orientation - right, CAR_LENGHT, CAR_WIDTH)
+
+                allFree_l = self.isGridFree2(side_l[0][0], side_l[0][1]) and self.isGridFree2(side_l[1][0],
+                                                                                              side_l[1][1]) \
+                            and self.isGridFree2(side_l[2][0], side_l[2][1]) and self.isGridFree2(side_l[3][0],
+                                                                                                  side_l[3][1])
+
+                if allFree_l:
+                    self.addBusy2(side_l[0][0], side_l[0][1])
+                    self.addBusy2(side_l[1][0], side_l[1][1])
+                    self.addBusy2(side_l[2][0], side_l[2][1])
+                    self.addBusy2(side_l[3][0], side_l[3][1])
+
+                    self.addBusy(side_l[0][0], side_l[0][1])
+                    self.addBusy(side_l[1][0], side_l[1][1])
+                    self.addBusy(side_l[2][0], side_l[2][1])
+                    self.addBusy(side_l[3][0], side_l[3][1])
+
+                    SEARCH = False
+                    break
+
+                allFree_r = self.isGridFree2(side_r[0][0], side_r[0][1]) and self.isGridFree2(side_r[1][0],
+                                                                                              side_r[1][1]) \
+                            and self.isGridFree2(side_r[2][0], side_r[2][1]) and self.isGridFree2(side_r[3][0],
+                                                                                                  side_r[3][1])
+
+                if allFree_r:
+                    self.addBusy2(side_r[0][0], side_r[0][1])
+                    self.addBusy2(side_r[1][0], side_r[1][1])
+                    self.addBusy2(side_r[2][0], side_r[2][1])
+                    self.addBusy2(side_r[3][0], side_r[3][1])
+
+                    self.addBusy(side_r[0][0], side_r[0][1])
+                    self.addBusy(side_r[1][0], side_r[1][1])
+                    self.addBusy(side_r[2][0], side_r[2][1])
+                    self.addBusy(side_r[3][0], side_r[3][1])
+
+                    SEARCH = False
+                    break
+
+                left += 1
+                right += 1
+
+            if car.velocity > 0.01:
+                car.velocity -= 0.01
+
+            left = 0
+            right = 0
+
+            for b in self.busy_grid2:
+                print(b)
+
+            print("fin")
+
+    def is_point_inside_quadrilateral(A, B, C, D, P):
+        AB = {'x': B['x'] - A['x'], 'y': B['y'] - A['y']}
+        BC = {'x': C['x'] - B['x'], 'y': C['y'] - B['y']}
+        CD = {'x': D['x'] - C['x'], 'y': D['y'] - C['y']}
+        DA = {'x': A['x'] - D['x'], 'y': A['y'] - D['y']}
+        AP = {'x': P['x'] - A['x'], 'y': P['y'] - A['y']}
+        BP = {'x': P['x'] - B['x'], 'y': P['y'] - B['y']}
+        CP = {'x': P['x'] - C['x'], 'y': P['y'] - C['y']}
+        DP = {'x': P['x'] - D['x'], 'y': P['y'] - D['y']}
+
+        product_AB_AP = AB['x'] * AP['y'] - AB['y'] * AP['x']
+        product_BC_BP = BC['x'] * BP['y'] - BC['y'] * BP['x']
+        product_CD_CP = CD['x'] * CP['y'] - CD['y'] * CP['x']
+        product_DA_DP = DA['x'] * DP['y'] - DA['y'] * DP['x']
+
+        return (product_AB_AP >= 0 and product_BC_BP >= 0 and product_CD_CP >= 0 and product_DA_DP >= 0) or \
+            (product_AB_AP <= 0 and product_BC_BP <= 0 and product_CD_CP <= 0 and product_DA_DP <= 0)
+
+    def setNextPositionOccupy3(self, car: Car):
+        left = 0
+        right = 0
+
+        CAR_SIZE = 25
+        BOX_SIZE = 0.55
+
+        CAR_LENGHT = 25
+        CAR_WIDTH = 16
+        # LONGUEUR VOITURE 14cm
+        # LARGEUR VOITURE 9CM
+
+        # OFFSET = 1
+        # ALL_TRUE_L = False
+        # ALL_TRUE_R = False
+
+        MAX_STEERING_ANGLE = 25
+        SEARCH = True
+
+        SCALE = 2.75
+
+        while SEARCH:
+            while left < MAX_STEERING_ANGLE:
+                carp_x_l = car.predicted_x
+                carp_y_l = car.predicted_y
+                carp_x_r = car.predicted_x
+                carp_y_r = car.predicted_y
+
+                carp_x_l += car.velocity * math.cos(math.radians(car.orientation + left))
+                carp_y_l -= car.velocity * math.sin(math.radians(car.orientation + left))
+
+                carp_x_r += car.velocity * math.cos(math.radians(car.orientation - right))
+                carp_y_r -= car.velocity * math.sin(math.radians(car.orientation - right))
+
+                side_l = self.get_car_corners(carp_x_l, carp_y_l, car.orientation + left, CAR_LENGHT, CAR_WIDTH)
+                side_r = self.get_car_corners(carp_x_r, carp_y_r, car.orientation - right, CAR_LENGHT, CAR_WIDTH)
+
+                A_1 = {'x': side_l[0][0], 'y': side_l[0][1]}
+                A_2 = {'x': side_l[1][0], 'y': side_l[1][1]}
+                A_3 = {'x': side_l[2][0], 'y': side_l[2][1]}
+                A_4 = {'x': side_l[3][0], 'y': side_l[3][1]}
+
+                B = {'x': 5, 'y': 0}
+                C = {'x': 5, 'y': 5}
+                D = {'x': 0, 'y': 5}
+                P = {'x': 2, 'y': 2}
+
+                all_free_l = self.is_point_inside_quadrilateral(A_1, B, C, D, P) and self.is_point_inside_quadrilateral(
+                    A_2, B, C, D, P) and self.is_point_inside_quadrilateral(A_3, B, C, D,
+                                                                            P) and self.is_point_inside_quadrilateral(
+                    A_4, B, C, D, P)

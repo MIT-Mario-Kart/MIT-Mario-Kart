@@ -138,29 +138,9 @@ def updateCarMovement(car: Car, desired_velocity: float):
 
     grid = GUI.GridOccupation
 
-    list_prediction = []
-    list_occupation = []
+    grid.setNextPositionOccupy(car)
 
-    list_prediction_occupation = GridOccupation.setNextPositionOccupy(car, grid, list_prediction, list_occupation)
 
-    #print(list_prediction_occupation)
-
-    list_prediction = list_prediction_occupation[0]
-    list_occupation = list_prediction_occupation[1]
-
-    #print(list_prediction)
-
-    car.predicted_x = list_prediction[0]
-    car.predicted_y = list_prediction[1]
-
-    #print(car.predicted_x)
-
-    #grid.addBusy(car.predicted_x * SCALE, car.predicted_y * SCALE)
-
-    #if car.id == "CAR1":
-     #   car.velocity += 0.2
-
-    return list_occupation
 
 
 # Returns only positive nb mod(base) 

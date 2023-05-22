@@ -5,7 +5,6 @@ import json
 import re
 import copy
 
-from Server import GUI
 from Server.Algo.Car import Car
 from Server.Algo.Car import RED_C, BLUE_C, GREEN_C, BRUN_C, VIOLET_C, ROSE_C
 from Server.Algo.FlowMaps.circuit20x20 import directions as fmdir
@@ -95,9 +94,6 @@ def moveCar(car: Car):
 
 
 def updateCarMovement():
-    grid = GUI.GridOccupation
-    list_occupation = []
-
     threading.Timer(0.25, updateCarMovement).start()
     for rank in range(1,4):
 
@@ -106,46 +102,7 @@ def updateCarMovement():
                 car = cars[rank_2]
                 break
 
-        if car.ai:
-            list_occupation_1 = moveCar(car)
-            for occupation in list_occupation_1:
-                list_occupation.append(occupation)
-
-        #car_old_x = car.old_x
-        #car_old_y = car.old_y
-        #car_predicted_x = car.predicted_x
-        #car_predicted_y = car.predicted_y
-        #car_x = car.x
-        #car_y = car.y
-        #car_v = car.velocity
-        #car_dv = car.desired_velocity
-        #car_o = car.orientation
-        #car_do = car.desired_orientation
-        #car_fm = car.fm_orientation
-        #car_old_delta = car.old_delta
-        #car_delta = car.delta
-        #car_a = car.a
-        #car_zone = car.zone
-
-        for grid_occupy in list_occupation:
-            grid.addBusy(grid_occupy[0], grid_occupy[1])
-
-        #car.old_x = car_old_x
-        #car.old_y = car_old_y
-        #car.predicted_x = car_predicted_x
-        #car.predicted_y = car_predicted_y
-        #car.x = car_x
-        #car.y = car_y
-        #car.velocity = car_v
-        #car.desired_velocity = car_dv
-        #car.orientation = car_o
-        #car.desired_orientation = car_do
-        #car.fm_orientation = car_fm
-        #car.old_delta = car_old_delta
-        #car.delta = car_delta
-        #car.a = car_a
-        #car.zone = car_zone
-
+        moveCar(car)
 
         car.left_circle, car.right_circle = ovt.calculateCircles(car)
 

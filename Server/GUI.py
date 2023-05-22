@@ -181,8 +181,9 @@ while not done:
     #drawMap.drawGridFlow()
     #drawMap.drawVector()
     #drawMap.drawGridOccupation()
-    drawMap.drawBusyGrid(GridOccupation.busy_grid)
-    GridOccupation.busy_grid = []
+    #drawMap.drawBusyGrid(GridOccupation.busy_grid)
+    #GridOccupation.busy_grid = []
+    #print(len(GridOccupation.busy_grid2))
 
     # --- Go ahead and update the screen
     pygame.display.update()
