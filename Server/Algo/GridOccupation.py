@@ -187,7 +187,8 @@ class GridOccupation:
 
                     #car.predicted_x = carp_x_r
                     #car.predicted_y = carp_y_r
-                    Control.calculateDeltaCar(car.orientation + right)
+                    car.pred_orientation = car.orientation + right
+                    Control.calculateDeltaCar(car)
 
                     occupation_list.append((c1_r[0], c1_r[1]))
                     occupation_list.append((c2_r[0], c2_r[1]))
