@@ -13,7 +13,7 @@ def timer(sec):
 
 # recommended sec is 5
 def speedup(mycar): 
-    mycar.a = FAST
+    mycar.acc = FAST
 # recommended sec is 3
 # intesity can go from 0 to 0.9 (0 -> freeze)
 """ def slowdown(mycar, cars, sec): 
@@ -28,7 +28,7 @@ def speedup(mycar):
 
 def slowdown(mycar): 
     
-    mycar.a = SLOW 
+    mycar.acc = SLOW 
 
 
 
