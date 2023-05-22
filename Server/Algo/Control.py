@@ -4,6 +4,7 @@ import threading
 import json
 import re
 import copy
+import ast
 
 from Algo.Car import Car
 from Algo.Car import RED_C, BLUE_C, GREEN_C, BRUN_C, VIOLET_C, ROSE_C
@@ -31,7 +32,7 @@ calDeltaRightID = "CALDELTARight"
 
 
 # initialise car objects
-car1 = Car("CAR1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
+car1 = Car("CAR_ID_TEST", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
 car1.rank = 3
 # car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
 # car2.rank = 2
@@ -58,11 +59,11 @@ launched = False
 def moveCar(car: Car):
     car.old_x = car.x
     car.old_y = car.y
-    car.x = car.predicted_x  # todo prevent errors because of threads
-    car.y = car.predicted_y  # todo prevent errors because of threads
+    # car.x = car.predicted_x  # todo prevent errors because of threads
+    # car.y = car.predicted_y  # todo prevent errors because of threads
     find_info_flowmap(car)
-    calculateDeltaCar(car)
-
+    # if (car.started):
+    #     return car.delta
     coeff = 1.0
 
     if car.id == cars[0].id:
@@ -92,6 +93,8 @@ def moveCar(car: Car):
         car.speed = "GREEN"
         # print("Zone 6")
 
+    calculateDeltaCar(car)
+    print(f"Coord: {car.x}, {car.y} {car.orientation} {car.fm_orientation}")
 
 
     return list_occupation
@@ -101,17 +104,17 @@ def moveCar(car: Car):
 
 
 def updateCarMovement():
-    threading.Timer(0.25, updateCarMovement).start()
-    for rank in range(1,4):
+    threading.Timer(0.05, updateCarMovement).start()
+    # for rank in range(1,4):
 
-        for rank_2 in range(0,3):
-            if cars[rank_2].rank ==  rank:
-                car = cars[rank_2]
-                break
+    #     for rank_2 in range(0,3):
+    #         if cars[rank_2].rank ==  rank:
+    #             car = cars[rank_2]
+    #             break
 
-        moveCar(car)
+    moveCar(car)
 
-        car.left_circle, car.right_circle = ovt.calculateCircles(car)
+    # car.left_circle, car.right_circle = ovt.calculateCircles(car)
 
 
 
@@ -175,7 +178,16 @@ def parseJson(recv_data):
         points.append([int(y), int(x)])
     blue_points_list = points
 
-    return {"yellow": yellow_points_list, "green": green_points_list, "blue": blue_points_list}
+    yellow_angles_str = data["yellowAngles"]
+    yellow_angles_list = [int(x) for x in ast.literal_eval(yellow_angles_str)]
+
+    green_angles_str = data["greenAngles"]
+    green_angles_list = [int(x) for x in ast.literal_eval(green_angles_str)]
+
+    blue_angles_str = data["blueAngles"]
+    blue_angles_list = [int(x) for x in ast.literal_eval(blue_angles_str)]
+
+    return {"yellow": yellow_points_list, "green": green_points_list, "blue": blue_points_list, "yellowAngles": yellow_angles_list, "greenAngles": green_angles_list, "blueAngles": blue_angles_list}
 
 
 def parseInfo(info):
@@ -198,7 +210,7 @@ def parseInfo(info):
         return "CAL"
 
     elif id == camID:
-        print(info)
+        # print(info)
         points = parseJson(info[1])
         for id, val in points.items():
             # id will be the color of the car (green or blue for now)
@@ -218,9 +230,8 @@ def parseInfo(info):
                         # print(f"COORDS {val[0]}")
                         car.x, car.y = grid.getCircuitCoords(val[0][0], val[0][1])
                         # find_velocity_and_orientation(car)
-                        print(f"{id}Angles")
+                        # print(f"{id}Angles")
                         car.orientation = points.get(f"{id}Angles")[0]
-                        print(f"Coord: {car.x}, {car.y} {car.orientation}")
                         car.cam = True
                     else:
                         car.cam = False
@@ -252,6 +263,12 @@ def parseInfo(info):
         # moveCar(car)
         # pass
 
+    elif id == calDeltaID:
+        grid.detect_point = True
+    elif id == calDeltaLeftID:
+        grid.calibratedLeft = True
+    elif id == calDeltaRightID:
+        grid.calibratedRight = True
     elif id == stopID:
         print(f"Stopped {cars[0].id}")
         return "200"
@@ -259,13 +276,14 @@ def parseInfo(info):
         print(f"Start moving cars")
         for car in cars:
             car.started = True
+        updateCarMovement()
     elif id == guiID:
         gui.launchGUI(cars)
     else:
         for car in cars:
             if id == car.id:
                 if car.started:
-                    return f"{min(int(car.delta) +5, 180)}"
+                    return f"{min(int(car.delta), 180)}"
                 else:
                     return "200"
         # else:
@@ -279,26 +297,41 @@ def getCoordForCar(car: Car, coordinates):
 
 
 def calculateDeltaCar(car : Car):
-    right = car.new_orientation - car.fm_orientation
+    right = car.orientation - car.fm_orientation
     right = right + 360 if right < 0 else right
-    left = car.fm_orientation - car.new_orientation
+    left = car.fm_orientation - car.orientation
     left = left + 360 if left < 0 else left
 
     car.old_delta = car.delta
     if (left <= right):
         car.desired_orientation = left
-        car.delta = 90 + (left / 180) * 90
+
+        if (left <= 10):
+            car.delta = 90
+        elif (10 < left <= 30):
+            car.delta = 135
+        elif (left > 30):
+            car.delta = 180
+        print(f"LEFT {left}")
         # car.delta = 180 if left <10 else 90
     else:
         # car.delta = 0 if right < 10 else 90
+        if (right <= 10):
+            car.delta = 90
+        elif (10 < right <= 30):
+            car.delta = 45
+        elif (right > 30):
+            car.delta = 0
+
         if right == 0:
             right = 0.1
         car.desired_orientation = -right
-        car.delta = 90 - (right / 180) * 90
+        print(f"RIGHT {right}")
+    
+        # car.delta = 90 - (right / 180) * 90
 
-    if abs(car.delta - car.old_delta) < 10:
-        car.delta = car.old_delta
-
+    # if abs(car.delta - car.old_delta) < 10:
+    #     car.delta = car.old_delta
     # sendCarInfo(car, car.delta)
 
 def find_velocity_and_orientation(car):
@@ -312,6 +345,8 @@ def find_velocity_and_orientation(car):
 
 def find_info_flowmap(car: Car):
     # Assumes that coord x and y are between 0 and 199
+    # car.started = False
+    # car.delta = 200
     car.x = 190 if car.x >= 200 else car.x
     car.x = 0 if car.x < 0 else car.x
     car.y = 190 if car.y >= 200 else car.y

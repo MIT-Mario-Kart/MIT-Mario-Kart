@@ -135,10 +135,11 @@ def updateCarMovement(car: Car, desired_velocity: float, gui):
         # Update velocity
         car.velocity = min(MAX_VELOCITY, car.velocity + car.a)
 
-    grid = gui.GridOccupation
+    # grid = gui.GridOccupation
 
-    grid.setNextPositionOccupy2(car)
+    # grid.setNextPositionOccupy2(car)
 
+    # grid.resetBusy()
 
 
 

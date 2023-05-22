@@ -1,6 +1,6 @@
 import math
 
-from Server.Algo import Car, Control
+from Algo import Car, Control
 
 
 class GridOccupation:
@@ -299,6 +299,8 @@ class GridOccupation:
                     car.predicted_x = carp_x_l
                     car.predicted_y = carp_y_l
 
+                    car.orientation = car.orientation + left
+
                     list = self.get_rectangle_coordinates(carp_x_l * SCALE, carp_y_l * SCALE, CAR_WIDTH, CAR_LENGHT, car.orientation + left)
 
                     for l in list:
@@ -329,6 +331,8 @@ class GridOccupation:
 
                     car.predicted_x = carp_x_r
                     car.predicted_y = carp_y_r
+
+                    car.orientation = car.orientation - right
 
                     list = self.get_rectangle_coordinates(carp_x_r * SCALE, carp_y_r * SCALE, CAR_WIDTH, CAR_LENGHT,
                                                           car.orientation -right)
