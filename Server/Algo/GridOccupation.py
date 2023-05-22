@@ -148,8 +148,7 @@ class GridOccupation:
                 c11_r = (carp_x_l * SCALE + CAR_SIZE + 3 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE / 2)
                 c12_r = (carp_x_l * SCALE + CAR_SIZE + 3 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE + BOX_SIZE)
 
-                if self.isGridFree(c1_l[0], c1_l[1]) and self.isGridFree(c2_l[0], c2_l[1]) and self.isGridFree(c3_l[0],
-                                                                                                               c3_l[1]) \
+                if self.isGridFree(c1_l[0], c1_l[1]) and self.isGridFree(c2_l[0], c2_l[1]) and self.isGridFree(c3_l[0],                                                                                c3_l[1]) \
                         and self.isGridFree(c4_l[0], c4_l[1]) and self.isGridFree(c5_l[0], c5_l[1]) \
                         and self.isGridFree(c6_l[0], c6_l[1]) and self.isGridFree(c7_l[0], c7_l[1]) \
                         and self.isGridFree(c8_l[0], c8_l[1]) and self.isGridFree(c9_l[0], c9_l[1]) \
@@ -158,7 +157,7 @@ class GridOccupation:
 
                     #car.predicted_x = carp_x_l
                     #car.predicted_y = carp_y_l
-                    #Control.calculateDeltaCar(car.orientation + left)
+                    car.new_orientation = car.orientation + left
 
                     occupation_list.append((c1_l[0], c1_l[1]))
                     occupation_list.append((c2_l[0], c2_l[1]))
@@ -188,7 +187,6 @@ class GridOccupation:
                     #car.predicted_x = carp_x_r
                     #car.predicted_y = carp_y_r
                     car.pred_orientation = car.orientation + right
-                    Control.calculateDeltaCar(car)
 
                     occupation_list.append((c1_r[0], c1_r[1]))
                     occupation_list.append((c2_r[0], c2_r[1]))

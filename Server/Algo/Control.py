@@ -64,6 +64,11 @@ def moveCar(car: Car):
     find_info_flowmap(car)
     # if (car.started):
     #     return car.delta
+
+    # if not(car.cam):
+        # car.x = car.predicted_x  # todo prevent errors because of threads
+        # car.y = car.predicted_y  # todo prevent errors because of threads
+
     coeff = 1.0
 
     if car.id == cars[0].id:
@@ -205,7 +210,6 @@ def parseInfo(info):
         # bot_right = calibrationPoints[grid.bot_right_color][0]
 
         grid.setupGrid(calibrationPoints)
-        updateCarMovement()
         
         return "CAL"
 
@@ -273,6 +277,7 @@ def parseInfo(info):
         print(f"Stopped {cars[0].id}")
         return "200"
     elif id == startID:
+        updateCarMovement()
         print(f"Start moving cars")
         for car in cars:
             car.started = True
@@ -302,8 +307,8 @@ def calculateDeltaCar(car : Car):
     left = car.fm_orientation - car.orientation
     left = left + 360 if left < 0 else left
 
-    old_delta = car.delta 
-    tmp_delta = car.delta
+    # old_delta = car.delta 
+    # tmp_delta = car.delta
     if (left <= right):
         car.desired_orientation = left
 
