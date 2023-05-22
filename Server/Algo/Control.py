@@ -44,10 +44,12 @@ launched = False
 def moveCar(car: Car):
     car.old_x = car.x
     car.old_y = car.y
-    car.x = car.predicted_x  # todo prevent errors because of threads
-    car.y = car.predicted_y  # todo prevent errors because of threads
     find_info_flowmap(car)
     calculateDeltaCar(car)
+
+    if not(car.cam):
+        car.x = car.predicted_x  # todo prevent errors because of threads
+        car.y = car.predicted_y  # todo prevent errors because of threads
 
     coeff = 1.0
 
@@ -179,7 +181,7 @@ def parseInfo(info):
         # bot_right = calibrationPoints[grid.bot_right_color][0]
 
         grid.setupGrid(calibrationPoints)
-        # updateCarMovement()
+        updateCarMovement()
         
         return "CAL"
 
@@ -201,8 +203,6 @@ def parseInfo(info):
                 if len(val) == 1:
                     car.x, car.y = grid.getCircuitCoords(val[0][0], val[0][1])
                     find_velocity_and_orientation(car)
-                find_info_flowmap(car)
-                calculateDeltaCar(car)
                 print(f"Coord: {car.x}, {car.y} {car.orientation}")
                 # ovt.calculateCircles(car)
         # for car in cars:
@@ -224,7 +224,7 @@ def parseInfo(info):
         for car in cars:
             if id == car.id:
                 if car.started:
-                    return f"{min(int(car.delta) +5, 180)}"
+                    return f"{car.delta}"
                 else:
                     return "200"
         # else:
@@ -238,16 +238,16 @@ def getCoordForCar(car: Car, coordinates):
 
 
 def calculateDeltaCar(car : Car):
-    right = car.new_orientation - car.fm_orientation
+    right = car.orientation - car.fm_orientation
     right = right + 360 if right < 0 else right
-    left = car.fm_orientation - car.new_orientation
+    left = car.fm_orientation - car.orientation
     left = left + 360 if left < 0 else left
 
     old_delta = car.delta 
     tmp_delta = car.delta
     if (left <= right):
         car.desired_orientation = left
-        # tmp_delta = 90 + (left/180) * 90
+        # car.delta = 90 + (left/180) * 90
         tmp_delta = 90 + (left * 0.5)
         # car.delta = 180 if left <10 else 90
     else:

@@ -8,12 +8,12 @@ class Grid:
         self.top_right_color = 'red'
         self.bot_left_color = 'green'
         self.bot_right_color = 'blue'
-        self.width = 200
-        self.height = 200
+        self.width = 190
+        self.height = 185
 
     def getCircuitCoords(self, x, y):
-        new_X = ((self.bot_right[0] - x) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) - 5
-        new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + 10
+        new_X = ((self.bot_right[0] - x) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) + 5
+        new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + 5
         print(self.bot_right[1], y, self.top_right[1])
         return new_X, new_Y
     
