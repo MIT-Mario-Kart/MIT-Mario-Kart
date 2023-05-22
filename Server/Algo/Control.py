@@ -5,14 +5,15 @@ import json
 import re
 import copy
 
-from Server.Algo.Car import Car
-from Server.Algo.Car import RED_C, BLUE_C, GREEN_C, BRUN_C, VIOLET_C, ROSE_C
-from Server.Algo.FlowMaps.circuit20x20 import directions as fmdir
-import Server.Algo.Overtake.overtake as ovt
-import Server.Algo.FlowMaps.powerups as pu
-from Server.Algo.Grid import Grid
-import Server.Algo.UpdateMovements as updateMov
-from Server.Algo.Orientation import calcOrientation
+from Algo.Car import Car
+from Algo.Car import RED_C, BLUE_C, GREEN_C, BRUN_C, VIOLET_C, ROSE_C
+from Algo.FlowMaps.circuit20x20 import directions as fmdir
+import Algo.Overtake.overtake as ovt
+import Algo.FlowMaps.powerups as pu
+from Algo.Grid import Grid
+import Algo.UpdateMovements as updateMov
+from Algo.Orientation import calcOrientation
+from GUI import GUI
 
 # constant definitions
 POWERUP = 1
@@ -23,6 +24,7 @@ camID = "CAM"
 stopID = "STOP"
 startID = "START"
 calibrationColor = "yellow"
+guiID = "GUI"
 
 # initialise car objects
 car1 = Car("CAR1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
@@ -44,7 +46,7 @@ cars = [car1]
 for car in cars:
     dict_cars[car.color] = car
 
-
+gui = GUI()
 grid = Grid()
 launched = False
 
@@ -63,26 +65,26 @@ def moveCar(car: Car):
         coeff = 0.9
 
     if car.x <= 60 and car.y <= 30:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, gui)
         car.speed = "BLUE"
         # print("Zone 1")
     elif car.x <= 40 and car.y >= 130:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, gui)
         car.speed = "BLUE"
         # print("Zone 2")
     elif car.x >= 120 and car.y >= 120:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V, gui)
         # print("Zone 3")
     elif 40 <= car.x and car.x <= 90 and 40 <= car.y and car.y <= 150:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, gui)
         car.speed = "BLUE"
         # print("Zone 4")
     elif car.x >= 160 and car.y <= 60:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V, gui)
         car.speed = "RED"
         # print("Zone 5")
     else:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V, gui)
         car.speed = "GREEN"
         # print("Zone 6")
 
@@ -226,6 +228,8 @@ def parseInfo(info):
         print(f"Start moving cars")
         for car in cars:
             car.started = True
+    elif id == guiID:
+        gui.launchGUI(cars)
     else:
         for car in cars:
             if id == car.id:
@@ -244,9 +248,9 @@ def getCoordForCar(car: Car, coordinates):
 
 
 def calculateDeltaCar(car : Car):
-    right = car.orientation - car.fm_orientation
+    right = car.new_orientation - car.fm_orientation
     right = right + 360 if right < 0 else right
-    left = car.fm_orientation - car.orientation
+    left = car.fm_orientation - car.new_orientation
     left = left + 360 if left < 0 else left
 
     car.old_delta = car.delta
