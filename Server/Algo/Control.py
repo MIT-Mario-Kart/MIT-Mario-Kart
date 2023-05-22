@@ -185,7 +185,7 @@ def parseInfo(info):
                     find_velocity_and_orientation(car)
                 find_info_flowmap(car)
                 calculateDeltaCar(car)
-                print(f"Coord: {car.x}, {car.y} {car.orientation} with top_left: {grid.top_left}, top_right: {grid.top_right}, bot_left: {grid.bot_left}, bot_right: {grid.bot_right}")
+                print(f"Coord: {car.x}, {car.y} {car.orientation}")
                 # ovt.calculateCircles(car)
         # for car in cars:
             # ovt.overtake(car, cars)
@@ -195,27 +195,18 @@ def parseInfo(info):
 
     elif id == stopID:
         print(f"Stopped {cars[0].id}")
-        return "-1"
+        return "200"
     elif id == startID:
         print(f"Start moving cars")
         for car in cars:
-            car.zone = 0.5
-            car.acc = 1
-            car.moving = True
-    # elif id == "CAR_ID_TEST":
-    #     for car in cars:
-    #         # car.old_x = car.x
-    #         # car.old_y = car.y
-    #         # car.x = car.predicted_x # todo prevent errors because of threads
-    #         # car.y = car.predicted_y # todo prevent errors because of threads
-    #         # min(int(car.delta) +5, 180)
-    #         # max(int(car.delta) - 20, 0)
-    #         return max(int(car.delta) - 35, 0)
+            car.started = True
     else:
         for car in cars:
             if id == car.id:
-                return f"{min(int(car.delta) +5, 180)}"
-            break
+                if car.started:
+                    return f"{min(int(car.delta) +5, 180)}"
+                else:
+                    return "200"
         # else:
         #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 

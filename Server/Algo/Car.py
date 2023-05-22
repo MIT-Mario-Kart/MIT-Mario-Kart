@@ -30,6 +30,7 @@ class Car:
     self.color = color
     self.moving = False
     self.count = 0
+    self.started = False
     
 RED_C = (255, 0, 0)
 BLUE_C = (0, 0, 255)
