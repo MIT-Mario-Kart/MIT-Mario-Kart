@@ -1,6 +1,6 @@
 import math
 
-from Server.Algo import Car
+from Server.Algo import Car, Control
 
 
 class GridOccupation:
@@ -28,14 +28,19 @@ class GridOccupation:
             self.busy_grid2[x_grid][y_grid] = 1
 
     def isGridFree(self, car_x, car_y):
-        x_grid = car_x // self.case_width
-        y_grid = car_y // self.case_width
+        x_grid = int(car_x // self.case_width)
+        y_grid = int(car_y // self.case_width)
+        #print(x_grid)
+        #print(y_grid)
 
         return not (x_grid, y_grid) in self.busy_grid
 
     def isGridFree2(self, car_x, car_y):
         x_grid = int(car_x // self.case_width)
         y_grid = int(car_y // self.case_width)
+        #print(x_grid)
+        #print(y_grid)
+
 
         return self.busy_grid2[x_grid][y_grid] == 0
 
@@ -118,8 +123,10 @@ class GridOccupation:
                         and self.isGridFree(c8_l[0], c8_l[1]) and self.isGridFree(c9_l[0], c9_l[1]) \
                         and self.isGridFree(c10_l[0], c10_l[1]) and self.isGridFree(c11_l[0], c11_l[1]) \
                         and self.isGridFree(c12_l[0], c12_l[1]):
-                    car.predicted_x = carp_x_l
-                    car.predicted_y = carp_y_l
+
+                    #car.predicted_x = carp_x_l
+                    #car.predicted_y = carp_y_l
+                    Control.calculateDeltaCar(car.orientation + left)
 
                     occupation_list.append((c1_l[0], c1_l[1]))
                     occupation_list.append((c2_l[0], c2_l[1]))
@@ -146,8 +153,9 @@ class GridOccupation:
                         and self.isGridFree(c12_r[0], c12_r[1]):
                     # if ALL_TRUE_R:
 
-                    car.predicted_x = carp_x_r
-                    car.predicted_y = carp_y_r
+                    #car.predicted_x = carp_x_r
+                    #car.predicted_y = carp_y_r
+                    Control.calculateDeltaCar(car.orientation + right)
 
                     occupation_list.append((c1_r[0], c1_r[1]))
                     occupation_list.append((c2_r[0], c2_r[1]))
@@ -234,8 +242,8 @@ class GridOccupation:
                 carp_x_r += car.velocity * math.cos(math.radians(car.orientation - right))
                 carp_y_r -= car.velocity * math.sin(math.radians(car.orientation - right))
 
-                side_l = self.get_car_corners(carp_x_l, carp_y_l, car.orientation + left, CAR_LENGHT, CAR_WIDTH)
-                side_r = self.get_car_corners(carp_x_r, carp_y_r, car.orientation - right, CAR_LENGHT, CAR_WIDTH)
+                side_l = self.get_car_corners(carp_x_l * SCALE, carp_y_l * SCALE, car.orientation + left, CAR_LENGHT, CAR_WIDTH)
+                side_r = self.get_car_corners(carp_x_r * SCALE, carp_y_r * SCALE, car.orientation - right, CAR_LENGHT, CAR_WIDTH)
 
                 allFree_l = self.isGridFree2(side_l[0][0], side_l[0][1]) and self.isGridFree2(side_l[1][0],
                                                                                               side_l[1][1]) \
@@ -284,12 +292,12 @@ class GridOccupation:
             left = 0
             right = 0
 
-            for b in self.busy_grid2:
-                print(b)
+            #for b in self.busy_grid2:
+            #    print(b)
 
             print("fin")
 
-    def is_point_inside_quadrilateral(A, B, C, D, P):
+    def is_point_inside_quadrilateral(self, A, B, C, D, P):
         AB = {'x': B['x'] - A['x'], 'y': B['y'] - A['y']}
         BC = {'x': C['x'] - B['x'], 'y': C['y'] - B['y']}
         CD = {'x': D['x'] - C['x'], 'y': D['y'] - C['y']}

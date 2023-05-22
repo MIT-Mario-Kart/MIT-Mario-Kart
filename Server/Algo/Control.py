@@ -259,7 +259,7 @@ def getCoordForCar(car: Car, coordinates):
     car.x, car.y, car.orientation = parseCoordFromLine(coordinates)
 
 
-def calculateDeltaCar(car):
+def calculateDeltaCar(car : Car):
     right = car.orientation - car.fm_orientation
     right = right + 360 if right < 0 else right
     left = car.fm_orientation - car.orientation
