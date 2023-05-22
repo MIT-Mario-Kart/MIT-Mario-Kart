@@ -205,7 +205,7 @@ def parseInfo(info):
         # bot_right = calibrationPoints[grid.bot_right_color][0]
 
         grid.setupGrid(calibrationPoints)
-        # updateCarMovement()
+        updateCarMovement()
         
         return "CAL"
 
@@ -283,7 +283,7 @@ def parseInfo(info):
         for car in cars:
             if id == car.id:
                 if car.started:
-                    return f"{min(int(car.delta), 180)}"
+                    return f"{car.delta}"
                 else:
                     return "200"
         # else:

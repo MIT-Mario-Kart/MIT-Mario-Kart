@@ -33,6 +33,8 @@ class Car:
     self.moving = False
     self.count = 0
     self.started = False
+    self.new_orientation = 0
+    self.cam = False
     
 RED_C = (255, 0, 0)
 BLUE_C = (0, 0, 255)
