@@ -13,7 +13,7 @@ class Grid:
 
     def getCircuitCoords(self, x, y):
         new_X = (self.bot_right[0] - x) / abs(self.bot_right[0] - self.bot_left[0]) * self.width
-        new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + 4
+        new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + 16
         print(self.bot_right[1], y, self.top_right[1])
         return new_X, new_Y
     
