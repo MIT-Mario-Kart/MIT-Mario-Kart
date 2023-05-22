@@ -279,19 +279,21 @@ void loop() {
         // Serial.println(data);
         // Close the connection
 
-        char rcvd[data.length()+1];
-        data.toCharArray(rcvd, data.length());
+        char rcvd[data.length()+2];
+        data.toCharArray(rcvd, data.length()+1);
         dir = atoi(rcvd);
         
-        if (dir == -1) {
+        // dir = 200 = stop car
+        if (dir == 200) {
 
           digitalWrite(PIN_FORWARD, LOW);
           digitalWrite(PIN_REVERSE, LOW);
+          printf("Stop\n");
 
         } else if(0 <= dir && dir <= 180) {
 
-          printf("%s", data);
-          printf("dir: %d", dir);
+          printf("data: %s\n", data);
+          printf("dir: %d\n", dir);
           myservo.write(dir);
 
           // Car moves forward all the time unless -1 is sent
@@ -303,7 +305,7 @@ void loop() {
 
         }
         client.stop();
-        Serial.println("Disconnected from server.");
+        // Serial.println("Disconnected from server.");
       }
     }
 
