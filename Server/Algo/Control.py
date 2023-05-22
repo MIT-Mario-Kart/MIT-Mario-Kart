@@ -27,31 +27,12 @@ calibrationColor = "yellow"
 guiID = "GUI"
 
 # initialise car objects
-<<<<<<< HEAD
-car1 = Car("CAR1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
-car1.rank = 3
-# car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
-# car2.rank = 2
-# car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
-# car3.rank = 1
-#car4 = Car("CAR4", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, x=180, y=20, orientation=180)
-#car4.rank = 4
-#car5 = Car("CAR5", "Test", "Test", ("172.20.10.8", 9999), ROSE_C, x=100, y=20, orientation=180)
-#car5.rank = 6
-#car6 = Car("CAR6", "Test", "Test", ("172.20.10.8", 9999), BRUN_C, x=110, y=20, orientation=180)
-#car6.rank = 5
-
-
-dict_cars = {}
-cars = [car1]
-=======
 car1 = Car("CAR_ID_TEST", "CAR_ID_PU", "CAR__RESET", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
 # car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
 # car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
 
 dict_cars = {}
 cars = [car1] 
->>>>>>> 8bcdb83cb80f1e64fe87dfa5589b4bdabde76c97
 for car in cars:
     dict_cars[car.color] = car
 
@@ -237,11 +218,8 @@ def parseInfo(info):
         print(f"Start moving cars")
         for car in cars:
             car.started = True
-<<<<<<< HEAD
     elif id == guiID:
         gui.launchGUI(cars)
-=======
->>>>>>> 8bcdb83cb80f1e64fe87dfa5589b4bdabde76c97
     else:
         for car in cars:
             if id == car.id:
@@ -269,24 +247,16 @@ def calculateDeltaCar(car : Car):
     tmp_delta = car.delta
     if (left <= right):
         car.desired_orientation = left
-<<<<<<< HEAD
-        car.delta = 90 + (left / 180) * 90
-=======
         # tmp_delta = 90 + (left/180) * 90
         tmp_delta = 90 + (left * 0.5)
->>>>>>> 8bcdb83cb80f1e64fe87dfa5589b4bdabde76c97
         # car.delta = 180 if left <10 else 90
     else:
         # car.delta = 0 if right < 10 else 90
         if right == 0:
             right = 0.1
         car.desired_orientation = -right
-<<<<<<< HEAD
-        car.delta = 90 - (right / 180) * 90
-=======
         # tmp_delta = 90 - (right/180)*90
         tmp_delta = 90 - (right * 0.5)
->>>>>>> 8bcdb83cb80f1e64fe87dfa5589b4bdabde76c97
 
     if abs(car.delta - car.old_delta) < 10:
         tmp_delta = old_delta
@@ -305,10 +275,7 @@ def find_velocity_and_orientation(car):
             car.count = 0
         else:
             car.count += 1
-<<<<<<< HEAD
 
-=======
->>>>>>> 8bcdb83cb80f1e64fe87dfa5589b4bdabde76c97
 
 def find_info_flowmap(car: Car):
     # Assumes that coord x and y are between 0 and 199
