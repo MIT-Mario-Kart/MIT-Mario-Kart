@@ -11,16 +11,18 @@ class Grid:
         self.width = 200
         self.height = 200
 
-    def setupGrid(self, top_left, top_right, bot_left, bot_right):
-        self.top_left = top_left
-        self.top_right = top_right
-        self.bot_left = bot_left
-        self.bot_right = bot_right
-
-
-        print(f"Grid Setup, top_left: {self.top_left}, top_right: {self.top_right}, bot_left: {self.bot_left}, bot_right: {self.bot_right}")
-
     def getCircuitCoords(self, x, y):
-        new_X = (x - self.top_left[0]) / abs((self.top_right[0]) - self.top_left[0]) * self.width
-        new_Y = (y - self.top_left[1]) / abs(self.bot_left[1] - self.top_left[1]) * self.height
+        new_X = (self.bot_right[0] - x) / abs(self.bot_right[0] - self.bot_left[0]) * self.width
+        new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + 4
+        print(self.bot_right[1], y, self.top_right[1])
         return new_X, new_Y
+    
+    def setupGrid(self, coordinates):
+        coordinates.sort(key= lambda p : (p[1], p[0]))
+        top = coordinates[2:]
+        top.sort()
+        self.top_left, self.top_right = top
+        bot = coordinates[0:2]
+        bot.sort()
+        self.bot_left, self.bot_right = bot
+        print(f"Grid Setup, top_left: {self.top_left}, top_right: {self.top_right}, bot_left: {self.bot_left}, bot_right: {self.bot_right}")

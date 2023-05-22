@@ -1,5 +1,5 @@
 from MainServerClass import MainServer
 
-server = MainServer(('', 8893))
+server = MainServer(('', 8899))
 server.serve_forever()
 

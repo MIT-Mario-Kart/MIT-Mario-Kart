@@ -21,16 +21,16 @@ POWERUP = 1
 calibrationID = "CAL"
 camID = "CAM"
 stopID = "STOP"
+startID = "START"
 calibrationColor = "yellow"
 
 # initialise car objects
 car1 = Car("CAR1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
 car1.rank = 3
-car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
-car2.rank = 2
-car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
-car3.rank = 1
-
+# car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
+# car2.rank = 2
+# car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
+# car3.rank = 1
 #car4 = Car("CAR4", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, x=180, y=20, orientation=180)
 #car4.rank = 4
 #car5 = Car("CAR5", "Test", "Test", ("172.20.10.8", 9999), ROSE_C, x=100, y=20, orientation=180)
@@ -40,9 +40,9 @@ car3.rank = 1
 
 
 dict_cars = {}
-cars = [car1, car2, car3]
+cars = [car1]
 for car in cars:
-    dict_cars[car.id] = car
+    dict_cars[car.color] = car
 
 
 grid = Grid()
@@ -152,21 +152,21 @@ def parseJson(recv_data):
     points = []
     for match in re.finditer(point_regex, yellow_points_str):
         x, y = match.groups()
-        points.append([int(x), int(y)])
+        points.append([int(y), int(x)])
     yellow_points_list = points
 
     green_points_str = data["green"]
     points = []
     for match in re.finditer(point_regex, green_points_str):
         x, y = match.groups()
-        points.append([int(x), int(y)])
+        points.append([int(y), int(x)])
     green_points_list = points
 
     blue_points_str = data["blue"]
     points = []
     for match in re.finditer(point_regex, blue_points_str):
         x, y = match.groups()
-        points.append([int(x), int(y)])
+        points.append([int(y), int(x)])
     blue_points_list = points
 
     return {"yellow": yellow_points_list, "green": green_points_list, "blue": blue_points_list}
@@ -178,7 +178,6 @@ def parseInfo(info):
         # all calibration points have the same color
         calibrationPoints = parseJson(info[1])["yellow"]
         calibrationPoints.sort(key=lambda p: (p[1], p[0]))  # order them along the y axis
-        top_left, top_right, bot_left, bot_right = calibrationPoints
 
         # # if we implement the color system
         # calibrationPoints = parseJson(info[1])
@@ -187,9 +186,9 @@ def parseInfo(info):
         # bot_left = calibrationPoints[grid.bot_left_color][0]
         # bot_right = calibrationPoints[grid.bot_right_color][0]
 
-        grid.setupGrid(top_left, top_right, bot_left, bot_right)
-        updateCarMovement()
-
+        grid.setupGrid(calibrationPoints)
+        # updateCarMovement()
+        
         return "CAL"
 
     elif id == camID:
@@ -203,14 +202,17 @@ def parseInfo(info):
             if car:
                 car.old_x = car.x
                 car.old_y = car.y
-                if len(val) > 1:
-                    car.x = car.predicted_x  # todo prevent errors because of threads
-                    car.y = car.predicted_y  # todo prevent errors because of threads
-                else:
-                    car.x, car.y = grid.getCircuitCoords(val)
-                    print(f"{car.x}, {car.y}")
-                # find_velocity_and_orientation(car)
-                ovt.calculateCircles(car)
+                # if len(val) > 1:
+                #     car.x = car.predicted_x # todo prevent errors because of threads
+                #     car.y = car.predicted_y # todo prevent errors because of threads
+                # else:
+                if len(val) == 1:
+                    car.x, car.y = grid.getCircuitCoords(val[0][0], val[0][1])
+                    find_velocity_and_orientation(car)
+                find_info_flowmap(car)
+                calculateDeltaCar(car)
+                print(f"Coord: {car.x}, {car.y} {car.orientation} with top_left: {grid.top_left}, top_right: {grid.top_right}, bot_left: {grid.bot_left}, bot_right: {grid.bot_right}")
+                # ovt.calculateCircles(car)
         # for car in cars:
         # ovt.overtake(car, cars)
         # for car in cars:
@@ -220,36 +222,26 @@ def parseInfo(info):
     elif id == stopID:
         print(f"Stopped {cars[0].id}")
         return "-1"
-    elif id == "CAR_ID_TEST":
+    elif id == startID:
+        print(f"Start moving cars")
         for car in cars:
-            # car.old_x = car.x
-            # car.old_y = car.y
-            # car.x = car.predicted_x # todo prevent errors because of threads
-            # car.y = car.predicted_y # todo prevent errors because of threads
-            # min(int(car.delta) +5, 180)
-            # max(int(car.delta) - 20, 0)
-            return max(int(car.delta) - 35, 0)
+            car.zone = 0.5
+            car.acc = 1
+            car.moving = True
+    # elif id == "CAR_ID_TEST":
+    #     for car in cars:
+    #         # car.old_x = car.x
+    #         # car.old_y = car.y
+    #         # car.x = car.predicted_x # todo prevent errors because of threads
+    #         # car.y = car.predicted_y # todo prevent errors because of threads
+    #         # min(int(car.delta) +5, 180)
+    #         # max(int(car.delta) - 20, 0)
+    #         return max(int(car.delta) - 35, 0)
     else:
         for car in cars:
             if id == car.id:
-                return f"{min(int(car.delta) + 5, 180)} {car.a}"
-            elif id == car.id_pu:
-                updatePowerUp(car, info[1])
-                if car.ai:
-                    if (car.powerup == POWERUP):
-                        pu.powerUp(car)
-                        break
-                    else:
-                        car.zone = car.powerup
-                        break
-                else:
-                    inversion = 0
-                    if car.inverted:
-                        inversion = 1
-                    return f"{inversion} {car.a}"
-            elif id == car.id_reset:
-                car.a = 1
-                break
+                return f"{min(int(car.delta) +5, 180)}"
+            break
         # else:
         #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 
@@ -283,9 +275,13 @@ def calculateDeltaCar(car : Car):
 
     # sendCarInfo(car, car.delta)
 
-
-def find_velocity_and_orientation():
-    car.orientation, car.velocity = calcOrientation([[car.old_x, car.old_y], [car.x, car.y]])
+def find_velocity_and_orientation(car):
+    if car.moving:
+        if car.count == 10:
+            car.orientation = calcOrientation([[car.old_x, car.old_y], [car.x, car.y]])
+            car.count = 0
+        else:
+            car.count += 1
 
 
 def find_info_flowmap(car: Car):

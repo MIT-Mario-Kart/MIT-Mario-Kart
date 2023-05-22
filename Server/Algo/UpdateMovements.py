@@ -29,7 +29,7 @@ def updateCarMovement(car: Car, desired_velocity: float):
     # Update orientation
 
     if not eqWithin(car.desired_orientation, 0, ANGLE_PRECISION):
-        print(f"desired_orientation: {car.desired_orientation}")
+        # print(f"desired_orientation: {car.desired_orientation}")
         # Turn right if fm_orientation < 0 (i.e. decrement angle)
         if car.desired_orientation < 0:
             car.orientation = modulo(car.orientation - ANGLE_UNIT, 360)
