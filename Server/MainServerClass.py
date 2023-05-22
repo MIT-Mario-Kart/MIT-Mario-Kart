@@ -1,6 +1,7 @@
 from socketserver import ThreadingTCPServer,BaseRequestHandler
 import socket
 from Algo.Control import recvInfo
+import joystick
 
 # set up server
 bufferSize = 4096
@@ -53,4 +54,6 @@ class handler(BaseRequestHandler):
 class MainServer(ThreadingTCPServer):
     def __init__(self, server_address):
         super().__init__(server_address, handler)
+        joystick_instance = joystick.Joystick()  # Create an instance of the Joystick class
+        joystick_instance.start()  # Start the joystick instance
             
