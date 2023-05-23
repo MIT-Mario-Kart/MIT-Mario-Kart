@@ -184,7 +184,7 @@ def parseInfo(info):
         return "CAL"
 
     elif id == camID:
-        print(info)
+        # print(info)
         points = parseJson(info[1])
         for id, val in points.items():
             # id will be the color of the car (green or blue for now)
@@ -265,7 +265,7 @@ def calculateDeltaCar(car : Car):
     # car.delta = 90 + rotation_from_center
 
 
-    # sendCarInfo(car, car.delta)
+    sendCarInfo(car, car.delta)
 
 def find_velocity_and_orientation(car):
     if car.moving:
