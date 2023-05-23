@@ -88,7 +88,7 @@ def moveCar(car: Car):
 
 
 def updateCarMovement():
-    threading.Timer(0.25, updateCarMovement).start()
+    threading.Timer(0.10, updateCarMovement).start()
     # for rank in range(1,4):
 
     #     for rank_2 in range(0,3):
@@ -247,14 +247,14 @@ def calculateDeltaCar(car : Car):
     if (left <= right):
         car.desired_orientation = left
         # car.delta = 90 + (left/180) * 90
-        car.delta = 90 + (left /180) * 90
+        car.delta = 90 + (left /180) * 20
         # car.delta = 180 if left <10 else 90
     else:
         # car.delta = 0 if right < 10 else 90
         if right == 0:
             right = 0.1
         car.desired_orientation = -right
-        car.delta = 90 - (right/180)*90
+        car.delta = 90 - (right/180) * 20
         # tmp_delta = 90 - (right * 0.5)
 
     # if abs(car.delta - car.old_delta) < 10:
