@@ -138,7 +138,7 @@ def updateCarMovement(car: Car, desired_velocity: float):
 
     grid = GUI.GridOccupation
 
-    grid.setNextPositionOccupy(car)
+    grid.setNextPositionOccupy2(car)
 
 
 

@@ -69,7 +69,7 @@ on_the_line = False
 
 # # Set the initial fullscreen state to False
 # fullscreen = False
-NB_CASE_OCCUPATION = 55
+NB_CASE_OCCUPATION = 60
 
 drawMap = GUI_FlowMaps(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, screen, NB_CASE_OCCUPATION)
 
@@ -180,9 +180,10 @@ while not done:
 
     #drawMap.drawGridFlow()
     #drawMap.drawVector()
-    #drawMap.drawGridOccupation()
-    #drawMap.drawBusyGrid(GridOccupation.busy_grid)
+    drawMap.drawGridOccupation()
+    drawMap.drawBusyGrid(GridOccupation.busy_grid)
     GridOccupation.busy_grid = []
+    GridOccupation.resetBusy()
     #print(len(GridOccupation.busy_grid2))
 
     # --- Go ahead and update the screen
