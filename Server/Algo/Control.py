@@ -27,6 +27,7 @@ startID = "START"
 calibrationColor = "yellow"
 guiID = "GUI"
 calDeltaID = "CALDELTA"
+<<<<<<< HEAD
 calDeltaLeftID = "CALDELTALeft"
 calDeltaRightID = "CALDELTARight"
 
@@ -34,6 +35,11 @@ calDeltaRightID = "CALDELTARight"
 # initialise car objects
 car1 = Car("CAR_ID_TEST", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
 car1.rank = 3
+=======
+
+# initialise car objects
+car1 = Car("CAR_ID_TEST", "CAR_ID_PU", "CAR__RESET", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180, color="blue")
+>>>>>>> 2b9880c (UPDATE: fix some problems with grid and connection)
 # car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
 # car2.rank = 2
 # car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
@@ -109,7 +115,11 @@ def moveCar(car: Car):
 
 
 def updateCarMovement():
+<<<<<<< HEAD
     threading.Timer(0.05, updateCarMovement).start()
+=======
+    threading.Timer(0.1, updateCarMovement).start()
+>>>>>>> 2b9880c (UPDATE: fix some problems with grid and connection)
     # for rank in range(1,4):
 
     #     for rank_2 in range(0,3):
@@ -125,7 +135,13 @@ def updateCarMovement():
 
 
 def parseCoordFromLine(coordinates):
-    return [int(coord.rstrip()) for coord in coordinates.split(',')]
+    res = []
+    for coord in coordinates.split(','):
+        try:
+            res.append(int(coord.rstrip()))
+        except:
+            continue
+    return res
 
 
 def getPowerUp(pow):
@@ -260,6 +276,17 @@ def parseInfo(info):
                 #             print(grid.real_top)
                 #             grid.calibratedRight = False
                 #             grid.calibrated = True   
+                        print(f"{id}Angles")
+                        car.orientation = points.get(f"{id}Angles")[0]
+                    print(f"Coord: {car.x}, {car.y} {car.orientation}")
+            else:
+                if grid.detect_point:
+                    if id == calibrationColor:
+                        if len(val) == 1:
+                            x, y = grid.getCircuitCoords(val[0][0], val[0][1])
+                            grid.diff_x = x - grid.point[0] + 10
+                            grid.diff_y = y - grid.point[1]
+                            grid.calibrated = True
                 # ovt.calculateCircles(car)
         # for car in cars:
         # ovt.overtake(car, cars)
@@ -288,7 +315,7 @@ def parseInfo(info):
         for car in cars:
             if id == car.id:
                 if car.started:
-                    return f"{car.delta}"
+                    return f"{int(car.delta)}"
                 else:
                     return "200"
         # else:
@@ -342,7 +369,7 @@ def calculateDeltaCar(car : Car):
 
 def find_velocity_and_orientation(car):
     if car.moving:
-        if car.count == 10:
+        if car.count == 100:
             car.orientation = calcOrientation([[car.old_x, car.old_y], [car.x, car.y]])
             car.count = 0
         else:
