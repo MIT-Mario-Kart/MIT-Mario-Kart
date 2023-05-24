@@ -25,6 +25,10 @@ stopID = "STOP"
 startID = "START"
 calibrationColor = "yellow"
 guiID = "GUI"
+calDeltaID = "CALDELTA"
+calDeltaLeftID = "CALDELTALeft"
+calDeltaRightID = "CALDELTARight"
+
 
 # initialise car objects
 car1 = Car("CAR1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
@@ -200,20 +204,47 @@ def parseInfo(info):
             # id will be the color of the car (green or blue for now)
             # value will be an array of array
             # [[687, 1248], [845, 639]]
-            car = dict_cars.get(id)
-            if car:
-                car.old_x = car.x
-                car.old_y = car.y
-                # if len(val) > 1:
-                #     car.x = car.predicted_x # todo prevent errors because of threads
-                #     car.y = car.predicted_y # todo prevent errors because of threads
-                # else:
-                if len(val) == 1:
-                    car.x, car.y = grid.getCircuitCoords(val[0][0], val[0][1])
-                    find_velocity_and_orientation(car)
-                find_info_flowmap(car)
-                calculateDeltaCar(car)
-                print(f"Coord: {car.x}, {car.y} {car.orientation}")
+            if grid.calibrated:
+                car = dict_cars.get(id)
+                if car:
+                    car.old_x = car.x
+                    car.old_y = car.y
+                    # if len(val) > 1:
+                    #     car.x = car.predicted_x # todo prevent errors because of threads
+                    #     car.y = car.predicted_y # todo prevent errors because of threads
+                    # else:
+
+                    if len(val) == 1:
+                        # print(f"COORDS {val[0]}")
+                        car.x, car.y = grid.getCircuitCoords(val[0][0], val[0][1])
+                        # find_velocity_and_orientation(car)
+                        print(f"{id}Angles")
+                        car.orientation = points.get(f"{id}Angles")[0]
+                        print(f"Coord: {car.x}, {car.y} {car.orientation}")
+                        car.cam = True
+                    else:
+                        car.cam = False
+            # else:
+                # if grid.detect_point:
+                #     if id == calibrationColor:
+                #         if len(val) == 1:
+                #             x, y = grid.getCircuitCoords(val[0][0], val[0][1])
+                #             grid.diff_x = x - grid.point[0] 
+                #             grid.diff_y = y - grid.point[1]
+                #             grid.calibrated = True
+                # elif grid.calibratedLeft:
+                #     if id == calibrationColor:
+                #         if len(val) == 1:
+                #             grid.real_left = val[0]
+                #             print(grid.real_left)
+                #             grid.calibratedLeft = False
+                # elif grid.calibratedRight:
+                #     if id == calibrationColor:
+                #         if len(val) == 1:
+                #             grid.real_top = val[0]
+                #             print(grid.real_top)
+                #             grid.calibratedRight = False
+                #             grid.calibrated = True   
                 # ovt.calculateCircles(car)
         # for car in cars:
         # ovt.overtake(car, cars)

@@ -25,7 +25,7 @@ SCALE = 2.75
 # car: (...)
 # desired_velocity: desired speed for the car (STOP, GREEN_V, BLUE_V, RED_V, USER_ACC)
 # No return value
-def updateCarMovement(car: Car, desired_velocity: float):
+def updateCarMovement(car: Car, desired_velocity: float, gui):
     # Update orientation
 
     if not eqWithin(car.desired_orientation, 0, ANGLE_PRECISION):
@@ -136,7 +136,7 @@ def updateCarMovement(car: Car, desired_velocity: float):
         # Update velocity
         car.velocity = min(MAX_VELOCITY, car.velocity + car.a)
 
-    grid = GUI.GridOccupation
+    grid = gui.GridOccupation
 
     grid.setNextPositionOccupy2(car)
 
