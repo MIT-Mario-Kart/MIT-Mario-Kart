@@ -25,6 +25,11 @@ class GridOccupation:
         for y in range(17, 45):
             self.old_busy_grid2[x][y] = 1
 
+        y = 12
+        for x in range(13, 49):
+            self.old_busy_grid2[x][y] = 1
+
+
 
 
     def addBusy(self, car_x, car_y):
