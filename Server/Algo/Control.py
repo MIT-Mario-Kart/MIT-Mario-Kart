@@ -27,7 +27,6 @@ startID = "START"
 calibrationColor = "yellow"
 guiID = "GUI"
 calDeltaID = "CALDELTA"
-<<<<<<< HEAD
 calDeltaLeftID = "CALDELTALeft"
 calDeltaRightID = "CALDELTARight"
 
@@ -35,11 +34,6 @@ calDeltaRightID = "CALDELTARight"
 # initialise car objects
 car1 = Car("CAR_ID_TEST", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
 car1.rank = 3
-=======
-
-# initialise car objects
-car1 = Car("CAR_ID_TEST", "CAR_ID_PU", "CAR__RESET", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180, color="blue")
->>>>>>> 2b9880c (UPDATE: fix some problems with grid and connection)
 # car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
 # car2.rank = 2
 # car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
@@ -115,11 +109,7 @@ def moveCar(car: Car):
 
 
 def updateCarMovement():
-<<<<<<< HEAD
     threading.Timer(0.05, updateCarMovement).start()
-=======
-    threading.Timer(0.1, updateCarMovement).start()
->>>>>>> 2b9880c (UPDATE: fix some problems with grid and connection)
     # for rank in range(1,4):
 
     #     for rank_2 in range(0,3):
