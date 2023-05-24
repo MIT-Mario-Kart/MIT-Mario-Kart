@@ -180,10 +180,21 @@ while not done:
 
     #drawMap.drawGridFlow()
     #drawMap.drawVector()
-    drawMap.drawGridOccupation()
+    #drawMap.drawGridOccupation()
     drawMap.drawBusyGrid(GridOccupation.busy_grid)
     GridOccupation.busy_grid = []
+
+    y = 47
+    for x in range(15, 30):
+        GridOccupation.busy_grid.append((x,y))
     GridOccupation.resetBusy()
+
+    x = 12
+    for y in range(17, 45):
+        GridOccupation.busy_grid.append((x, y))
+    GridOccupation.resetBusy()
+
+
     #print(len(GridOccupation.busy_grid2))
 
     # --- Go ahead and update the screen
