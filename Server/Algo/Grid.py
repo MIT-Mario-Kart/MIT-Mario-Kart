@@ -26,7 +26,8 @@ class Grid:
         self.real_top = []
         self.diff_x = 0
         self.diff_y = 0
-        
+        self.coeff = 0.05
+        self.center = [130, 80]
     # def getCircuitCoords(self, x, y):
     #     x_diff = abs(self.real_left[0] - self.real_top[0]) # tel coords
     #     y_diff = abs(self.real_left[1] - self.real_top[1])
@@ -41,7 +42,8 @@ class Grid:
     def getCircuitCoords(self, x, y):
         new_X = ((self.bot_right[0] - x) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) + self.diff_x
         new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + self.diff_y
-        # print(self.bot_right[1], y, self.top_right[1])
+        new_X = (self.center[0] - new_X) * self.coeff + new_X
+        new_Y = (self.center[1] - new_Y) * self.coeff + new_Y
         return new_X, new_Y
     
     def setupGrid(self, coordinates):

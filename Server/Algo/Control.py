@@ -242,6 +242,8 @@ def parseInfo(info):
                         # find_velocity_and_orientation(car)
                         # print(f"{id}Angles")
                         car.orientation = points.get(f"{id}Angles")[0]
+                        if car.started:
+                            moveCar(car)
                         car.cam = True
                     else:
                         car.cam = False
@@ -266,8 +268,8 @@ def parseInfo(info):
                 #             print(grid.real_top)
                 #             grid.calibratedRight = False
                 #             grid.calibrated = True   
-                        print(f"{id}Angles")
-                        car.orientation = points.get(f"{id}Angles")[0]
+                        # print(f"{id}Angles")
+                        # car.orientation = points.get(f"{id}Angles")[0]
                     print(f"Coord: {car.x}, {car.y} {car.orientation}")
             else:
                 if grid.detect_point:
@@ -298,7 +300,7 @@ def parseInfo(info):
         print(f"Start moving cars")
         for car in cars:
             car.started = True
-        updateCarMovement()
+        # updateCarMovement()
     elif id == guiID:
         gui.launchGUI(cars)
     else:
@@ -379,10 +381,19 @@ def find_info_flowmap(car: Car):
     # Assumes that coord x and y are between 0 and 199
     # car.started = False
     # car.delta = 200
-    car.x = 190 if car.x >= 200 else car.x
-    car.x = 0 if car.x < 0 else car.x
-    car.y = 190 if car.y >= 200 else car.y
-    car.y = 0 if car.y < 0 else car.y
-    car.fm_orientation = fmdir[int(car.x // 10)][int(car.y // 10)]
+    if car.x < 0:
+        car.fm_orientation= 0
+    elif car.x >= 200:
+        car.fm_orientation = 180
+    elif car.y < 0 :
+        car.fm_orientation = 270
+    elif car.y >= 200:
+        car.y.fm_orientaion = 90
+    else:
+        car.x = 190 if car.x >= 200 else car.x
+        car.x = 0 if car.x < 0 else car.x
+        car.y = 190 if car.y >= 200 else car.y
+        car.y = 0 if car.y < 0 else car.y
+        car.fm_orientation = fmdir[int(car.x // 10)][int(car.y // 10)]
 
 

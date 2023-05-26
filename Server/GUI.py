@@ -181,8 +181,8 @@ class GUI:
 
                 # self.GridOccupation.addBusy( car.x * SCALE, car.y * SCALE)
 
-            #drawMap.drawGridFlow()
-            #drawMap.drawVector()
+            drawMap.drawGridFlow()
+            drawMap.drawVector()
             #drawMap.drawself.GridOccupation()
             drawMap.drawBusyGrid(self.GridOccupation.busy_grid)
             self.GridOccupation.busy_grid = []
