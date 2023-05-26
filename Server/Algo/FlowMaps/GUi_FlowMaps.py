@@ -45,11 +45,12 @@ class GUI_FlowMaps:
                 self.screen.blit(rotated_arrow, (self.pos_x + self.case_width_flow / 2 - 5 + x * self.case_width_flow,
                                                  self.pos_y + self.case_width_flow / 2 + y * self.case_width_flow - 3))
 
-    def drawBusyGrid(self, busy_list):
-        for busy_grid in busy_list:
+    def drawBusyGrid(self, busy_list2):
+        for busy_grid in busy_list2:
             x = busy_grid[0]
             y = busy_grid[1]
 
-            pygame.draw.rect(self.screen, self.GREEN, (self.pos_x + x * self.case_width_occupation, self.pos_y + y * self.case_width_occupation, self.case_width_occupation, self.case_width_occupation), 5)
+            pygame.draw.rect(self.screen, self.GREEN, (self.pos_x + x * self.case_width_occupation, self.pos_y + y * self.case_width_occupation, self.case_width_occupation, self.case_width_occupation))
 
-    #def drawBusyGrid2(self, busy_list):
+
+

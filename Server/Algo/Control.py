@@ -4,6 +4,7 @@ import threading
 import json
 import re
 import copy
+import ast
 
 from Algo.Car import Car
 from Algo.Car import RED_C, BLUE_C, GREEN_C, BRUN_C, VIOLET_C, ROSE_C
@@ -25,14 +26,28 @@ stopID = "STOP"
 startID = "START"
 calibrationColor = "yellow"
 guiID = "GUI"
+calDeltaID = "CALDELTA"
+calDeltaLeftID = "CALDELTALeft"
+calDeltaRightID = "CALDELTARight"
+
 
 # initialise car objects
-car1 = Car("CAR_ID_TEST", "CAR_ID_PU", "CAR__RESET", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
+car1 = Car("CAR_ID_TEST", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
+car1.rank = 3
 # car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
+# car2.rank = 2
 # car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
+# car3.rank = 1
+#car4 = Car("CAR4", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, x=180, y=20, orientation=180)
+#car4.rank = 4
+#car5 = Car("CAR5", "Test", "Test", ("172.20.10.8", 9999), ROSE_C, x=100, y=20, orientation=180)
+#car5.rank = 6
+#car6 = Car("CAR6", "Test", "Test", ("172.20.10.8", 9999), BRUN_C, x=110, y=20, orientation=180)
+#car6.rank = 5
+
 
 dict_cars = {}
-cars = [car1] 
+cars = [car1]
 for car in cars:
     dict_cars[car.color] = car
 
@@ -44,11 +59,15 @@ launched = False
 def moveCar(car: Car):
     car.old_x = car.x
     car.old_y = car.y
+    # car.x = car.predicted_x  # todo prevent errors because of threads
+    # car.y = car.predicted_y  # todo prevent errors because of threads
     find_info_flowmap(car)
+    # if (car.started):
+    #     return car.delta
 
-    if not(car.cam):
-        car.x = car.predicted_x  # todo prevent errors because of threads
-        car.y = car.predicted_y  # todo prevent errors because of threads
+    # if not(car.cam):
+        # car.x = car.predicted_x  # todo prevent errors because of threads
+        # car.y = car.predicted_y  # todo prevent errors because of threads
 
     coeff = 1.0
 
@@ -80,6 +99,8 @@ def moveCar(car: Car):
         # print("Zone 6")
 
     calculateDeltaCar(car)
+    print(f"Coord: {car.x}, {car.y} {car.orientation} {car.fm_orientation}")
+
 
     return list_occupation
     # updateMov.updateCarMovement(car, updateMov.GREEN_V)
@@ -88,7 +109,7 @@ def moveCar(car: Car):
 
 
 def updateCarMovement():
-    threading.Timer(0.10, updateCarMovement).start()
+    threading.Timer(0.05, updateCarMovement).start()
     # for rank in range(1,4):
 
     #     for rank_2 in range(0,3):
@@ -98,13 +119,19 @@ def updateCarMovement():
 
     moveCar(car)
 
-        # car.left_circle, car.right_circle = ovt.calculateCircles(car)
+    # car.left_circle, car.right_circle = ovt.calculateCircles(car)
 
 
 
 
 def parseCoordFromLine(coordinates):
-    return [int(coord.rstrip()) for coord in coordinates.split(',')]
+    res = []
+    for coord in coordinates.split(','):
+        try:
+            res.append(int(coord.rstrip()))
+        except:
+            continue
+    return res
 
 
 def getPowerUp(pow):
@@ -162,7 +189,16 @@ def parseJson(recv_data):
         points.append([int(y), int(x)])
     blue_points_list = points
 
-    return {"yellow": yellow_points_list, "green": green_points_list, "blue": blue_points_list}
+    yellow_angles_str = data["yellowAngles"]
+    yellow_angles_list = [int(x) for x in ast.literal_eval(yellow_angles_str)]
+
+    green_angles_str = data["greenAngles"]
+    green_angles_list = [int(x) for x in ast.literal_eval(green_angles_str)]
+
+    blue_angles_str = data["blueAngles"]
+    blue_angles_list = [int(x) for x in ast.literal_eval(blue_angles_str)]
+
+    return {"yellow": yellow_points_list, "green": green_points_list, "blue": blue_points_list, "yellowAngles": yellow_angles_list, "greenAngles": green_angles_list, "blueAngles": blue_angles_list}
 
 
 def parseInfo(info):
@@ -190,18 +226,57 @@ def parseInfo(info):
             # id will be the color of the car (green or blue for now)
             # value will be an array of array
             # [[687, 1248], [845, 639]]
-            car = dict_cars.get(id)
-            if car:
-                car.old_x = car.x
-                car.old_y = car.y
-                # if len(val) > 1:
-                #     car.x = car.predicted_x # todo prevent errors because of threads
-                #     car.y = car.predicted_y # todo prevent errors because of threads
-                # else:
-                if len(val) == 1:
-                    car.x, car.y = grid.getCircuitCoords(val[0][0], val[0][1])
-                    find_velocity_and_orientation(car)
-                print(f"Coord: {car.x}, {car.y} {car.orientation}")
+            if grid.calibrated:
+                car = dict_cars.get(id)
+                if car:
+                    car.old_x = car.x
+                    car.old_y = car.y
+                    # if len(val) > 1:
+                    #     car.x = car.predicted_x # todo prevent errors because of threads
+                    #     car.y = car.predicted_y # todo prevent errors because of threads
+                    # else:
+
+                    if len(val) == 1:
+                        # print(f"COORDS {val[0]}")
+                        car.x, car.y = grid.getCircuitCoords(val[0][0], val[0][1])
+                        # find_velocity_and_orientation(car)
+                        # print(f"{id}Angles")
+                        car.orientation = points.get(f"{id}Angles")[0]
+                        car.cam = True
+                    else:
+                        car.cam = False
+            # else:
+                # if grid.detect_point:
+                #     if id == calibrationColor:
+                #         if len(val) == 1:
+                #             x, y = grid.getCircuitCoords(val[0][0], val[0][1])
+                #             grid.diff_x = x - grid.point[0] 
+                #             grid.diff_y = y - grid.point[1]
+                #             grid.calibrated = True
+                # elif grid.calibratedLeft:
+                #     if id == calibrationColor:
+                #         if len(val) == 1:
+                #             grid.real_left = val[0]
+                #             print(grid.real_left)
+                #             grid.calibratedLeft = False
+                # elif grid.calibratedRight:
+                #     if id == calibrationColor:
+                #         if len(val) == 1:
+                #             grid.real_top = val[0]
+                #             print(grid.real_top)
+                #             grid.calibratedRight = False
+                #             grid.calibrated = True   
+                        print(f"{id}Angles")
+                        car.orientation = points.get(f"{id}Angles")[0]
+                    print(f"Coord: {car.x}, {car.y} {car.orientation}")
+            else:
+                if grid.detect_point:
+                    if id == calibrationColor:
+                        if len(val) == 1:
+                            x, y = grid.getCircuitCoords(val[0][0], val[0][1])
+                            grid.diff_x = x - grid.point[0] + 10
+                            grid.diff_y = y - grid.point[1]
+                            grid.calibrated = True
                 # ovt.calculateCircles(car)
         # for car in cars:
         # ovt.overtake(car, cars)
@@ -209,6 +284,12 @@ def parseInfo(info):
         # moveCar(car)
         # pass
 
+    elif id == calDeltaID:
+        grid.detect_point = True
+    elif id == calDeltaLeftID:
+        grid.calibratedLeft = True
+    elif id == calDeltaRightID:
+        grid.calibratedRight = True
     elif id == stopID:
         print(f"Stopped {cars[0].id}")
         return "200"
@@ -217,13 +298,14 @@ def parseInfo(info):
         print(f"Start moving cars")
         for car in cars:
             car.started = True
+        updateCarMovement()
     elif id == guiID:
         gui.launchGUI(cars)
     else:
         for car in cars:
             if id == car.id:
                 if car.started:
-                    return f"{car.delta}"
+                    return f"{int(car.delta)}"
                 else:
                     return "200"
         # else:
@@ -246,30 +328,38 @@ def calculateDeltaCar(car : Car):
     # tmp_delta = car.delta
     if (left <= right):
         car.desired_orientation = left
-        # car.delta = 90 + (left/180) * 90
-        car.delta = 90 + (left /180) * 20
+
+        if (left <= 10):
+            car.delta = 90
+        elif (10 < left <= 30):
+            car.delta = 135
+        elif (left > 30):
+            car.delta = 180
+        print(f"LEFT {left}")
         # car.delta = 180 if left <10 else 90
     else:
         # car.delta = 0 if right < 10 else 90
+        if (right <= 10):
+            car.delta = 90
+        elif (10 < right <= 30):
+            car.delta = 45
+        elif (right > 30):
+            car.delta = 0
+
         if right == 0:
             right = 0.1
         car.desired_orientation = -right
-        car.delta = 90 - (right/180) * 20
-        # tmp_delta = 90 - (right * 0.5)
+        print(f"RIGHT {right}")
+    
+        # car.delta = 90 - (right / 180) * 90
 
     # if abs(car.delta - car.old_delta) < 10:
-    #     tmp_delta = old_delta
-    
-    # # Sent angle needs to be between 60 and 120 => i.e. angle = 90 (straight) ± 30
-    # rotation_from_center = (90 - abs(tmp_delta))/3
-    # car.delta = 90 + rotation_from_center
-
-
-    sendCarInfo(car, car.delta)
+    #     car.delta = car.old_delta
+    # sendCarInfo(car, car.delta)
 
 def find_velocity_and_orientation(car):
     if car.moving:
-        if car.count == 10:
+        if car.count == 100:
             car.orientation = calcOrientation([[car.old_x, car.old_y], [car.x, car.y]])
             car.count = 0
         else:
@@ -278,6 +368,8 @@ def find_velocity_and_orientation(car):
 
 def find_info_flowmap(car: Car):
     # Assumes that coord x and y are between 0 and 199
+    # car.started = False
+    # car.delta = 200
     car.x = 190 if car.x >= 200 else car.x
     car.x = 0 if car.x < 0 else car.x
     car.y = 190 if car.y >= 200 else car.y

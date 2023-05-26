@@ -20,6 +20,7 @@ def calcOrientation(coordinates, delta=1/10):
 
     x = (currx - prevx)
     y = (curry - prevy)
+    
     if (y <= delta_diff and x <= delta_diff):
         return 0
     # Calculate absolute velocity
