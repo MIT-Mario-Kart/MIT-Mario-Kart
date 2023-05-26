@@ -324,32 +324,41 @@ def calculateDeltaCar(car : Car):
     left = car.fm_orientation - car.orientation
     left = left + 360 if left < 0 else left
 
+    
+    
+
     # old_delta = car.delta 
     # tmp_delta = car.delta
     if (left <= right):
+        
+        left = 90 if left > 90 else left
         car.desired_orientation = left
+        car.delta = 90 + left
 
-        if (left <= 10):
-            car.delta = 90
-        elif (10 < left <= 30):
-            car.delta = 135
-        elif (left > 30):
-            car.delta = 180
-        print(f"LEFT {left}")
+    #     if (left <= 5):
+    #         car.delta = 90
+    #     elif (5 < left <= 40):
+    #         car.delta = 135
+    #     elif (left > 40):
+    #         car.delta = 180
+    #     print(f"LEFT {left}")
         # car.delta = 180 if left <10 else 90
     else:
+        
+        right = 90 if right > 90 else right
+        car.delta = 90 - right
         # car.delta = 0 if right < 10 else 90
-        if (right <= 10):
-            car.delta = 90
-        elif (10 < right <= 30):
-            car.delta = 45
-        elif (right > 30):
-            car.delta = 0
+        # if (right <= 5):
+        #     car.delta = 90
+        # elif (5 < right <= 40):
+        #     car.delta = 45
+        # elif (right > 40):
+        #     car.delta = 0
 
-        if right == 0:
-            right = 0.1
+        # if right == 0:
+        #     right = 0.1
         car.desired_orientation = -right
-        print(f"RIGHT {right}")
+        # print(f"RIGHT {right}")
     
         # car.delta = 90 - (right / 180) * 90
 
