@@ -27,7 +27,13 @@ class Grid:
         self.diff_x = 0
         self.diff_y = 0
         self.coeff = 0.05
-        self.center = [130, 80]
+        self.center = [100, 100]
+        self.newCoeff = 0.05
+
+        #goal is to use this to convert
+        self.centerInIOSCoords = [990, 540];
+
+
     # def getCircuitCoords(self, x, y):
     #     x_diff = abs(self.real_left[0] - self.real_top[0]) # tel coords
     #     y_diff = abs(self.real_left[1] - self.real_top[1])
@@ -40,10 +46,18 @@ class Grid:
     #     return [newX, newY]
     
     def getCircuitCoords(self, x, y):
-        new_X = ((self.bot_right[0] - x) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) + self.diff_x
-        new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + self.diff_y
-        new_X = (self.center[0] - new_X) * self.coeff + new_X
-        new_Y = (self.center[1] - new_Y) * self.coeff + new_Y
+        #new_X = ((self.bot_right[0] - x) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) + self.diff_x
+        #new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + self.diff_y
+        #new_X = (self.center[0] - new_X) * self.coeff + new_X
+        #new_Y = (self.center[1] - new_Y) * self.coeff + new_Y
+        
+        print(f"{x} {y}")
+        patchedX = x + (self.centerInIOSCoords[0] - x) * self.newCoeff;
+        patchedY = y + (self.centerInIOSCoords[1] - y) * self.newCoeff;
+
+
+        new_X = ((self.bot_right[0] - patchedX) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) + self.diff_x
+        new_Y = ((patchedY - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + self.diff_y
         return new_X, new_Y
     
     def setupGrid(self, coordinates):

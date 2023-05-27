@@ -32,7 +32,7 @@ calDeltaRightID = "CALDELTARight"
 
 
 # initialise car objects
-car1 = Car("CAR_ID_TEST", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
+car1 = Car("CAR_ID_TEST", "Test", "Test", ("172.20.10.6", 9999), GREEN_C, color="green", x=160, y=20, orientation=180, ai=False)
 car1.rank = 3
 # car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
 # car2.rank = 2
@@ -48,7 +48,7 @@ car1.rank = 3
 
 dict_cars = {}
 cars = [car1]
-for car in cars:
+for car in cars:         
     dict_cars[car.color] = car
 
 gui = GUI()
@@ -306,10 +306,20 @@ def parseInfo(info):
     else:
         for car in cars:
             if id == car.id:
-                if car.started:
-                    return f"{int(car.delta)}"
+                if car.ai:
+                    if car.started:
+                        return f"{int(car.delta)}"
+                    else:
+                        return "200"
                 else:
-                    return "200"
+                    if car.joystick_connected:
+                        toSend = 1
+                        if car.manette.forward == 1:
+                            toSend = 2
+                        elif car.manette.backward == 1:
+                            toSend = 0
+                        
+                        return f"{int(car.manette.horiz_move * 90 + 90)} {toSend}"
         # else:
         #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 

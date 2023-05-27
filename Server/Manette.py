@@ -11,7 +11,7 @@ pygame.joystick.init()
 joysticks = []
 
 # Crée une liste de carrés pour chaque manette
-squares = []
+manettes = []
 
 # Crée une horloge pour définir la fréquence d'images du jeu
 clock = pygame.time.Clock()
@@ -22,7 +22,6 @@ class Manette:
     def __init__(self, joystick):
         self.joystick = joystick
         self.forward = 0
-        self.backward = 0
 
     def update(self):
         # Déplace le carré en fonction des entrées de la manette
@@ -34,7 +33,7 @@ class Manette:
 
         if self.joystick.get_button(0) == 1:
             #print("a")
-            self.forward = 1
+            self.forward = 2
         else :
             self.forward = 0
 
@@ -47,25 +46,25 @@ class Manette:
 
 
 
-# Boucle principale du jeu
-run = True
-while run:
+def updateManette():
 
-    clock.tick(FPS)
+    # # Gère les événements
+    # for event in pygame.event.get():
+    #     if event.type == pygame.JOYDEVICEADDED:
+    #         joystick = pygame.joystick.Joystick(event.device_index)
+    #         joystick.init()
+    #         joysticks.append(joystick)
 
-    # Gère les événements
-    for event in pygame.event.get():
-        if event.type == pygame.JOYDEVICEADDED:
-            joystick = pygame.joystick.Joystick(event.device_index)
-            joystick.init()
-            joysticks.append(joystick)
-            squares.append(Manette(joystick))
-
-        elif event.type == pygame.QUIT:
-            run = False
+    #         for car in cars:
+    #             if not(car.ai) and not(car.joystick_connected):
+    #                 manette = Manette(joystick)
+    #                 car.Manette = manette
+    #                 manettes.append(manette)
+    #                 car.joystick_connected = True
+    #     elif event.type == pygame.QUIT:
+    #         break
 
     # Met à jour les carrés et les dessine à l'écran
-    for square in squares:
-        square.update()
-
-pygame.quit()
+    for manette in manettes:
+        print("Updated manette")
+        manette.update()

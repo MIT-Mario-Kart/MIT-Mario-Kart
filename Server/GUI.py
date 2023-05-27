@@ -9,7 +9,7 @@ from Algo.Car import Car
 from Algo.Overtake.overtake import *
 from Algo.FlowMaps.GUi_FlowMaps import GUI_FlowMaps
 from Algo.GridOccupation import GridOccupation
-
+import Manette
 # Define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -89,12 +89,13 @@ class GUI:
 
             game.player_update()
             game.gui_update()
-
+            
             # Update local variable guiCars
             guiCars = cars
 
             # --- Main event loop
             for event in pygame.event.get():
+                print(event.type)
                 if event.type == pygame.QUIT:
                     done = True
                 elif event.type == pygame.KEYDOWN:
@@ -105,7 +106,20 @@ class GUI:
                             screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
                         else:
                             screen = pygame.display.set_mode(size)
+                elif event.type == pygame.JOYDEVICEADDED:
+                    print(f"New Manette conneted!")
+                    joystick = pygame.joystick.Joystick(event.device_index)
+                    joystick.init()
+                    Manette.joysticks.append(joystick)
 
+                    for car in cars:
+                        if not(car.ai) and not(car.joystick_connected):
+                            manette = Manette.Manette(joystick)
+                            car.Manette = manette
+                            Manette.manettes.append(manette)
+                            print(f"Manette added to {car.id}")
+                            car.joystick_connected = True
+            Manette.updateManette()
             # --- Game logic should go here
 
             # --- Drawing code should go here

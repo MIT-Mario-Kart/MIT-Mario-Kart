@@ -9,13 +9,13 @@ class handler(BaseRequestHandler):
     clients = set()
 
     def handle(self):
-        # print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
+        print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
         self.clients.add(self.request)
         
         while True:
             msg = self.request.recv(bufferSize)
             if not msg:
-                # print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
+                print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
                 break # exits handler, framework closes socket
             # print(f'Received: {msg}')
             

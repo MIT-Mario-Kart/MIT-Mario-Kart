@@ -36,6 +36,8 @@ class Car:
     self.new_orientation = 0
     self.cam = True
     self.orientations = []
+    self.manette = None
+    self.joystick_connected= False
     
 RED_C = (255, 0, 0)
 BLUE_C = (0, 0, 255)
