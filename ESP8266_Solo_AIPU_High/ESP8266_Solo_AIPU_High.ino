@@ -79,7 +79,7 @@ const int BLUE = 4;
 Servo myservo;
 double speed_percentage = 1;
 int dir = 0;
-int acceleration = 1;
+int rcvd_acc = 0;
 
 #define PU_NONE 0
 #define PU_STOP 1
@@ -87,9 +87,9 @@ int acceleration = 1;
 #define PU_SPEEDUP 3
 // #define PU_INVERT 4
 
-#define SLOWDOWN_PRCNT 0.86
-#define SPEEDUP_PRCNT 1.15
-#define NORMAL_SPEED 220
+#define SLOWDOWN_PRCNT 0.75
+#define SPEEDUP_PRCNT 1.25
+#define NORMAL_SPEED 200
 int receivedPowerup = PU_NONE;
 bool isPowerupd = false;
 // bool invertControls = false;
@@ -221,21 +221,21 @@ void loop() {
   digitalWrite(S3, LOW);
 
 
-  if(isInMargin(redColor, 245, 30) && isInMargin(greenColor, 20, 30) && isInMargin(blueColor, 8, 30)) {
+  if(isInMargin(redColor, 245, 30) && isInMargin(greenColor, 40, 30) && isInMargin(blueColor, 20, 30)) {
     // check if the sensor detects a RED tape
     if (currZone != red){
       currZone = red;
       zoneOrPowUp = RED;
 
     }
-  } else if(isInMargin(redColor, 20, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 0, 30)) {
+  } else if(isInMargin(redColor, 20, 30) && isInMargin(greenColor, 230, 30) && isInMargin(blueColor, 10, 30)) {
     // check if the sensor detects a GREEN tape
     if (currZone != green){
       currZone = green;
       zoneOrPowUp = GREEN;
 
     }
-  } else if(isInMargin(redColor, 6, 30) && isInMargin(greenColor, 170, 30) && isInMargin(blueColor, 240, 30)) {
+  } else if(isInMargin(redColor, 10, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 240, 30)) {
     // check if the sensor detects a BLUE tape
     if (currZone != blue){
       currZone = blue;
@@ -250,7 +250,7 @@ void loop() {
       puDelay = millis();
       timerIsStarted = true;
     }
-  } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 135, 30)) {
+  } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 150, 30)) {
      // check if the sensor detects the CIRCUIT to reset powerup
     if (zoneOrPowUp != 0){ 
       zoneOrPowUp = 0;
@@ -294,7 +294,7 @@ void loop() {
               if(count == 1) {
                 dir = atoi(token);
               } else if(count == 2) {
-                acceleration = atoi(token);
+                rcvd_acc = atoi(token);
               } else {
                 break;
               }
@@ -309,7 +309,7 @@ void loop() {
         if (dir == 200) {
 
           printf("Stop\n");
-          acceleration = 1;
+          rcvd_acc = 0;
 
 
         } else if(0 <= dir && dir <= 180) {
@@ -324,7 +324,7 @@ void loop() {
         } else {
 
           printf("Incorrect dir received: %d", dir);
-          acceleration = 1;
+          rcvd_acc = 0;
 
         }
         client.stop();
@@ -341,7 +341,7 @@ void loop() {
     isPowerupd = false;
     speed_percentage = 0;
     
-  } else if(isPowerupd) {
+  //} else if(isPowerupd) {
 
       // Should be ok]
 
@@ -367,20 +367,20 @@ void loop() {
   }
   // Controlling motors
 
-  if(acceleration == 0) {
-
-    analogWrite(PIN_REVERSE, NORMAL_SPEED * speed_percentage);
-    digitalWrite(PIN_FORWARD, LOW);
-
-  } else if (acceleration == 1) {
-
+  if(rcvd_acc == 0) {
     digitalWrite(PIN_FORWARD, LOW);
     digitalWrite(PIN_REVERSE, LOW);
+    
 
-  } else if(acceleration == 2) {
+  } else if (rcvd_acc > 0) {
 
     digitalWrite(PIN_REVERSE, LOW);
-    analogWrite(PIN_FORWARD, NORMAL_SPEED * speed_percentage);
+    analogWrite(PIN_FORWARD, NORMAL_SPEED * rcvd_acc * speed_percentage);
+
+  } else if(rcvd_acc < 0) {
+
+    digitalWrite(PIN_FORWARD, LOW);
+    analogWrite(PIN_REVERSE, NORMAL_SPEED * rcvd_acc * speed_percentage);
 
   }
 

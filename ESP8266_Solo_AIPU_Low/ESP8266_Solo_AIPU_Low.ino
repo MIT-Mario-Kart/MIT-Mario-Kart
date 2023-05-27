@@ -22,10 +22,10 @@
 #define sensorOut 14    // D5
 
 // Connection constants
-const char* ssid = "albert";               // your network SSID (name)
-const char* password = "aaaabbbb";         // your network password
-const char* serverAddress = "172.20.10.6";   // server address
-const int serverPort = 8899;                   // server port
+const char* ssid = "albert";                    // your network SSID (name)
+const char* password = "aaaabbbb";              // your network password
+const char* serverAddress = "172.20.10.6";      // server address
+const int serverPort = 8899;                    // server port
 
 WiFiClient client;
 
@@ -79,8 +79,7 @@ const int BLUE = 4;
 Servo myservo;
 double speed_percentage = 1;
 int dir = 0;
-double received_acc = 1.0;
-double acceleration = 0.0;
+int rcvd_acc = 1;
 
 #define PU_NONE 0
 #define PU_STOP 1
@@ -88,9 +87,9 @@ double acceleration = 0.0;
 #define PU_SPEEDUP 3
 // #define PU_INVERT 4
 
-#define SLOWDOWN_PRCNT 0.86
-#define SPEEDUP_PRCNT 1.15
-#define NORMAL_SPEED 220
+#define SLOWDOWN_PRCNT 0.75
+#define SPEEDUP_PRCNT 1.25
+#define NORMAL_SPEED 200
 int receivedPowerup = PU_NONE;
 bool isPowerupd = false;
 // bool invertControls = false;
@@ -150,6 +149,8 @@ void setup() {
   }
   Serial.println("Connected to WiFi.");
   Serial.println(WiFi.localIP());
+
+  myservo.write(90);
 }
 
 
@@ -262,7 +263,6 @@ void loop() {
   String data = "";
 
   // Connect to the server
-  WiFiClient client;
   if (client.connect(serverAddress, serverPort)) {
     // Serial.println("Connected to server.");
     
@@ -274,20 +274,42 @@ void loop() {
     while (client.connected()) {
       if (client.available()) {
         // Read data from the server
-        data = client.readStringUntil('\n');
-        // Serial.print("Received data: ");
-        // Serial.println(data);
-        // Close the connection
+          data = client.readStringUntil('\n');
+          // Serial.print("Received data: ");
+          // Serial.println(data);
+          // Close the connection
 
-        char rcvd[data.length()+2];
-        data.toCharArray(rcvd, data.length()+1);
-        dir = atoi(rcvd);
+          char rcvd[data.length()+1];
+          data.toCharArray(rcvd, data.length()+1);
+
+          char* token;  // Pointer to the current token
+          const char delim[] = " ";  // The delimiter (a space in this case)
+
+          // Use strtok() to separate the string into tokens
+          token = strtok(rcvd, delim);
+
+          int count = 1;
+
+          while (token != nullptr && count <= 2) {
+              if(count == 1) {
+                dir = atoi(token);
+              } else if(count == 2) {
+                rcvd_acc = atoi(token);
+              } else {
+                break;
+              }
+
+              // Get the next token
+              token = strtok(nullptr, delim);
+              ++count;
+          }
+        
         
         // dir = 200 = stop car
         if (dir == 200) {
 
           printf("Stop\n");
-          acceleration = 0;
+          rcvd_acc = 1;
 
 
         } else if(0 <= dir && dir <= 180) {
@@ -295,14 +317,14 @@ void loop() {
           printf("data: %s\n", data);
           printf("dir: %d\n", dir);
           myservo.write(dir);
-          acceleration = 1;
+          // acceleration = 1;
 
           // Car moves forward all the time unless -1 is sent
 
         } else {
 
           printf("Incorrect dir received: %d", dir);
-          acceleration = 0;
+          rcvd_acc = 1;
 
         }
         client.stop();
@@ -319,7 +341,7 @@ void loop() {
     isPowerupd = false;
     speed_percentage = 0;
     
-  } else if(isPowerupd) {
+  //} else if(isPowerupd) {
 
       // Should be ok]
 
@@ -345,20 +367,20 @@ void loop() {
   }
   // Controlling motors
 
-  if(acceleration == 1) {
+  if(rcvd_acc == 0) {
 
-    analogWrite(PIN_FORWARD, NORMAL_SPEED * speed_percentage);
-    digitalWrite(PIN_REVERSE, LOW);
-
-  } else if (acceleration == 0) {
-
-    digitalWrite(PIN_FORWARD, LOW);
-    digitalWrite(PIN_REVERSE, LOW);
-
-  } else if(acceleration == -1) {
-
-    digitalWrite(PIN_FORWARD, LOW);
     analogWrite(PIN_REVERSE, NORMAL_SPEED * speed_percentage);
+    digitalWrite(PIN_FORWARD, LOW);
+
+  } else if (rcvd_acc == 1) {
+
+    digitalWrite(PIN_FORWARD, LOW);
+    digitalWrite(PIN_REVERSE, LOW);
+
+  } else if(rcvd_acc == 2) {
+
+    digitalWrite(PIN_REVERSE, LOW);
+    analogWrite(PIN_FORWARD, NORMAL_SPEED * speed_percentage);
 
   }
 
