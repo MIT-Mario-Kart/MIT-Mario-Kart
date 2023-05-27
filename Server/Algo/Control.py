@@ -45,6 +45,7 @@ car1.rank = 3
 #car6 = Car("CAR6", "Test", "Test", ("172.20.10.8", 9999), BRUN_C, x=110, y=20, orientation=180)
 #car6.rank = 5
 
+gui = GUI()
 
 dict_cars = {}
 cars = [car1]
@@ -319,7 +320,9 @@ def parseInfo(info):
                             toSend = 0
                         
                         return f"{int(car.manette.horiz_move * 90 + 90)} {toSend}"
-        # else:
+                    else:
+                        return "200 1"
+        # else: 
         #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 
 

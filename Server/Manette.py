@@ -22,14 +22,16 @@ class Manette:
     def __init__(self, joystick):
         self.joystick = joystick
         self.forward = 0
-
+        self.horiz_move = 0
+        self.backward = 0
     def update(self):
         # Déplace le carré en fonction des entrées de la manette
-        horiz_move = self.joystick.get_axis(0)
+        self.horiz_move = self.joystick.get_axis(0)
         # x_button = self.joystick.get_axis(4)
 
-        if abs(horiz_move) > 0.05:
-            print(horiz_move)
+        if abs(self.horiz_move) > 0.05:
+            # print(horiz_move)
+            pass
 
         if self.joystick.get_button(0) == 1:
             #print("a")
@@ -66,5 +68,5 @@ def updateManette():
 
     # Met à jour les carrés et les dessine à l'écran
     for manette in manettes:
-        print("Updated manette")
+        # print("Updated manette")
         manette.update()

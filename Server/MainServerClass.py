@@ -1,7 +1,6 @@
 from socketserver import ThreadingTCPServer,BaseRequestHandler
 import socket
-from Algo.Control import recvInfo, cars
-import GUI
+from Algo.Control import recvInfo
 
 # set up server
 bufferSize = 4096
@@ -54,5 +53,3 @@ class handler(BaseRequestHandler):
 class MainServer(ThreadingTCPServer):
     def __init__(self, server_address):
         super().__init__(server_address, handler)
-        gui = GUI.GUI()
-        gui.launchGUI(cars)
