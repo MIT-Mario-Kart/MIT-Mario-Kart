@@ -26,20 +26,20 @@ class Manette:
         self.backward = 0
     def update(self):
         # Déplace le carré en fonction des entrées de la manette
-        self.horiz_move = self.joystick.get_axis(0)
+        self.horiz_move = -self.joystick.get_axis(0)
         # x_button = self.joystick.get_axis(4)
 
         if abs(self.horiz_move) > 0.05:
             # print(horiz_move)
             pass
 
-        if self.joystick.get_button(0) == 1:
+        if self.joystick.get_button(1) == 1:
             #print("a")
-            self.forward = 2
+            self.forward = 1
         else :
             self.forward = 0
 
-        if self.joystick.get_button(1) == 1:
+        if self.joystick.get_button(0) == 1:
             #print("b")
             self.backward = 1
         else : 
