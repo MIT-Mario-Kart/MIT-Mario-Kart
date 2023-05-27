@@ -51,7 +51,6 @@ cars = [car1]
 for car in cars:         
     dict_cars[car.color] = car
 
-gui = GUI()
 grid = Grid()
 launched = False
 
