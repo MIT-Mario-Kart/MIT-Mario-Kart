@@ -272,10 +272,7 @@ void loop() {
     // Send dummy data
     client.write(CAR_ID);
     // Serial.println("Sent data to server.");
-
-    // Wait for a response from the server
-    while (client.connected()) {
-      if (client.available()) {
+      while (client.available()) {
         // Read data from the server
           data = client.readStringUntil('\n');
           // Serial.print("Received data: ");
@@ -332,7 +329,7 @@ void loop() {
         }
         // Serial.println("Disconnected from server.");
       }
-    }
+    
 
 
 
