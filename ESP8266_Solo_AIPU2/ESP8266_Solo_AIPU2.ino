@@ -263,7 +263,6 @@ void loop() {
   String data = "";
 
   // Connect to the server
-  WiFiClient client;
   if (client.connect(serverAddress, serverPort)) {
     // Serial.println("Connected to server.");
     
