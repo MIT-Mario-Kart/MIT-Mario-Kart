@@ -1,8 +1,14 @@
 from MainServerClass import MainServer
-import GUI
 from Algo.Control import cars
-server = MainServer(('', 8899))
-server.serve_forever()
+import threading
+import GUI
 
-# gui = GUI.GUI()
-# gui.launchGUI(cars)
+def launch_server():
+    server = MainServer(('', 8899))
+    server.serve_forever()
+
+my_thread = threading.Thread(target=launch_server)
+my_thread.start()
+
+gui = GUI.GUI()
+gui.launchGUI(cars)
