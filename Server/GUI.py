@@ -106,10 +106,10 @@ class GUI:
                             screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
                         else:
                             screen = pygame.display.set_mode(size)
-                if event.type == pygame.KEYDOWN and self.running == False:
-                    if event.key == pygame.K_SPACE:
-                        self.begin = 1
-                        self.start_time_depart = pygame.time.get_ticks()
+                # if event.type == pygame.KEYDOWN and self.running == False:
+                #     if event.key == pygame.K_SPACE:
+                #         self.begin = 1
+                #         self.start_time_depart = pygame.time.get_ticks()
                 if event.type == pygame.JOYDEVICEADDED:
                     print(f"New Manette conneted!")
                     joystick = pygame.joystick.Joystick(event.device_index)
