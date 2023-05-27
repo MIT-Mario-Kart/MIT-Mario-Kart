@@ -14,7 +14,7 @@ import Algo.FlowMaps.powerups as pu
 from Algo.Grid import Grid
 import Algo.UpdateMovements as updateMov
 from Algo.Orientation import calcOrientation
-from GUI import GUI
+import GUI
 
 # constant definitions
 POWERUP = 1
@@ -45,7 +45,6 @@ car1.rank = 3
 #car6 = Car("CAR6", "Test", "Test", ("172.20.10.8", 9999), BRUN_C, x=110, y=20, orientation=180)
 #car6.rank = 5
 
-gui = GUI()
 
 dict_cars = {}
 cars = [car1]
@@ -75,26 +74,26 @@ def moveCar(car: Car):
         coeff = 0.9
 
     if car.x <= 60 and car.y <= 30:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, gui)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, GUI.GridOccupation)
         car.speed = "BLUE"
         # print("Zone 1")
     elif car.x <= 40 and car.y >= 130:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, gui)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, GUI.GridOccupation)
         car.speed = "BLUE"
         # print("Zone 2")
     elif car.x >= 120 and car.y >= 120:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V, gui)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V, GUI.GridOccupation)
         # print("Zone 3")
     elif 40 <= car.x and car.x <= 90 and 40 <= car.y and car.y <= 150:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, gui)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, GUI.GridOccupation)
         car.speed = "BLUE"
         # print("Zone 4")
     elif car.x >= 160 and car.y <= 60:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V, gui)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V, GUI.GridOccupation)
         car.speed = "RED"
         # print("Zone 5")
     else:
-        list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V, gui)
+        list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V, GUI.GridOccupation)
         car.speed = "GREEN"
         # print("Zone 6")
 

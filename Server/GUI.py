@@ -25,12 +25,12 @@ MOVE_MAP_X = -100
 MOVE_MAP_Y = 0
 CAR_SIZE = 25
 NB_CASE_OCCUPATION = 60
+GridOccupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
 
 class GUI:
 
     def __init__(self):
         self.start = False
-        self.GridOccupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
 
     def launchGUI(self, cars):
         player1 = Game.Player("BLUE", False, 1, cars[0], 0)
@@ -76,7 +76,7 @@ class GUI:
 
         drawMap = GUI_FlowMaps(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, screen, NB_CASE_OCCUPATION)
 
-        # self.GridOccupation = self.GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
+        # GridOccupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
 
         while not done:
 
@@ -197,26 +197,26 @@ class GUI:
 
                 count = count + 1
 
-                # self.GridOccupation.addBusy( car.x * SCALE, car.y * SCALE)
+                # GridOccupation.addBusy( car.x * SCALE, car.y * SCALE)
 
             drawMap.drawGridFlow()
             drawMap.drawVector()
             #drawMap.drawself.GridOccupation()
-            drawMap.drawBusyGrid(self.GridOccupation.busy_grid)
-            self.GridOccupation.busy_grid = []
+            drawMap.drawBusyGrid(GridOccupation.busy_grid)
+            GridOccupation.busy_grid = []
 
             y = 47
             for x in range(15, 30):
-                self.GridOccupation.busy_grid.append((x,y))
-            self.GridOccupation.resetBusy()
+                GridOccupation.busy_grid.append((x,y))
+            GridOccupation.resetBusy()
 
             x = 12
             for y in range(17, 45):
-                self.GridOccupation.busy_grid.append((x, y))
-            self.GridOccupation.resetBusy()
+                GridOccupation.busy_grid.append((x, y))
+            GridOccupation.resetBusy()
 
 
-            #print(len(self.GridOccupation.busy_grid2))
+            #print(len(GridOccupation.busy_grid2))
 
             # --- Go ahead and update the screen
             pygame.display.update()
