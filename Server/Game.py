@@ -4,16 +4,16 @@ from random import *
 
 
 class PowerUp:
-    random = pygame.image.load("PowerUp/random.png")
+    random = pygame.image.load("../Image/PowerUp/random.png")
     random = pygame.transform.scale(random, (30, 30))
 
-    stop = pygame.image.load("PowerUp/stop.png")
+    stop = pygame.image.load("../Image/PowerUp/stop.png")
     stop = pygame.transform.scale(stop, (30, 30))
 
-    sens = pygame.image.load("PowerUp/sens.png")
+    sens = pygame.image.load("../Image/PowerUp/sens.png")
     sens = pygame.transform.scale(sens, (30, 30))
 
-    ralentir = pygame.image.load("PowerUp/ralentir.jpg")
+    ralentir = pygame.image.load("../Image/PowerUp/ralentir.jpg")
     ralentir = pygame.transform.scale(ralentir, (30, 30))
 
     list_power = [stop, sens, ralentir]

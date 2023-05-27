@@ -51,7 +51,7 @@ pygame.display.set_caption("Car Information")
 font = pygame.font.Font(None, 36)
 
 # # Load the image
-image = pygame.image.load("circuit.jpeg")
+image = pygame.image.load("../Image/circuit.jpeg")
 # # Get the image size
 image_width = image.get_width()
 image_height = image.get_height()
@@ -180,20 +180,24 @@ while not done:
 
     #drawMap.drawGridFlow()
     #drawMap.drawVector()
-    #drawMap.drawGridOccupation()
+    drawMap.drawGridOccupation()
     drawMap.drawBusyGrid(GridOccupation.busy_grid)
     GridOccupation.busy_grid = []
 
     y = 47
     for x in range(15, 30):
         GridOccupation.busy_grid.append((x,y))
-    GridOccupation.resetBusy()
+
 
     x = 12
     for y in range(17, 45):
         GridOccupation.busy_grid.append((x, y))
-    GridOccupation.resetBusy()
 
+
+    y = 12
+    for x in range(13, 49):
+        GridOccupation.busy_grid.append((x, y))
+    GridOccupation.resetBusy()
 
     #print(len(GridOccupation.busy_grid2))
 

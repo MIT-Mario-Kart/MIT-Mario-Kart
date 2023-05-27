@@ -5,7 +5,7 @@ from Server.Algo.FlowMaps.circuit20x20 import directions as vector
 class GUI_FlowMaps:
     BLACK = (0, 0, 0)
     GREEN = (0, 255, 0)
-    ARROW = pygame.image.load("Arrow.png")
+    ARROW = pygame.image.load("../Image/Arrow.png")
     nb_case_flow = 20
 
     def __init__(self, pos_x, pos_y, width, screen, nb_case_occupation):

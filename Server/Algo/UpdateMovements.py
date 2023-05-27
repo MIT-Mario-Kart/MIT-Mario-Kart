@@ -136,9 +136,13 @@ def updateCarMovement(car: Car, desired_velocity: float):
         # Update velocity
         car.velocity = min(MAX_VELOCITY, car.velocity + car.a)
 
+
+
     grid = GUI.GridOccupation
 
     grid.setNextPositionOccupy2(car)
+
+
 
 
 
