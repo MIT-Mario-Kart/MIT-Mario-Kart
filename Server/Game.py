@@ -137,16 +137,6 @@ class Game:
 
 
     def gui_update(self):
-        # Gestion des événements
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-
-            elif event.type == pygame.KEYDOWN and self.running == False:
-                if event.key == pygame.K_SPACE:
-                    self.begin = 1
-                    self.start_time_depart = pygame.time.get_ticks()
 
         # Effacement de l'écran
         fenetre.fill(self.GRIS_FONCE)
