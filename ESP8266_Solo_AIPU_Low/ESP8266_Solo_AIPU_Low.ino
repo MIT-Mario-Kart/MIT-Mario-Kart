@@ -166,6 +166,9 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   myservo.write(90);
+  if (client.connect(serverAddress, serverPort)) {
+    Serial.println("Connected to server");
+  }
 }
 
 
@@ -292,16 +295,13 @@ void loop() {
   String data = "";
 
   // Connect to the server
-  if (client.connect(serverAddress, serverPort)) {
+  if (client.connected()) {
     // Serial.println("Connected to server.");
     
     // Send dummy data
     client.write(CAR_ID);
     // Serial.println("Sent data to server.");
-
-    // Wait for a response from the server
-    while (client.connected()) {
-      if (client.available()) {
+      while (client.available()) {
         // Read data from the server
           data = client.readStringUntil('\n');
           // Serial.print("Received data: ");
@@ -356,10 +356,9 @@ void loop() {
           rcvd_acc = 0;
 
         }
-        client.stop();
         // Serial.println("Disconnected from server.");
       }
-    }
+    
 
 
 
@@ -414,10 +413,14 @@ void loop() {
   }
 
   } else {
-
+    client.stop();
     digitalWrite(PIN_FORWARD, LOW);
     digitalWrite(PIN_REVERSE, LOW);
-    Serial.println("Connection to server failed.");
+    Serial.println("Connection to server failed and connection closed.");
+    // Connection lost, attempt to reconnect
+    if (client.connect(serverAddress, serverPort)) {
+      Serial.println("Reconnected to server");
+    }
 
   }
 }
