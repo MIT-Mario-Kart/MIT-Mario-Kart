@@ -11,7 +11,6 @@ from Algo.Control import cars
 #from Algo.Control import rank_list
 from Algo.Control import updateCarMovement
 from Algo.Overtake.overtake import *
-from Server import Manette
 from Server.Algo import UpdateMovements
 from Server.Algo.FlowMaps.GUi_FlowMaps import GUI_FlowMaps
 from Server.Algo.GridOccupation import GridOccupation
@@ -93,7 +92,6 @@ while not done:
 
     # --- Main event loop
     for event in pygame.event.get():
-        print("check2")
         if event.type == pygame.QUIT:
             done = True
         elif event.type == pygame.KEYDOWN:
@@ -104,7 +102,6 @@ while not done:
                     screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
                 else:
                     screen = pygame.display.set_mode(size)
-
 
     # --- Game logic should go here
 
