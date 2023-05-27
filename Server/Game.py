@@ -112,6 +112,7 @@ class Game:
 
     def gui_init(self):
         pygame.init()
+        pygame.joystick.init()
 
         # Création de la fenêtre
         global fenetre
