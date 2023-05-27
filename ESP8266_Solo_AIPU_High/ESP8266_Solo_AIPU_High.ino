@@ -38,7 +38,7 @@ enum Zone {
 
 Zone currZone = green;
 
-int zoneOrPowUp = 0;
+//int zoneOrPowUp = 0;
 const long int PU_MAX = 5000;
 long int puDelay = 0;
 bool timerIsStarted = false;
@@ -80,6 +80,8 @@ Servo myservo;
 double speed_percentage = 1;
 int dir = 0;
 int rcvd_acc = 0;
+char toSend[40];
+
 
 #define PU_NONE 0
 #define PU_STOP 1
@@ -94,7 +96,7 @@ int receivedPowerup = PU_NONE;
 bool isPowerupd = false;
 // bool invertControls = false;
 
-void activatePowerup() {
+/* void activatePowerup() {
 
   srand((unsigned) time(NULL));
   // receivedPowerup = (abs(rand()) % 3) + 2;
@@ -110,6 +112,19 @@ void activatePowerup() {
     Serial.println("Error on PU");
   }
 
+} */
+
+void sendPowUp() {
+  // Connect to the server
+  /* Serial.print(currZone);
+  Serial.print(" : ");
+  Serial.println(powerUp); */
+  WiFiClient client;
+  if (client.connect(serverAddress, serverPort)) {
+    // send 0 or 1 so the server knows when to start the power up code
+    sprintf(toSend, "%s\n%d", CAR_ID, powerUp);
+    client.write(toSend, 40);
+  }
 }
 
 
@@ -162,10 +177,10 @@ void loop() {
     
     timerIsStarted = false;
     puDelay = 0;
-    zoneOrPowUp = currZone + 1;
+    //zoneOrPowUp = currZone + 1;
 
     // My powerups
-    receivedPowerup = PU_NONE;
+    //receivedPowerup = PU_NONE;
     isPowerupd = false;
     // invertControls = false;
     Serial.println("Powerup reset");
@@ -225,37 +240,58 @@ void loop() {
     // check if the sensor detects a RED tape
     if (currZone != red){
       currZone = red;
-      zoneOrPowUp = RED;
+      //zoneOrPowUp = RED;
 
     }
   } else if(isInMargin(redColor, 20, 30) && isInMargin(greenColor, 230, 30) && isInMargin(blueColor, 10, 30)) {
     // check if the sensor detects a GREEN tape
     if (currZone != green){
       currZone = green;
-      zoneOrPowUp = GREEN;
+      //zoneOrPowUp = GREEN;
 
     }
   } else if(isInMargin(redColor, 10, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 240, 30)) {
     // check if the sensor detects a BLUE tape
     if (currZone != blue){
       currZone = blue;
-      zoneOrPowUp = BLUE;
+      //zoneOrPowUp = BLUE;
 
     }
   } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a black tape (POWERUP)
-    if (zoneOrPowUp != 1 && !isPowerupd) {
-      zoneOrPowUp = 1;            // to change back to zero when sent once
-      activatePowerup();
+    if (!isPowerupd) {
+
+      isPowerupd = true;
+      sendPowUp();
       puDelay = millis();
       timerIsStarted = true;
+
     }
   } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 150, 30)) {
      // check if the sensor detects the CIRCUIT to reset powerup
-    if (zoneOrPowUp != 0){ 
-      zoneOrPowUp = 0;
+    if (isPowerupd){ 
+      //zoneOrPowUp = 0;
+      isPowerupd = false;
       Serial.println("Circuit");
     }
+  }
+
+  switch (currZone) {
+  case red:
+    speed_percentage = SLOWDOWN_PRCNT;
+    break;
+
+  case blue:
+    speed_percentage = 1;
+    break;
+
+  case green:
+    speed_percentage = SPEEDUP_PRCNT;
+    break;
+    
+  default:
+    speed_percentage = 1;
+    break;
   }
 
   // ----------------------------------------------------------------------------
@@ -336,7 +372,7 @@ void loop() {
 
 
 
-  if(receivedPowerup == PU_STOP) {
+  /* if(receivedPowerup == PU_STOP) {
 
     isPowerupd = false;
     speed_percentage = 0;
@@ -364,7 +400,7 @@ void loop() {
 
     speed_percentage = 1;
 
-  }
+  } */
   // Controlling motors
 
   if(rcvd_acc == 0) {

@@ -38,7 +38,7 @@ enum Zone {
 
 Zone currZone = green;
 
-int zoneOrPowUp = 0;
+//int zoneOrPowUp = 0;
 const long int PU_MAX = 5000;
 long int puDelay = 0;
 bool timerIsStarted = false;
@@ -79,7 +79,9 @@ const int BLUE = 4;
 Servo myservo;
 double speed_percentage = 1;
 int dir = 0;
-int rcvd_acc = 1;
+int rcvd_acc = 0;
+char toSend[40];
+
 
 #define PU_NONE 0
 #define PU_STOP 1
@@ -94,7 +96,7 @@ int receivedPowerup = PU_NONE;
 bool isPowerupd = false;
 // bool invertControls = false;
 
-void activatePowerup() {
+/* void activatePowerup() {
 
   srand((unsigned) time(NULL));
   // receivedPowerup = (abs(rand()) % 3) + 2;
@@ -110,6 +112,19 @@ void activatePowerup() {
     Serial.println("Error on PU");
   }
 
+} */
+
+void sendPowUp() {
+  // Connect to the server
+  /* Serial.print(currZone);
+  Serial.print(" : ");
+  Serial.println(powerUp); */
+  WiFiClient client;
+  if (client.connect(serverAddress, serverPort)) {
+    // send 0 or 1 so the server knows when to start the power up code
+    sprintf(toSend, "%s\n%d", CAR_ID, powerUp);
+    client.write(toSend, 40);
+  }
 }
 
 
@@ -162,10 +177,10 @@ void loop() {
     
     timerIsStarted = false;
     puDelay = 0;
-    zoneOrPowUp = currZone + 1;
+    //zoneOrPowUp = currZone + 1;
 
     // My powerups
-    receivedPowerup = PU_NONE;
+    //receivedPowerup = PU_NONE;
     isPowerupd = false;
     // invertControls = false;
     Serial.println("Powerup reset");
@@ -225,37 +240,51 @@ void loop() {
     // check if the sensor detects a RED tape
     if (currZone != red){
       currZone = red;
-      zoneOrPowUp = RED;
 
     }
   } else if(isInMargin(redColor, 20, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a GREEN tape
     if (currZone != green){
       currZone = green;
-      zoneOrPowUp = GREEN;
 
     }
   } else if(isInMargin(redColor, 6, 30) && isInMargin(greenColor, 170, 30) && isInMargin(blueColor, 240, 30)) {
     // check if the sensor detects a BLUE tape
     if (currZone != blue){
       currZone = blue;
-      zoneOrPowUp = BLUE;
 
     }
   } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a black tape (POWERUP)
     if (zoneOrPowUp != 1 && !isPowerupd) {
-      zoneOrPowUp = 1;            // to change back to zero when sent once
-      activatePowerup();
+      isPowerupd = true;
+      sendPowUp();
       puDelay = millis();
       timerIsStarted = true;
     }
   } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 135, 30)) {
      // check if the sensor detects the CIRCUIT to reset powerup
     if (zoneOrPowUp != 0){ 
-      zoneOrPowUp = 0;
       Serial.println("Circuit");
     }
+  }
+
+  switch (currZone) {
+  case red:
+    speed_percentage = SLOWDOWN_PRCNT;
+    break;
+
+  case blue:
+    speed_percentage = 1;
+    break;
+
+  case green:
+    speed_percentage = SPEEDUP_PRCNT;
+    break;
+    
+  default:
+    speed_percentage = 1;
+    break;
   }
 
   // ----------------------------------------------------------------------------
@@ -309,7 +338,7 @@ void loop() {
         if (dir == 200) {
 
           printf("Stop\n");
-          rcvd_acc = 1;
+          rcvd_acc = 0;
 
 
         } else if(0 <= dir && dir <= 180) {
@@ -324,7 +353,7 @@ void loop() {
         } else {
 
           printf("Incorrect dir received: %d", dir);
-          rcvd_acc = 1;
+          rcvd_acc = 0;
 
         }
         client.stop();
@@ -336,7 +365,7 @@ void loop() {
 
 
 
-  if(receivedPowerup == PU_STOP) {
+  /* if(receivedPowerup == PU_STOP) {
 
     isPowerupd = false;
     speed_percentage = 0;
@@ -364,23 +393,23 @@ void loop() {
 
     speed_percentage = 1;
 
-  }
+  } */
   // Controlling motors
 
   if(rcvd_acc == 0) {
-
-    analogWrite(PIN_REVERSE, NORMAL_SPEED * speed_percentage);
-    digitalWrite(PIN_FORWARD, LOW);
-
-  } else if (rcvd_acc == 1) {
-
     digitalWrite(PIN_FORWARD, LOW);
     digitalWrite(PIN_REVERSE, LOW);
+    
 
-  } else if(rcvd_acc == 2) {
+  } else if (rcvd_acc > 0) {
 
     digitalWrite(PIN_REVERSE, LOW);
-    analogWrite(PIN_FORWARD, NORMAL_SPEED * speed_percentage);
+    analogWrite(PIN_FORWARD, NORMAL_SPEED * rcvd_acc * speed_percentage);
+
+  } else if(rcvd_acc < 0) {
+
+    digitalWrite(PIN_FORWARD, LOW);
+    analogWrite(PIN_REVERSE, NORMAL_SPEED * rcvd_acc * speed_percentage);
 
   }
 
