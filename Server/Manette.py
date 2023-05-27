@@ -1,9 +1,9 @@
 import pygame
 
-pygame.init()
+# pygame.init()
 
 # Initialise le module joystick
-pygame.joystick.init()
+# pygame.joystick.init()
 
 
 
