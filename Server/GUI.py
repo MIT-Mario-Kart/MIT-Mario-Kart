@@ -112,17 +112,18 @@ class GUI:
                 #         self.start_time_depart = pygame.time.get_ticks()
                 if event.type == pygame.JOYDEVICEADDED:
                     # print(f"New Manette conneted!")
-                    joystick = pygame.joystick.Joystick(event.device_index)
-                    joystick.init()
-                    Manette.joysticks.append(joystick)
-
                     for car in cars:
                         if not(car.ai) and not(car.joystick_connected):
+                            joystick = pygame.joystick.Joystick(event.device_index)
+                            joystick.init()
+                            Manette.joysticks.append(joystick)
+
                             manette = Manette.Manette(joystick)
                             car.manette = manette
                             Manette.manettes.append(manette)
                             print(f"Manette added to {car.id}")
                             car.joystick_connected = True
+                            break
             Manette.updateManette()
             # --- Game logic should go here
 
