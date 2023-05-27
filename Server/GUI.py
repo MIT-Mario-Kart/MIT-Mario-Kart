@@ -95,10 +95,10 @@ class GUI:
 
             # --- Main event loop
             for event in pygame.event.get():
-                print(event.type)
+                print(event.event_name)
                 if event.type == pygame.QUIT:
                     done = True
-                elif event.type == pygame.KEYDOWN:
+                if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_f:
                         # Toggle fullscreen mode when the user presses the 'f' key
                         fullscreen = not fullscreen
@@ -106,7 +106,7 @@ class GUI:
                             screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
                         else:
                             screen = pygame.display.set_mode(size)
-                elif event.type == pygame.JOYDEVICEADDED:
+                if event.type == pygame.JOYDEVICEADDED:
                     print(f"New Manette conneted!")
                     joystick = pygame.joystick.Joystick(event.device_index)
                     joystick.init()

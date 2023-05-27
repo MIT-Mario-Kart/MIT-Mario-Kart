@@ -14,8 +14,8 @@ joysticks = []
 manettes = []
 
 # Crée une horloge pour définir la fréquence d'images du jeu
-clock = pygame.time.Clock()
-FPS = 60
+# clock = pygame.time.Clock()
+# FPS = 60
 
 # Classe représentant un carré contrôlé par une manette
 class Manette:
