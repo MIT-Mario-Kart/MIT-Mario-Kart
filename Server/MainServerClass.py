@@ -54,5 +54,3 @@ class handler(BaseRequestHandler):
 class MainServer(ThreadingTCPServer):
     def __init__(self, server_address):
         super().__init__(server_address, handler)
-        gui = GUI.GUI()
-        gui.launchGUI(cars)
