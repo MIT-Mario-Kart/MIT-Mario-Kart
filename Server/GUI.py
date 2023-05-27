@@ -95,7 +95,7 @@ class GUI:
 
             # --- Main event loop
             for event in pygame.event.get():
-                print(event.event_name)
+                print(pygame.event.event_name(event.type))
                 if event.type == pygame.QUIT:
                     done = True
                 if event.type == pygame.KEYDOWN:
