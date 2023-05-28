@@ -1,4 +1,4 @@
-import Algo.Car as Car
+import Server.Algo.Car as Car
 import math
 from Server import GUI
 from Server.Algo.GridOccupation import GridOccupation

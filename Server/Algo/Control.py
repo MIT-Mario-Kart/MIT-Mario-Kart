@@ -8,8 +8,7 @@ import copy
 from Server.Algo.Car import Car
 from Server.Algo.Car import RED_C, BLUE_C, GREEN_C, BRUN_C, VIOLET_C, ROSE_C
 from Server.Algo.FlowMaps.circuit20x20 import directions as fmdir
-import Server.Algo.Overtake.overtake as ovt
-import Server.Algo.FlowMaps.powerups as pu
+
 from Server.Algo.Grid import Grid
 import Server.Algo.UpdateMovements as updateMov
 from Server.Algo.Orientation import calcOrientation
@@ -105,7 +104,7 @@ def updateCarMovement():
 
         moveCar(car)
 
-        car.left_circle, car.right_circle = ovt.calculateCircles(car)
+
 
 
 

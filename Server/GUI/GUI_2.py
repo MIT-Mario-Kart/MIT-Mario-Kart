@@ -11,6 +11,7 @@ class GUI:
     GREY = (220, 220, 220)
 
     #
+
     SCALE = 2.75
     # CIRCUIT_POS_X = 285
     CIRCUIT_POS_X = 256
@@ -33,10 +34,23 @@ class GUI:
     feu5 = pygame.image.load("../Image/Feu_Depart/Feu_5.png")
     feu5 = pygame.transform.scale(feu5, (x_feu, y_feu))
 
+    # # Load the image
+    image_circuit = pygame.image.load("../../Image/circuit.jpeg")
+
     fenetre = None
     font = pygame.font.SysFont("Calibri", 28)
     # # Load the image
-    image = pygame.image.load("../../Image/circuit.jpeg")
+    image_circuit = pygame.image.load("../../Image/circuit.jpeg")
+
+    running = False
+    begin = 0
+    start_time = 0
+    elapsed_time = 0
+    second = 0
+    seconde_depart = 0
+    start_time_depart = 0
+    elapsed_time_depart = 0
+    checkpoint_list = []
 
     def __init__(self):
         self.gui_init()
@@ -60,12 +74,12 @@ class GUI:
         pygame.display.set_caption("MIT KART")
 
         # # Get the image size
-        image_width = self.image.get_width()
-        image_height = self.image.get_height()
+        image_width = self.image_circuit.get_width()
+        image_height = self.image_circuit.get_height()
         # # Set the image position
         image_x = 200  # 400 = screen center
         image_y = 150  # 300 = screen center
-        image = pygame.transform.scale(self.image, (600, 600))
+        image = pygame.transform.scale(self.image_circuit, (600, 600))
 
         # # Set up the clock to control the frame rate
         clock = pygame.time.Clock()
@@ -80,7 +94,7 @@ class GUI:
 
         drawMap = GUI_FlowMaps(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, screen, NB_CASE_OCCUPATION)
 
-        GriOccupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
+        grid_occupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
 
     def gui_update(self):
         # Gestion des événements
