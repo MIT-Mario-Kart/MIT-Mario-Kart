@@ -1,5 +1,4 @@
 import pygame
-import Game
 
 # from Algo.Control import moveCar
 from Algo.Control import cars
@@ -12,13 +11,13 @@ from Server.Algo.GridOccupation import GridOccupation
 # Define some colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GREY = Game.Game.GRIS_CLAIR
+GREY = Server.Game.Game.GRIS_CLAIR
 
 CAR_SIZE = 25
 
-player1 = Game.Player("BLUE", False, 1, cars[0], 0)
-player2 = Game.Player("RED", False, 2, cars[1], 1)
-player3 = Game.Player("GREEN", False, 3, cars[2], 2)
+player1 = Server.Game.Player("BLUE", False, 1, cars[0], 0)
+player2 = Server.Game.Player("RED", False, 2, cars[1], 1)
+player3 = Server.Game.Player("GREEN", False, 3, cars[2], 2)
 #player4 = Game.Player("VIOLET", False, 4, cars[3],3)
 #player5 = Game.Player("ROSE", False, 5, cars[4],4)
 #player6 = Game.Player("BRUN", False, 6, cars[5],5)
@@ -26,7 +25,7 @@ player3 = Game.Player("GREEN", False, 3, cars[2], 2)
 players = [player1, player2, player3]
 
 gameStarted = False
-game = Game.Game(players)
+game = Server.Game.Game(players)
 game.gui_init()
 screen = game.get_window()
 
@@ -72,7 +71,7 @@ GridOccupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE
 while not done:
 
     for player in players:
-        player.update(Game.Game.second)
+        player.update(Server.Game.Game.second)
 
     if game.running == True and gameStarted == False:
         gameStarted = True

@@ -3,68 +3,10 @@ from random import *
 #import Algo.Control
 
 
-class PowerUp:
-    random = pygame.image.load("../Image/PowerUp/random.png")
-    random = pygame.transform.scale(random, (30, 30))
-
-    stop = pygame.image.load("../Image/PowerUp/stop.png")
-    stop = pygame.transform.scale(stop, (30, 30))
-
-    sens = pygame.image.load("../Image/PowerUp/sens.png")
-    sens = pygame.transform.scale(sens, (30, 30))
-
-    ralentir = pygame.image.load("../Image/PowerUp/ralentir.jpg")
-    ralentir = pygame.transform.scale(ralentir, (30, 30))
-
-    list_power = [stop, sens, ralentir]
 
 
-class Player:
-    x = 0
-    y = 0
-    speed = 0
-    power = PowerUp.random
-    curr_lap = 0
-    last_lap = 0
-    best_lap = 0
-    lap_count = 0
-    on_the_line = False
-
-    def __init__(self, name, ai, rank, car_server, car_list_index):
-        self.name = str(name)
-        self.ai = bool(ai)
-        self.rank = int(rank)
-        self.car_server = car_server
-        self.car_list_index = car_list_index
-
-    def shuffle(self):
-        self.power = choice(PowerUp.list_power)
-
-    def add_lap(self):
-        self.on_the_line = True
-        self.lap_count += 1
-        self.last_lap += self.curr_lap
-
-        if self.curr_lap < self.best_lap:
-            self.best_lap = round(self.curr_lap,3)
-
-        elif self.best_lap == 0 and self.lap_count == 2:
-            self.best_lap = round(self.curr_lap,3)
-
-        self.curr_lap = 0
-
-    def update(self, second):
-        self.curr_lap = second - self.last_lap
-
-    def not_on_the_line(self):
-        self.on_the_line = False
 
 
-# class Game:
-#    def __init__(self, nb_real, nb_ai, nb_lap):
-#        self.nb_real = nb_real
-#        self.nb_ai = nb_ai
-#        self.nb_lap = nb_lap
 
 
 class Game:

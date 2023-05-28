@@ -11,8 +11,8 @@ class GUI:
     GREY = (220, 220, 220)
 
     #
-
     SCALE = 2.75
+
     # CIRCUIT_POS_X = 285
     CIRCUIT_POS_X = 256
     CIRCUIT_POS_Y = 203
@@ -34,6 +34,19 @@ class GUI:
     feu5 = pygame.image.load("../Image/Feu_Depart/Feu_5.png")
     feu5 = pygame.transform.scale(feu5, (x_feu, y_feu))
 
+    # Image PowerUp
+    random = pygame.image.load("../Image/PowerUp/random.png")
+    random = pygame.transform.scale(random, (30, 30))
+
+    stop = pygame.image.load("../Image/PowerUp/stop.png")
+    stop = pygame.transform.scale(stop, (30, 30))
+
+    sens = pygame.image.load("../Image/PowerUp/sens.png")
+    sens = pygame.transform.scale(sens, (30, 30))
+
+    ralentir = pygame.image.load("../Image/PowerUp/ralentir.jpg")
+    ralentir = pygame.transform.scale(ralentir, (30, 30))
+
     # # Load the image
     image_circuit = pygame.image.load("../../Image/circuit.jpeg")
 
@@ -50,19 +63,11 @@ class GUI:
     seconde_depart = 0
     start_time_depart = 0
     elapsed_time_depart = 0
-    checkpoint_list = []
 
     def __init__(self):
         self.gui_init()
 
-
-
-
     def gui_init(self):
-        # Initialize the window and the joysticks
-        pygame.init()
-        pygame.joystick.init()
-
         # Get the screen size
         screen_info = pygame.display.Info()
         screen_width = screen_info.current_w
@@ -193,6 +198,11 @@ class GUI:
             self.fenetre.blit(joueur.power, (635 + x, y))
 
             y += 50
+
+        for car in guiCars:
+            pygame.draw.rect(screen, car.colour, (MOVE_MAP_X + CIRCUIT_POS_X + (car.x) * SCALE - CAR_SIZE / 2,
+                                                  MOVE_MAP_Y + CIRCUIT_POS_Y + (car.y) * SCALE - CAR_SIZE / 2, CAR_SIZE,
+                                                  CAR_SIZE))
 
 
 

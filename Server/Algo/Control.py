@@ -22,27 +22,8 @@ camID = "CAM"
 stopID = "STOP"
 calibrationColor = "yellow"
 
-# initialise car objects
-car1 = Car("CAR1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
-car1.rank = 3
-car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
-car2.rank = 2
-car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
-car3.rank = 1
-
-#car4 = Car("CAR4", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, x=180, y=20, orientation=180)
-#car4.rank = 4
-#car5 = Car("CAR5", "Test", "Test", ("172.20.10.8", 9999), ROSE_C, x=100, y=20, orientation=180)
-#car5.rank = 6
-#car6 = Car("CAR6", "Test", "Test", ("172.20.10.8", 9999), BRUN_C, x=110, y=20, orientation=180)
-#car6.rank = 5
-
-
 dict_cars = {}
-cars = [car1, car2, car3]
-for car in cars:
-    dict_cars[car.id] = car
-
+cars = []
 
 grid = Grid()
 launched = False
@@ -104,7 +85,10 @@ def updateCarMovement():
 
         moveCar(car)
 
-
+def updateCarList(carList : list):
+    cars = carList
+    for car in cars:
+        dict_cars[car.id] = car
 
 
 
