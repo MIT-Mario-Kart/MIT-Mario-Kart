@@ -1,18 +1,12 @@
-import random
-
 import pygame
 import Game
 
-from Algo.Car import Car
-from Algo.FlowMaps.circuit20x20 import directions as fmdir
 # from Algo.Control import moveCar
-import Algo.UpdateMovements as updateMov
 from Algo.Control import cars
 #from Algo.Control import rank_list
 from Algo.Control import updateCarMovement
 from Algo.Overtake.overtake import *
-from Server.Algo import UpdateMovements
-from Server.Algo.FlowMaps.GUi_FlowMaps import GUI_FlowMaps
+from Server.GUI.GUi_FlowMaps import GUI_FlowMaps
 from Server.Algo.GridOccupation import GridOccupation
 
 # Define some colors
@@ -51,7 +45,7 @@ pygame.display.set_caption("Car Information")
 font = pygame.font.Font(None, 36)
 
 # # Load the image
-image = pygame.image.load("../Image/circuit.jpeg")
+image = pygame.image.load("../../Image/circuit.jpeg")
 # # Get the image size
 image_width = image.get_width()
 image_height = image.get_height()

@@ -80,19 +80,6 @@ class Game:
     LARGEUR_FENETRE = 1500
     HAUTEUR_FENETRE = 900
 
-    x_feu = 210
-    y_feu = 70
-    # Image du feu de départ
-    feu1 = pygame.image.load("Feu_Depart/Feu_1.png")
-    feu1 = pygame.transform.scale(feu1, (x_feu, y_feu))
-    feu2 = pygame.image.load("Feu_Depart/Feu_2.png")
-    feu2 = pygame.transform.scale(feu2, (x_feu, y_feu))
-    feu3 = pygame.image.load("Feu_Depart/Feu_3.png")
-    feu3 = pygame.transform.scale(feu3, (x_feu, y_feu))
-    feu4 = pygame.image.load("Feu_Depart/Feu_4.png")
-    feu4 = pygame.transform.scale(feu4, (x_feu, y_feu))
-    feu5 = pygame.image.load("Feu_Depart/Feu_5.png")
-    feu5 = pygame.transform.scale(feu5, (x_feu, y_feu))
 
     running = False
     begin = 0
@@ -110,26 +97,10 @@ class Game:
     # def car_calibration(self, player_list):
     #   for car in player_list:
 
-    def gui_init(self):
-        pygame.init()
-        pygame.joystick.init()
 
-        # Création de la fenêtre
-        global fenetre
-        # Get the screen size
-        screen_info = pygame.display.Info()
-        screen_width = screen_info.current_w
-        screen_height = screen_info.current_h
-        
-        self.LARGEUR_FENETRE = screen_width
-        self.HAUTEUR_FENETRE = screen_height
 
-        fenetre = pygame.display.set_mode((screen_width, screen_height))
-        pygame.display.set_caption("GUI")
 
-        # Police d'écriture
-        global font
-        font = pygame.font.SysFont("Calibri", 28)
+
 
     def player_update(self):
         for player in self.player_list:
