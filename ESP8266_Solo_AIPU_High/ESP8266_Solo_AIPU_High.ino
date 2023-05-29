@@ -254,8 +254,7 @@ void loop() {
     client.write(toSend, 15);
 
     // Wait for a response from the server
-    while (client.connected()) {
-      if (client.available()) {
+      while (client.available()) {
         // Read data from the server
           data = client.readStringUntil('\n');
 
@@ -311,7 +310,6 @@ void loop() {
         }
         // Serial.println("Disconnected from server.");
       }
-    }
 
   // Controlling motors
 
