@@ -76,7 +76,7 @@ Servo myservo;
 double speed_percentage = 1;
 int dir = 0;
 int rcvd_acc = 0;
-char toSend[40];
+char toSend[15];
 
 // #define PU_INVERT 4
 
@@ -306,12 +306,12 @@ void loop() {
   } else if (rcvd_acc > 0) {
 
     digitalWrite(PIN_REVERSE, LOW);
-    analogWrite(PIN_FORWARD, NORMAL_SPEED * rcvd_acc * speed_percentage);
+    analogWrite(PIN_FORWARD, rcvd_acc * speed_percentage);
 
   } else if(rcvd_acc < 0) {
 
     digitalWrite(PIN_FORWARD, LOW);
-    analogWrite(PIN_REVERSE, NORMAL_SPEED * (- rcvd_acc) * speed_percentage);
+    analogWrite(PIN_REVERSE, (- rcvd_acc) * speed_percentage);
 
   }
 
@@ -325,4 +325,5 @@ void loop() {
       Serial.println("Reconnected to server");
     }
   }
+  delay(5);
 }
