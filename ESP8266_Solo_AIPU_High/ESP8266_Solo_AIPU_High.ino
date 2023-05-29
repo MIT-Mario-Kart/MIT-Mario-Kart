@@ -250,7 +250,7 @@ void loop() {
   // Connect to the server
   if (client.connect(serverAddress, serverPort)) {
 
-    sprintf(toSend, "%s\n%d\n", CAR_ID, isPowerUpd);
+    sprintf(toSend, "%s\n%d\n", CAR_ID, isPowerupd);
     client.write(toSend, 15);
 
     // Wait for a response from the server
