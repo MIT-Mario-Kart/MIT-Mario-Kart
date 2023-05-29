@@ -22,9 +22,9 @@
 #define sensorOut 14    // D5
 
 // Connection constants
-const char* ssid = "Rok's iPhone";                    // your network SSID (name)
-const char* password = "babalilo";              // your network password
-const char* serverAddress = "172.20.10.3";      // server address
+const char* ssid = "albert";                    // your network SSID (name)
+const char* password = "aaaabbbb";              // your network password
+const char* serverAddress = "172.20.10.6";      // server address
 const int serverPort = 8899;                    // server port
 
 WiFiClient client;
