@@ -38,7 +38,6 @@ enum Zone {
 
 Zone currZone = green;
 
-//int zoneOrPowUp = 0;
 const long int PU_MAX = 5000;
 long int puDelay = 0;
 bool timerIsStarted = false;
@@ -70,9 +69,6 @@ int blueEdgeTime = 0;
 int sensorFrequency = 0;
 int sensorEdgeTime = 0;
 
-const int RED = 2;
-const int GREEN = 3;
-const int BLUE = 4;
 // ---------------------------------------------------------------
 
 // Global variables
@@ -82,53 +78,13 @@ int dir = 0;
 int rcvd_acc = 0;
 char toSend[40];
 
-
-#define PU_NONE 0
-#define PU_STOP 1
-#define PU_SLOWDOWN 2
-#define PU_SPEEDUP 3
 // #define PU_INVERT 4
 
 #define SLOWDOWN_PRCNT 0.75
 #define SPEEDUP_PRCNT 1.25
+#define NORMAL_PRCNT 1.00
 #define NORMAL_SPEED 200
-int receivedPowerup = PU_NONE;
-bool isPowerupd = false;
-// bool invertControls = false;
-
-/* void activatePowerup() {
-
-  srand((unsigned) time(NULL));
-  // receivedPowerup = (abs(rand()) % 3) + 2;
-  receivedPowerup = (abs(rand()) % 2) + 2;
-
-  if(receivedPowerup == PU_SLOWDOWN){
-    Serial.println("Slowdown");
-  } else if(receivedPowerup == PU_SPEEDUP) {
-    Serial.println("Speedup");
-  // } else if(receivedPowerup == PU_INVERT) {
-  //   Serial.println("Invert");
-  } else {
-    Serial.println("Error on PU");
-  }
-
-} */
-
-void sendPowUp() {
-  // Connect to the server
-  /* Serial.print(currZone);
-  Serial.print(" : ");
-  Serial.println(powerUp); */
-  WiFiClient client;
-  if (client.connect(serverAddress, serverPort)) {
-    // send 0 or 1 so the server knows when to start the power up code
-    sprintf(toSend, "%s\n%d", CAR_ID, powerUp);
-    client.write(toSend, 40);
-  }
-}
-
-
-
+int isPowerupd = 0;
 
 
 void setup() {
@@ -177,12 +133,7 @@ void loop() {
     
     timerIsStarted = false;
     puDelay = 0;
-    //zoneOrPowUp = currZone + 1;
-
-    // My powerups
-    //receivedPowerup = PU_NONE;
-    isPowerupd = false;
-    // invertControls = false;
+    isPowerupd = 0;
     Serial.println("Powerup reset");
   }
 
@@ -240,39 +191,34 @@ void loop() {
     // check if the sensor detects a RED tape
     if (currZone != red){
       currZone = red;
-      //zoneOrPowUp = RED;
 
     }
   } else if(isInMargin(redColor, 20, 30) && isInMargin(greenColor, 230, 30) && isInMargin(blueColor, 10, 30)) {
     // check if the sensor detects a GREEN tape
     if (currZone != green){
       currZone = green;
-      //zoneOrPowUp = GREEN;
 
     }
   } else if(isInMargin(redColor, 10, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 240, 30)) {
     // check if the sensor detects a BLUE tape
     if (currZone != blue){
       currZone = blue;
-      //zoneOrPowUp = BLUE;
 
     }
   } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a black tape (POWERUP)
-    if (!isPowerupd) {
+    if (isPowerupd == 0) {
 
-      isPowerupd = true;
-      sendPowUp();
+      isPowerupd = 1;
       puDelay = millis();
       timerIsStarted = true;
 
     }
   } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 150, 30)) {
      // check if the sensor detects the CIRCUIT to reset powerup
-    if (isPowerupd){ 
-      //zoneOrPowUp = 0;
-      isPowerupd = false;
-      Serial.println("Circuit");
+    if (isPowerupd == 1){ 
+      isPowerupd = 0;
+
     }
   }
 
@@ -282,7 +228,7 @@ void loop() {
     break;
 
   case blue:
-    speed_percentage = 1;
+    speed_percentage = NORMAL_PRCNT;
     break;
 
   case green:
@@ -290,7 +236,7 @@ void loop() {
     break;
     
   default:
-    speed_percentage = 1;
+    speed_percentage = NORMAL_PRCNT;
     break;
   }
 
@@ -300,19 +246,16 @@ void loop() {
 
   // Connect to the server
   if (client.connect(serverAddress, serverPort)) {
-    // Serial.println("Connected to server.");
-    
-    // Send dummy data
-    client.write(CAR_ID);
-    // Serial.println("Sent data to server.");
+
+    sprintf(toSend, "%s\n%d\n", CAR_ID, isPowerUpd);
+    client.write(toSend, 15);
 
     // Wait for a response from the server
     while (client.connected()) {
       if (client.available()) {
         // Read data from the server
           data = client.readStringUntil('\n');
-          // Serial.print("Received data: ");
-          // Serial.println(data);
+
           // Close the connection
 
           char rcvd[data.length()+1];
@@ -368,39 +311,6 @@ void loop() {
       }
     }
 
-
-
-
-
-  /* if(receivedPowerup == PU_STOP) {
-
-    isPowerupd = false;
-    speed_percentage = 0;
-    
-  //} else if(isPowerupd) {
-
-      // Should be ok]
-
-  } else if(receivedPowerup == PU_SLOWDOWN) {
-
-    isPowerupd = true;
-    speed_percentage = SLOWDOWN_PRCNT;
-
-  } else if(receivedPowerup == PU_SPEEDUP) {
-
-    isPowerupd = true;
-    speed_percentage = SPEEDUP_PRCNT;
-
-  // } else if(receivedPowerup == PU_INVERT) {
-
-  //   isPowerupd = true;
-  //   invertControls = true;
-
-  } else if(receivedPowerup == PU_NONE) {
-
-    speed_percentage = 1;
-
-  } */
   // Controlling motors
 
   if(rcvd_acc == 0) {
@@ -416,7 +326,7 @@ void loop() {
   } else if(rcvd_acc < 0) {
 
     digitalWrite(PIN_FORWARD, LOW);
-    analogWrite(PIN_REVERSE, NORMAL_SPEED * rcvd_acc * speed_percentage);
+    analogWrite(PIN_REVERSE, NORMAL_SPEED * (- rcvd_acc) * speed_percentage);
 
   }
 
