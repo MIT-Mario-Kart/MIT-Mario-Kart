@@ -10,7 +10,7 @@
 #define PIN_REVERSE 13    // D7
 #define SERVO_PIN 15      // D8
 
-#define CAR_ID "CAR_ID_TEST"
+#define CAR_ID "CAR_ID_1"
 #define CAR_ID_RESET "CAR_ID_RESET"
 #define CAR_ID_PU "CAR_ID_PU"
 
@@ -130,16 +130,6 @@ void setup() {
 
 
 void loop() {
-
-   // Reset powerups
-  if (timerIsStarted && ((millis() - puDelay) > PU_MAX)) {
-    
-    timerIsStarted = false;
-    puDelay = 0;
-    isPowerupd = 0;
-    Serial.println("Powerup reset");
-  }
-
   //------------------------------- Colour sensor -------------------------------
 
   /*Determination of the photodiode type during measurement
@@ -210,19 +200,10 @@ void loop() {
     }
   } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a black tape (POWERUP)
-    if (isPowerupd == 0) {
-
       isPowerupd = 1;
-      puDelay = millis();
-      timerIsStarted = true;
-
-    }
   } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 150, 30)) {
      // check if the sensor detects the CIRCUIT to reset powerup
-    if (isPowerupd == 1){ 
       isPowerupd = 0;
-
-    }
   }
 
   switch (currZone) {
