@@ -20,12 +20,12 @@ class Car:
     self.old_delta = 90
     self.delta = 90 # steering angle
     self.a = 1 # acceleration
-    self.acc = 3
+    self.acc = 200
     self.zone = 1
     self.ai = ai
     self.speed = "GREEN"
     self.powerup = powerup
-    self.inverted = False
+    self.inverted = 1
     self.left_circle = None
     self.right_circle = None
     self.colour = colour
@@ -38,6 +38,7 @@ class Car:
     self.orientations = []
     self.manette = None
     self.joystick_connected= False
+    self.startTime = -1
     
 RED_C = (255, 0, 0)
 BLUE_C = (0, 0, 255)
