@@ -263,7 +263,7 @@ for x in range(4, 14):
 # center
 for x in range(8, 17):
     directions[x][13] = a8
-    directions[x][15] = a10
+    directions[x][15] = a11
 
 for y in range(7, 14):
     directions[4][y] = a2
@@ -277,3 +277,6 @@ for x in range(4,6):
         directions[x][y] = a3
 
 directions[1][2] = a6
+
+for x in range(6,8):
+    directions[x][15] = a11
