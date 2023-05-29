@@ -22,9 +22,9 @@
 #define sensorOut 14    // D5
 
 // Connection constants
-const char* ssid = "Rok's iPhone";                    // your network SSID (name)
-const char* password = "babalilo";              // your network password
-const char* serverAddress = "172.20.10.3";      // server address
+const char* ssid = "albert";                    // your network SSID (name)
+const char* password = "aaaabbbb";              // your network password
+const char* serverAddress = "172.20.10.6";      // server address
 const int serverPort = 8899;                    // server port
 
 WiFiClient client;
@@ -180,21 +180,21 @@ void loop() {
   digitalWrite(S3, LOW);
 
 
-  if(isInMargin(redColor, 245, 30) && isInMargin(greenColor, 40, 30) && isInMargin(blueColor, 20, 30)) {
+  if(isInMargin(redColor, 230, 40) && isInMargin(greenColor, 40, 40) && isInMargin(blueColor, 30, 40)) {
     // check if the sensor detects a RED tape
     if (currZone != red){
       currZone = red;
       isPowerupd = 2;
 
     }
-  } else if(isInMargin(redColor, 20, 30) && isInMargin(greenColor, 230, 30) && isInMargin(blueColor, 10, 30)) {
+  } else if(isInMargin(redColor, 10, 40) && isInMargin(greenColor, 230, 40) && isInMargin(blueColor, 20, 40)) {
     // check if the sensor detects a GREEN tape
     if (currZone != green){
       currZone = green;
       isPowerupd = 3;
 
     }
-  } else if(isInMargin(redColor, 10, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 240, 30)) {
+  } else if(isInMargin(redColor, 10, 40) && isInMargin(greenColor, 230, 40) && isInMargin(blueColor, 230, 40)) {
     // check if the sensor detects a BLUE tape
     if (currZone != blue){
       currZone = blue;
@@ -204,8 +204,8 @@ void loop() {
   } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a black tape (POWERUP)
       isPowerupd = 1;
-      
-  } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 150, 30)) {
+
+  } else if(isInMargin(redColor, 255, 40) && isInMargin(greenColor, 255, 40) && isInMargin(blueColor, 180, 40)) {
      // check if the sensor detects the CIRCUIT to reset powerup
       isPowerupd = 0;
   }
