@@ -271,3 +271,9 @@ for y in range(7, 14):
 for x in range(6, 16):
     directions[x][4] = a5
     directions[x][6] = a2
+
+for x in range(4,6):
+    for y in range(6,8):
+        directions[x][y] = a3
+
+directions[1][2] = a6
