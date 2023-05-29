@@ -50,7 +50,7 @@ class Game:
             self.second = round(self.elapsed_time / 1000, 1)
 
             updateCarList(self.car_list)
-            updateCarMovement()
+            #updateCarMovement()
 
         else:
             self.elapsed_time_depart = pygame.time.get_ticks() - self.start_time_depart

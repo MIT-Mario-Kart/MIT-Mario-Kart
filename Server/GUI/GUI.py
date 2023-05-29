@@ -49,13 +49,10 @@ class GUI:
     ralentir = pygame.image.load("../Image/PowerUp/ralentir.jpg")
     ralentir = pygame.transform.scale(ralentir, (30, 30))
 
-    # # Load the image
-    image_circuit = pygame.image.load("../Image/circuit.jpeg")
-
     fenetre = None
     font = None
     # # Load the image
-    image_circuit = pygame.image.load("/Users/thomaskemper/Documents/Making intelligent things/Projet 2 - Mario Kart/Projet GUI/Image/circuit.jpeg")
+    image_circuit = pygame.image.load("../Image/circuit.jpeg")
 
     image_x = 200  # 400 = screen center
     image_y = 150  # 300 = screen center
@@ -162,10 +159,10 @@ class GUI:
                               self.CAR_SIZE,
                               self.CAR_SIZE))
 
-        self.drawMap.drawGridFlow()
-        self.drawMap.drawVector()
-        self.drawMap.drawGridOccupation()
-        self.drawMap.drawBusyGrid(GridOccupation.busy_grid)
+        #self.drawMap.drawGridFlow()
+        #self.drawMap.drawVector()
+        #self.drawMap.drawGridOccupation()
+        #self.drawMap.drawBusyGrid(GridOccupation.busy_grid)
 
         # --- Go ahead and update the screen
         pygame.display.update()
