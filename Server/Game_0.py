@@ -12,96 +12,46 @@ from random import *
 class Game:
     finish_car = 0
 
-    # Couleurs
-    NOIR = (0, 0, 0)
-    GRIS_FONCE = (120, 120, 120)
-    GRIS_CLAIR = (220, 220, 220)
-    JAUNE = (255, 255, 254)
 
     # Taille de la fenêtre
     LARGEUR_FENETRE = 1500
     HAUTEUR_FENETRE = 900
 
 
-    running = False
-    begin = 0
-    start_time = 0
-    elapsed_time = 0
-    second = 0
-    seconde_depart = 0
-    start_time_depart = 0
-    elapsed_time_depart = 0
-    checkpoint_list = []
-
-    def __init__(self, player_list):
-        self.player_list = list(player_list)
-
-    # def car_calibration(self, player_list):
-    #   for car in player_list:
 
 
 
-
-
-
-    def player_update(self):
-        for player in self.player_list:
-            player.update(self.second)
-
-
-    def gui_update(self):
-        # Gestion des événements
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-
-            elif event.type == pygame.KEYDOWN and self.running == False:
-                if event.key == pygame.K_SPACE:
-                    self.begin = 1
-                    self.start_time_depart = pygame.time.get_ticks()
-
-        # Effacement de l'écran
-        fenetre.fill(self.GRIS_FONCE)
-
-        x_feu = 300
-        y_feu = 70
-
-        if self.running:
-            self.elapsed_time = pygame.time.get_ticks() - self.start_time
-            self.second = round(self.elapsed_time / 1000, 1)
-
-        else:
-            self.elapsed_time_depart = pygame.time.get_ticks() - self.start_time_depart
-            self.seconde_depart = round(self.elapsed_time_depart / 1000, 1)
-
-        if self.begin == 0:
-            fenetre.blit(self.feu1, (x_feu, y_feu))
-
+    def feu_start(self):
         if self.begin == 1:
             fenetre.blit(self.feu1, (x_feu, y_feu))
             if self.seconde_depart > 1:
                 self.begin = 2
 
-        if self.begin == 2:
+        elif self.begin == 2:
             fenetre.blit(self.feu2, (x_feu, y_feu))
             if self.seconde_depart > 2:
                 self.begin = 3
-                
-        if self.begin == 3:
+
+        elif self.begin == 3:
             fenetre.blit(self.feu3, (x_feu, y_feu))
             if self.seconde_depart > 3:
                 self.begin = 4
 
-        if self.begin == 4:
+        elif self.begin == 4:
             fenetre.blit(self.feu4, (x_feu, y_feu))
             if self.seconde_depart > 4:
                 self.begin = 5
                 self.running = True
                 self.start_time = pygame.time.get_ticks()
 
-        if self.begin == 5:
+        elif self.begin == 5:
             fenetre.blit(self.feu5, (x_feu, y_feu))
+
+
+
+
+    def gui_update(self):
+
 
         # Effacement de l'écran
 

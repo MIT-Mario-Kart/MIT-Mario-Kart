@@ -5,13 +5,15 @@ from Server.Algo.GridOccupation import GridOccupation
 
 
 class GUI:
-    #Color
+    # Color
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
     GREY = (220, 220, 220)
 
     #
     SCALE = 2.75
+
+    CAR_SIZE = 25
 
     # CIRCUIT_POS_X = 285
     CIRCUIT_POS_X = 256
@@ -55,25 +57,20 @@ class GUI:
     # # Load the image
     image_circuit = pygame.image.load("../../Image/circuit.jpeg")
 
-    running = False
-    begin = 0
-    start_time = 0
-    elapsed_time = 0
-    second = 0
-    seconde_depart = 0
-    start_time_depart = 0
-    elapsed_time_depart = 0
+    screen_info = None
+    screen_width = None
+    screen_height = None
 
     def __init__(self):
         self.gui_init()
 
     def gui_init(self):
         # Get the screen size
-        screen_info = pygame.display.Info()
-        screen_width = screen_info.current_w
-        screen_height = screen_info.current_h
+        self.screen_info = pygame.display.Info()
+        self.screen_width = self.screen_info.current_w
+        self.screen_height = self.screen_info.current_h
 
-        self.fenetre = pygame.display.set_mode((screen_width, screen_height))
+        self.fenetre = pygame.display.set_mode((self.screen_width, self.screen_height))
 
         # # Set the window title
         pygame.display.set_caption("MIT KART")
@@ -97,77 +94,43 @@ class GUI:
         # fullscreen = False
         NB_CASE_OCCUPATION = 60
 
-        drawMap = GUI_FlowMaps(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, screen, NB_CASE_OCCUPATION)
-
-        grid_occupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
-
-    def gui_update(self):
-        # Gestion des événements
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
-
-            elif event.type == pygame.KEYDOWN and self.running == False:
-                if event.key == pygame.K_SPACE:
-                    self.begin = 1
-                    self.start_time_depart = pygame.time.get_ticks()
-
+    def gui_update(self, begin, second, cars):
         # Effacement de l'écran
-        self.fenetre.fill(self.GRIS_FONCE)
+        self.fenetre.fill(self.GREY)
 
+        # Affichage du feu de départ
         x_feu = 300
         y_feu = 70
 
-        if self.running:
-            self.elapsed_time = pygame.time.get_ticks() - self.start_time
-            self.second = round(self.elapsed_time / 1000, 1)
-
-        else:
-            self.elapsed_time_depart = pygame.time.get_ticks() - self.start_time_depart
-            self.seconde_depart = round(self.elapsed_time_depart / 1000, 1)
-
-        if self.begin == 0:
+        if begin == 0:
             self.fenetre.blit(self.feu1, (x_feu, y_feu))
 
-        if self.begin == 1:
+        elif begin == 1:
             self.fenetre.blit(self.feu1, (x_feu, y_feu))
-            if self.seconde_depart > 1:
-                self.begin = 2
 
-        if self.begin == 2:
+        elif begin == 2:
             self.fenetre.blit(self.feu2, (x_feu, y_feu))
-            if self.seconde_depart > 2:
-                self.begin = 3
 
-        if self.begin == 3:
+        elif begin == 3:
             self.fenetre.blit(self.feu3, (x_feu, y_feu))
-            if self.seconde_depart > 3:
-                self.begin = 4
 
-        if self.begin == 4:
+        elif begin == 4:
             self.fenetre.blit(self.feu4, (x_feu, y_feu))
-            if self.seconde_depart > 4:
-                self.begin = 5
-                self.running = True
-                self.start_time = pygame.time.get_ticks()
 
-        if self.begin == 5:
+        elif begin == 5:
             self.fenetre.blit(self.feu5, (x_feu, y_feu))
-
-        # Effacement de l'écran
 
         # Affichage des joueurs
         x = 700
         y = 130
 
         # Ligne d'en-tête
-        pygame.draw.line(self.fenetre, self.GREY, (30 + x, y - 20), (self.LARGEUR_FENETRE - 30, y - 20), 2)
+        pygame.draw.line(self.fenetre, self.WHITE, (30 + x, y - 20), (self.screen_width - 30, y - 20), 2)
 
-        pygame.draw.line(self.fenetre, self.GREY, (x, y - 20), (self.LARGEUR_FENETRE - 30, y - 20), 2)
+        pygame.draw.line(self.fenetre, self.WHITE, (x, y - 20), (self.screen_height - 30, y - 20), 2)
 
         # Affichage du Temps
-        temps_render = self.font.render(str(self.second), True, self.WHITE)
+        temps_render = self.font.render(str(second), True, self.WHITE)
         self.fenetre.blit(temps_render, (x + 570, y - 70))
 
         for i, joueur in enumerate(self.player_list):
@@ -199,11 +162,12 @@ class GUI:
 
             y += 50
 
-        for car in guiCars:
-            pygame.draw.rect(screen, car.colour, (MOVE_MAP_X + CIRCUIT_POS_X + (car.x) * SCALE - CAR_SIZE / 2,
-                                                  MOVE_MAP_Y + CIRCUIT_POS_Y + (car.y) * SCALE - CAR_SIZE / 2, CAR_SIZE,
-                                                  CAR_SIZE))
+        for car in cars:
+            pygame.draw.rect(self.fenetre, car.colour,
+                             (self.MOVE_MAP_X + self.CIRCUIT_POS_X + (car.x) * self.SCALE - self.CAR_SIZE / 2,
+                              self.MOVE_MAP_Y + self.CIRCUIT_POS_Y + (car.y) * self.SCALE - self.CAR_SIZE / 2,
+                              self.CAR_SIZE,
+                              self.CAR_SIZE))
 
-
-
-
+        # --- Go ahead and update the screen
+        pygame.display.update()
