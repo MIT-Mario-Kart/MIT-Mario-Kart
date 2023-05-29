@@ -22,9 +22,9 @@
 #define sensorOut 14    // D5
 
 // Connection constants
-const char* ssid = "albert";                    // your network SSID (name)
-const char* password = "aaaabbbb";              // your network password
-const char* serverAddress = "172.20.10.6";      // server address
+const char* ssid = "Rok's iPhone";                    // your network SSID (name)
+const char* password = "babalilo";              // your network password
+const char* serverAddress = "172.20.10.3";      // server address
 const int serverPort = 8899;                    // server port
 
 WiFiClient client;
@@ -122,6 +122,9 @@ void setup() {
   Serial.println(WiFi.localIP());
 
   myservo.write(90);
+  if (client.connect(serverAddress, serverPort)) {
+    Serial.println("Connected to server");
+  }
 }
 
 
@@ -306,7 +309,6 @@ void loop() {
           rcvd_acc = 0;
 
         }
-        client.stop();
         // Serial.println("Disconnected from server.");
       }
     }
@@ -331,10 +333,13 @@ void loop() {
   }
 
   } else {
-
+    client.stop();
     digitalWrite(PIN_FORWARD, LOW);
     digitalWrite(PIN_REVERSE, LOW);
     Serial.println("Connection to server failed.");
-
+    // Connection lost, attempt to reconnect
+    if (client.connect(serverAddress, serverPort)) {
+      Serial.println("Reconnected to server");
+    }
   }
 }
