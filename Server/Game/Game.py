@@ -1,7 +1,7 @@
 import pygame
 
 from Server.GUI.GUI_2 import GUI
-from Server.Game.Player
+from Server.Game.Player import Player
 
 
 class Game:
@@ -12,9 +12,8 @@ class Game:
         pygame.joystick.init()
 
         self.player_list = []
-        for cars in self.car_list:
-            from Server.Game.Player import Player
-            self.player_list.append(Player(cars.name, ))
+        for car in self.car_list:
+            self.player_list.append(Player(car.name, car.ai, car.rank, car))
 
         self.gui = GUI()
 
