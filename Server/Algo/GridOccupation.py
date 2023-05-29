@@ -29,6 +29,8 @@ class GridOccupation:
         for x in range(13, 49):
             self.old_busy_grid2[x][y] = 1
 
+
+
     def addBusy(self, car_x, car_y):
         x_grid = car_x // self.case_width
         y_grid = car_y // self.case_width
@@ -38,16 +40,31 @@ class GridOccupation:
 
     def resetBusy(self):
         self.old_busy_grid2 = [[0 for _ in range(self.nb_case)] for _ in range(self.nb_case)]
-        self.old_busy_grid2[20][47] = 1
-        self.old_busy_grid2[21][47] = 1
-        self.old_busy_grid2[22][47] = 1
-        self.old_busy_grid2[23][47] = 1
-        self.old_busy_grid2[24][47] = 1
-        self.old_busy_grid2[25][47] = 1
-        self.old_busy_grid2[26][47] = 1
-        self.old_busy_grid2[27][47] = 1
-        self.old_busy_grid2[28][47] = 1
-        self.old_busy_grid2[29][47] = 1
+
+        y = 47
+        for x in range(15, 30):
+            self.old_busy_grid2[x][y] = 1
+
+        x = 12
+        for y in range(17, 45):
+            self.old_busy_grid2[x][y] = 1
+
+        y = 12
+        for x in range(13, 49):
+            self.old_busy_grid2[x][y] = 1
+
+        x = 57
+        for y in range(0, 60):
+            self.old_busy_grid2[x][y] = 1
+
+        y = 2
+        for x in range(0, 60):
+            self.old_busy_grid2[x][y] = 1
+
+        y = 57
+        for x in range(0, 60):
+            self.old_busy_grid2[x][y] = 1
+
 
     def addBusy2(self, car_x, car_y):
         x_grid = int(car_x // self.case_width)

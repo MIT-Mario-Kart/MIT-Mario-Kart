@@ -79,7 +79,7 @@ class GUI:
 
         self.drawMap = GUI_FlowMaps(self.CIRCUIT_POS_X + self.MOVE_MAP_X, self.CIRCUIT_POS_Y + self.MOVE_MAP_Y, 532, self.fenetre, nb_case_occupation)
 
-    def gui_update(self, begin, second, cars):
+    def gui_update(self, begin, second, cars, busy_grid):
         # Effacement de l'écran
         self.fenetre.fill(self.GREY)
 
@@ -159,10 +159,11 @@ class GUI:
                               self.CAR_SIZE,
                               self.CAR_SIZE))
 
+        #GridOccupation.resetBusy()
         #self.drawMap.drawGridFlow()
         #self.drawMap.drawVector()
-        #self.drawMap.drawGridOccupation()
-        #self.drawMap.drawBusyGrid(GridOccupation.busy_grid)
+        self.drawMap.drawGridOccupation()
+        self.drawMap.drawBusyGrid(busy_grid)
 
         # --- Go ahead and update the screen
         pygame.display.update()

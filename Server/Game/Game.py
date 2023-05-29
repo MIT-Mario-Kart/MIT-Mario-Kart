@@ -26,7 +26,7 @@ class Game:
 
 
 
-        grid_occupation = GridOccupation(GUI.CIRCUIT_POS_X + GUI.MOVE_MAP_X, GUI.CIRCUIT_POS_Y + GUI.MOVE_MAP_Y, 532,
+        self.grid_occupation = GridOccupation(GUI.CIRCUIT_POS_X + GUI.MOVE_MAP_X, GUI.CIRCUIT_POS_Y + GUI.MOVE_MAP_Y, 532,
                                          self.NB_CASE_OCCUPATION)
 
         self.gui = GUI(self.NB_CASE_OCCUPATION)
@@ -77,8 +77,40 @@ class Game:
         # --- Limit to 60 frames per second
         pygame.time.Clock().tick(60)
 
-        self.gui.gui_update(self.begin, self.second, self.car_list)
+        y = 47
+        for x in range(15, 30):
+            self.grid_occupation.busy_grid.append((x, y))
+
+        x = 12
+        for y in range(17, 45):
+            self.grid_occupation.busy_grid.append((x, y))
+
+        y = 12
+        for x in range(13, 49):
+            self.grid_occupation.busy_grid.append((x, y))
+
+        x = 2
+        for y in range(0, 60):
+            self.grid_occupation.busy_grid.append((x, y))
+
+        x = 57
+        for y in range(0, 60):
+            self.grid_occupation.busy_grid.append((x, y))
+
+        y = 2
+        for x in range(0, 60):
+            self.grid_occupation.busy_grid.append((x, y))
+
+        y = 57
+        for x in range(0, 60):
+            self.grid_occupation.busy_grid.append((x, y))
+
+
+        #self.grid_occupation.resetBusy()
+        self.gui.gui_update(self.begin, self.second, self.car_list, self.grid_occupation.busy_grid)
         self.rank_update()
+
+
 
     def rank_update(self):
         new_car_list = []

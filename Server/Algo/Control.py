@@ -68,8 +68,6 @@ def moveCar(car: Car):
         car.speed = "GREEN"
         # print("Zone 6")
 
-
-
     return list_occupation
     # updateMov.updateCarMovement(car, updateMov.GREEN_V)
 
@@ -78,23 +76,21 @@ def moveCar(car: Car):
 
 def updateCarMovement():
     threading.Timer(0.25, updateCarMovement).start()
-    #print(len(cars))
-    for rank in range(1,4):
+    # print(len(cars))
+    for rank in range(1, 4):
 
-        for rank_2 in range(0,3):
-            if cars[rank_2].rank ==  rank:
+        for rank_2 in range(0, 3):
+            if cars[rank_2].rank == rank:
                 car = cars[rank_2]
                 break
 
         moveCar(car)
 
-def updateCarList(carList : list):
 
+def updateCarList(carList: list):
     cars = carList
     for car in cars:
         dict_cars[car.id] = car
-
-
 
 
 def parseCoordFromLine(coordinates):
@@ -247,7 +243,7 @@ def getCoordForCar(car: Car, coordinates):
     car.x, car.y, car.orientation = parseCoordFromLine(coordinates)
 
 
-def calculateDeltaCar(car : Car):
+def calculateDeltaCar(car: Car):
     right = car.orientation - car.fm_orientation
     right = right + 360 if right < 0 else right
     left = car.fm_orientation - car.orientation
@@ -282,5 +278,3 @@ def find_info_flowmap(car: Car):
     car.y = 190 if car.y >= 200 else car.y
     car.y = 0 if car.y < 0 else car.y
     car.fm_orientation = fmdir[int(car.x // 10)][int(car.y // 10)]
-
-
