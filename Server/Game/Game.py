@@ -1,5 +1,6 @@
 import pygame
 
+from Server.Algo.Control import updateCarMovement, updateCarList
 from Server.Algo.GridOccupation import GridOccupation
 from Server.GUI.GUI import GUI
 from Server.Game.Player import Player
@@ -30,6 +31,8 @@ class Game:
 
         self.gui = GUI(self.NB_CASE_OCCUPATION)
 
+
+
     def update(self):
 
         for event in pygame.event.get():
@@ -45,6 +48,9 @@ class Game:
         if self.running:
             self.elapsed_time = pygame.time.get_ticks() - self.start_time
             self.second = round(self.elapsed_time / 1000, 1)
+
+            updateCarList(self.car_list)
+            updateCarMovement()
 
         else:
             self.elapsed_time_depart = pygame.time.get_ticks() - self.start_time_depart
@@ -91,5 +97,6 @@ class Game:
             i += 1
 
         self.car_list = new_car_list
+
 
         return

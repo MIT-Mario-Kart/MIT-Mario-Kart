@@ -22,7 +22,9 @@ camID = "CAM"
 stopID = "STOP"
 calibrationColor = "yellow"
 
+global dict_cars
 dict_cars = {}
+global cars
 cars = []
 
 grid = Grid()
@@ -76,6 +78,7 @@ def moveCar(car: Car):
 
 def updateCarMovement():
     threading.Timer(0.25, updateCarMovement).start()
+    #print(len(cars))
     for rank in range(1,4):
 
         for rank_2 in range(0,3):
@@ -86,6 +89,7 @@ def updateCarMovement():
         moveCar(car)
 
 def updateCarList(carList : list):
+
     cars = carList
     for car in cars:
         dict_cars[car.id] = car
