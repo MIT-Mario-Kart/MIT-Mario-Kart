@@ -248,7 +248,7 @@ void loop() {
   String data = "";
 
   // Connect to the server
-  if (client.connect(serverAddress, serverPort)) {
+  if (client.connected()) {
 
     sprintf(toSend, "%s\n%d\n", CAR_ID, isPowerupd);
     client.write(toSend, 15);
