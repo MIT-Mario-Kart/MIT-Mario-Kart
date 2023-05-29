@@ -23,12 +23,12 @@ class Game:
         pygame.init()
         pygame.joystick.init()
 
-        self.gui = GUI()
+
 
         grid_occupation = GridOccupation(GUI.CIRCUIT_POS_X + GUI.MOVE_MAP_X, GUI.CIRCUIT_POS_Y + GUI.MOVE_MAP_Y, 532,
                                          self.NB_CASE_OCCUPATION)
 
-        self.gui.gui_init()
+        self.gui = GUI(self.NB_CASE_OCCUPATION)
 
     def update(self):
 
@@ -72,4 +72,24 @@ class Game:
         pygame.time.Clock().tick(60)
 
         self.gui.gui_update(self.begin, self.second, self.car_list)
+        self.rank_update()
 
+    def rank_update(self):
+        new_car_list = []
+        i = 1
+        while len(self.car_list) != 0:
+            min : Player = self.car_list[0]
+            for car in self.car_list:
+                if car.curr_lap < min.curr_lap and car.lap_count > min.lap_count \
+                        or car.lap_count > min.lap_count:
+                    min = car
+
+            self.car_list.remove(min)
+            new_car_list.append(min)
+            min.rank = i
+
+            i += 1
+
+        self.car_list = new_car_list
+
+        return

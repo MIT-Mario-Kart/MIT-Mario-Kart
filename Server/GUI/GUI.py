@@ -65,10 +65,10 @@ class GUI:
     screen_width = None
     screen_height = None
 
-    def __init__(self):
-        self.gui_init()
+    def __init__(self, nb_case_occupation):
+        self.gui_init(nb_case_occupation)
 
-    def gui_init(self):
+    def gui_init(self, nb_case_occupation):
         # Get the screen size
         self.screen_info = pygame.display.Info()
         self.screen_width = self.screen_info.current_w
@@ -79,6 +79,8 @@ class GUI:
 
         # # Set the window title
         pygame.display.set_caption("MIT KART")
+
+        self.drawMap = GUI_FlowMaps(self.CIRCUIT_POS_X + self.MOVE_MAP_X, self.CIRCUIT_POS_Y + self.MOVE_MAP_Y, 532, self.fenetre, nb_case_occupation)
 
     def gui_update(self, begin, second, cars):
         # Effacement de l'écran
@@ -116,7 +118,9 @@ class GUI:
         # Ligne d'en-tête
         pygame.draw.line(self.fenetre, self.WHITE, (30 + x, y - 20), (self.screen_width - 30, y - 20), 2)
 
-        pygame.draw.line(self.fenetre, self.WHITE, (x, y - 20), (self.screen_height - 30, y - 20), 2)
+        # Draw the START line
+        rect = pygame.Rect(350, 230, 20, 80)
+        pygame.draw.rect(self.fenetre, self.BLACK, rect)
 
         # Affichage du Temps
         temps_render = self.font.render(str(second), True, self.BLACK)
@@ -157,6 +161,11 @@ class GUI:
                               self.MOVE_MAP_Y + self.CIRCUIT_POS_Y + (car.y) * self.SCALE - self.CAR_SIZE / 2,
                               self.CAR_SIZE,
                               self.CAR_SIZE))
+
+        self.drawMap.drawGridFlow()
+        self.drawMap.drawVector()
+        self.drawMap.drawGridOccupation()
+        self.drawMap.drawBusyGrid(GridOccupation.busy_grid)
 
         # --- Go ahead and update the screen
         pygame.display.update()
