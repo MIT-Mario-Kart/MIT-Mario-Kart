@@ -237,7 +237,7 @@ void loop() {
 
     sprintf(toSend, "%s\n%d\n", CAR_ID, isPowerupd);
     client.write(toSend, 15);
-
+    client.flush();
     // Wait for a response from the server
       while (client.available()) {
         // Read data from the server
@@ -325,5 +325,5 @@ void loop() {
       Serial.println("Reconnected to server");
     }
   }
-  delay(5);
+
 }
