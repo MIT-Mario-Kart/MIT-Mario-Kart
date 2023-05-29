@@ -1,5 +1,5 @@
 import pygame
-from Algo.FlowMaps.circuit20x20 import directions as vector
+from Algo.FlowMaps.NewFlowMap import directions as vector
 
 
 class GUI_FlowMaps:

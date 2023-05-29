@@ -29,9 +29,6 @@ class GridOccupation:
         for x in range(13, 49):
             self.old_busy_grid2[x][y] = 1
 
-
-
-
     def addBusy(self, car_x, car_y):
         x_grid = car_x // self.case_width
         y_grid = car_y // self.case_width
@@ -41,16 +38,30 @@ class GridOccupation:
 
     def resetBusy(self):
         self.old_busy_grid2 = [[0 for _ in range(self.nb_case)] for _ in range(self.nb_case)]
-        self.old_busy_grid2[20][47] = 1
-        self.old_busy_grid2[21][47] = 1
-        self.old_busy_grid2[22][47] = 1
-        self.old_busy_grid2[23][47] = 1
-        self.old_busy_grid2[24][47] = 1
-        self.old_busy_grid2[25][47] = 1
-        self.old_busy_grid2[26][47] = 1
-        self.old_busy_grid2[27][47] = 1
-        self.old_busy_grid2[28][47] = 1
-        self.old_busy_grid2[29][47] = 1
+
+        y = 47
+        for x in range(15, 30):
+            self.old_busy_grid2[x][y] = 1
+
+        x = 12
+        for y in range(17, 45):
+            self.old_busy_grid2[x][y] = 1
+
+        y = 12
+        for x in range(13, 49):
+            self.old_busy_grid2[x][y] = 1
+
+        x = 57
+        for y in range(0, 60):
+            self.old_busy_grid2[x][y] = 1
+
+        y = 2
+        for x in range(0, 60):
+            self.old_busy_grid2[x][y] = 1
+
+        y = 57
+        for x in range(0, 60):
+            self.old_busy_grid2[x][y] = 1
 
     def addBusy2(self, car_x, car_y):
         x_grid = int(car_x // self.case_width)
@@ -84,138 +95,6 @@ class GridOccupation:
 
         return x_grid == x2_grid and y_grid == y2_grid
 
-    def setNextPositionOccupy(self, car: Car):
-
-        left = 0
-        right = 0
-
-        CAR_SIZE = 25
-        BOX_SIZE = 0.55
-
-        CAR_LENGHT = 25
-        CAR_WIDTH = 16
-        # LONGUEUR VOITURE 14cm
-        # LARGEUR VOITURE 9CM
-
-        # OFFSET = 1
-        # ALL_TRUE_L = False
-        # ALL_TRUE_R = False
-
-        MAX_STEERING_ANGLE = 25
-        SEARCH = True
-
-        SCALE = 2.75
-
-        occupation_list = []
-
-        while SEARCH:
-            while left < MAX_STEERING_ANGLE:
-
-                carp_x_l = car.predicted_x
-                carp_y_l = car.predicted_y
-                carp_x_r = car.predicted_x
-                carp_y_r = car.predicted_y
-
-                carp_x_l += car.velocity * math.cos(math.radians(car.orientation + left))
-                carp_y_l -= car.velocity * math.sin(math.radians(car.orientation + left))
-
-                carp_x_r += car.velocity * math.cos(math.radians(car.orientation - right))
-                carp_y_r -= car.velocity * math.sin(math.radians(car.orientation - right))
-
-                c1_l = (carp_x_l * SCALE - BOX_SIZE, carp_y_l * SCALE + CAR_SIZE / 2)
-                c2_l = (carp_x_l * SCALE - BOX_SIZE, carp_y_l * SCALE - CAR_SIZE / 2)
-                c3_l = (carp_x_l * SCALE + CAR_SIZE / 2, carp_y_l * SCALE - BOX_SIZE)
-                c4_l = (carp_x_l * SCALE + CAR_SIZE + 4 * BOX_SIZE, carp_y_l * SCALE - BOX_SIZE)
-                c5_l = (carp_x_l * SCALE + CAR_SIZE + 4 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE / 2)
-                c6_l = (carp_x_l * SCALE + CAR_SIZE + 4 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE + BOX_SIZE)
-                c7_l = (carp_x_l * SCALE + CAR_SIZE / 2, carp_y_l * SCALE + CAR_SIZE + BOX_SIZE)
-                c8_l = (carp_x_l * SCALE - BOX_SIZE, carp_y_l * SCALE + CAR_SIZE + BOX_SIZE)
-                c9_l = (carp_x_l * SCALE + CAR_SIZE / 2, carp_y_l * SCALE - CAR_SIZE / 2)
-                c10_l = (carp_x_l * SCALE + CAR_SIZE + 4 * BOX_SIZE, carp_y_l * SCALE - BOX_SIZE)
-                c11_l = (carp_x_l * SCALE + CAR_SIZE + 4 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE / 2)
-                c12_l = (carp_x_l * SCALE + CAR_SIZE + 4 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE + BOX_SIZE)
-
-                c1_r = (carp_x_r * SCALE - BOX_SIZE, carp_y_r * SCALE + CAR_SIZE / 2)
-                c2_r = (carp_x_r * SCALE - BOX_SIZE, carp_y_r * SCALE - CAR_SIZE / 2)
-                c3_r = (carp_x_r * SCALE + CAR_SIZE / 2, carp_y_r * SCALE - BOX_SIZE)
-                c4_r = (carp_x_r * SCALE + CAR_SIZE + 4 * BOX_SIZE, carp_y_r * SCALE - BOX_SIZE)
-                c5_r = (carp_x_r * SCALE + CAR_SIZE + 4 * BOX_SIZE, carp_y_r * SCALE + CAR_SIZE / 2)
-                c6_r = (carp_x_r * SCALE + CAR_SIZE + 4 * BOX_SIZE, carp_y_r * SCALE + CAR_SIZE + BOX_SIZE)
-                c7_r = (carp_x_r * SCALE + CAR_SIZE / 2, carp_y_r * SCALE + CAR_SIZE + BOX_SIZE)
-                c8_r = (carp_x_r * SCALE - BOX_SIZE, carp_y_r * SCALE + CAR_SIZE + BOX_SIZE)
-                c9_r = (carp_x_r * SCALE + CAR_SIZE / 2, carp_y_r * SCALE - CAR_SIZE / 2)
-                c10_r = (carp_x_l * SCALE + CAR_SIZE + 3 * BOX_SIZE, carp_y_l * SCALE - BOX_SIZE)
-                c11_r = (carp_x_l * SCALE + CAR_SIZE + 3 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE / 2)
-                c12_r = (carp_x_l * SCALE + CAR_SIZE + 3 * BOX_SIZE, carp_y_l * SCALE + CAR_SIZE + BOX_SIZE)
-
-                if self.isGridFree(c1_l[0], c1_l[1]) and self.isGridFree(c2_l[0], c2_l[1]) and self.isGridFree(c3_l[0],                                                                                c3_l[1]) \
-                        and self.isGridFree(c4_l[0], c4_l[1]) and self.isGridFree(c5_l[0], c5_l[1]) \
-                        and self.isGridFree(c6_l[0], c6_l[1]) and self.isGridFree(c7_l[0], c7_l[1]) \
-                        and self.isGridFree(c8_l[0], c8_l[1]) and self.isGridFree(c9_l[0], c9_l[1]) \
-                        and self.isGridFree(c10_l[0], c10_l[1]) and self.isGridFree(c11_l[0], c11_l[1]) \
-                        and self.isGridFree(c12_l[0], c12_l[1]):
-
-                    #car.predicted_x = carp_x_l
-                    #car.predicted_y = carp_y_l
-                    car.new_orientation = car.orientation + left
-
-                    occupation_list.append((c1_l[0], c1_l[1]))
-                    occupation_list.append((c2_l[0], c2_l[1]))
-                    occupation_list.append((c3_l[0], c3_l[1]))
-                    occupation_list.append((c4_l[0], c4_l[1]))
-                    occupation_list.append((c5_l[0], c5_l[1]))
-                    occupation_list.append((c6_l[0], c6_l[1]))
-                    occupation_list.append((c7_l[0], c7_l[1]))
-                    occupation_list.append((c8_l[0], c8_l[1]))
-                    occupation_list.append((c9_l[0], c9_l[1]))
-                    occupation_list.append((c10_l[0], c10_l[1]))
-                    occupation_list.append((c11_l[0], c11_l[1]))
-                    occupation_list.append((c12_l[0], c12_l[1]))
-
-                    SEARCH = False
-                    break
-
-                if self.isGridFree(c1_r[0], c1_r[1]) and self.isGridFree(c2_r[0], c2_r[1]) and self.isGridFree(c3_r[0],
-                                                                                                               c3_r[1]) \
-                        and self.isGridFree(c4_r[0], c4_r[1]) and self.isGridFree(c5_r[0], c5_r[1]) \
-                        and self.isGridFree(c6_r[0], c6_r[1]) and self.isGridFree(c7_r[0], c7_r[1]) \
-                        and self.isGridFree(c8_r[0], c8_r[1]) and self.isGridFree(c9_r[0], c9_r[1]) \
-                        and self.isGridFree(c10_r[0], c10_r[1]) and self.isGridFree(c11_r[0], c11_r[1]) \
-                        and self.isGridFree(c12_r[0], c12_r[1]):
-                    # if ALL_TRUE_R:
-
-                    #car.predicted_x = carp_x_r
-                    #car.predicted_y = carp_y_r
-                    car.pred_orientation = car.orientation + right
-
-                    occupation_list.append((c1_r[0], c1_r[1]))
-                    occupation_list.append((c2_r[0], c2_r[1]))
-                    occupation_list.append((c3_r[0], c3_r[1]))
-                    occupation_list.append((c4_r[0], c4_r[1]))
-                    occupation_list.append((c5_r[0], c5_r[1]))
-                    occupation_list.append((c6_r[0], c6_r[1]))
-                    occupation_list.append((c7_r[0], c7_r[1]))
-                    occupation_list.append((c8_r[0], c8_r[1]))
-                    occupation_list.append((c9_r[0], c9_r[1]))
-                    occupation_list.append((c10_r[0], c10_r[1]))
-                    occupation_list.append((c11_r[0], c11_r[1]))
-                    occupation_list.append((c12_r[0], c12_r[1]))
-
-                    SEARCH = False
-                    break
-
-                left += 1
-                right += 1
-
-            if car.velocity > 0.01:
-                car.velocity -= 0.01
-
-            left = 0
-            right = 0
-
-        for coor in occupation_list:
-            self.addBusy(coor[0], coor[1])
-
     def get_car_corners(self, center_x, center_y, angle, length, width):
         half_length = length / 2
         half_width = width / 2
@@ -242,18 +121,12 @@ class GridOccupation:
     def setNextPositionOccupy2(self, car: Car):
         left = 0
         right = 0
-
-        CAR_SIZE = 25
-        BOX_SIZE = 0.55
+        print(car.id)
 
         CAR_LENGHT = 30
         CAR_WIDTH = 16
         # LONGUEUR VOITURE 14cm
         # LARGEUR VOITURE 9CM
-
-        # OFFSET = 1
-        # ALL_TRUE_L = False
-        # ALL_TRUE_R = False
 
         MAX_STEERING_ANGLE = 25
         SEARCH = True
@@ -262,10 +135,10 @@ class GridOccupation:
 
         while SEARCH:
             while left < MAX_STEERING_ANGLE:
-                carp_x_l = car.predicted_x
-                carp_y_l = car.predicted_y
-                carp_x_r = car.predicted_x
-                carp_y_r = car.predicted_y
+                carp_x_l = car.x
+                carp_y_l = car.y
+                carp_x_r = car.x
+                carp_y_r = car.y
 
                 carp_x_l += car.velocity * math.cos(math.radians(car.orientation + left))
                 carp_y_l -= car.velocity * math.sin(math.radians(car.orientation + left))
@@ -298,7 +171,7 @@ class GridOccupation:
                     car.predicted_x = carp_x_l
                     car.predicted_y = carp_y_l
 
-                    car.orientation = car.orientation + left
+                    car.new_orientation = car.orientation + left
 
                     list = self.get_rectangle_coordinates(carp_x_l * SCALE, carp_y_l * SCALE, CAR_WIDTH, CAR_LENGHT, car.orientation + left)
 
@@ -331,7 +204,7 @@ class GridOccupation:
                     car.predicted_x = carp_x_r
                     car.predicted_y = carp_y_r
 
-                    car.orientation = car.orientation - right
+                    car.new_orientation = car.orientation + right
 
                     list = self.get_rectangle_coordinates(carp_x_r * SCALE, carp_y_r * SCALE, CAR_WIDTH, CAR_LENGHT,
                                                           car.orientation -right)
@@ -351,6 +224,7 @@ class GridOccupation:
 
             left = 0
             right = 0
+            print(car.predicted_x)
 
 
 

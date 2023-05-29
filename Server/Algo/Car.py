@@ -10,8 +10,8 @@ class Car:
     self.old_y = None
     self.x = x
     self.y = y
-    self.predicted_x = x
-    self.predicted_y = y
+    self.predicted_x = 0
+    self.predicted_y = 0
     self.velocity = 0
     self.desired_velocity = desired_velocity
     self.orientation = orientation
@@ -33,7 +33,7 @@ class Car:
     self.moving = False
     self.count = 0
     self.started = False
-    self.new_orientation = 0
+    self.new_orientation = orientation
     self.cam = True
     self.orientations = []
     self.manette = None

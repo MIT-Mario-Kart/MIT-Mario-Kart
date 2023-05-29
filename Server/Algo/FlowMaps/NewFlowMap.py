@@ -87,9 +87,9 @@ directions[3][16] = a3
 directions[3][17] = a3
 directions[3][18] = a3
 
-directions[4][14] = a5
+directions[4][14] = a1
 directions[4][15] = a5
-directions[5][15] = a5
+directions[5][15] = a12
 
 # bottom right zone =======================================================================================================
 
@@ -110,14 +110,14 @@ directions[17][13] = a9
 directions[17][14] = a9
 directions[17][15] = a12
 directions[17][16] = a1
-directions[17][17] = a2
-directions[17][18] = a1
+directions[17][17] = a12
+directions[17][18] = a12
 
 directions[18][14] = a9
 directions[18][15] = a11
 directions[18][16] = a11
 directions[18][17] = a11
-directions[18][18] = a1
+directions[18][18] = a12
 
 directions[19][16] = a11
 directions[19][16] = a11
@@ -276,7 +276,7 @@ for x in range(4,6):
     for y in range(6,8):
         directions[x][y] = a3
 
-directions[1][2] = a6
+directions[1][2] = a4
 
 for x in range(6,8):
     directions[x][15] = a11

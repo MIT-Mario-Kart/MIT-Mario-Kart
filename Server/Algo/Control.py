@@ -8,7 +8,7 @@ import ast
 
 from Algo.Car import Car
 from Algo.Car import RED_C, BLUE_C, GREEN_C, BRUN_C, VIOLET_C, ROSE_C
-from Algo.FlowMaps.circuit20x20 import directions as fmdir
+from Algo.FlowMaps.NewFlowMap import directions as fmdir
 import Algo.Overtake.overtake as ovt
 import Algo.FlowMaps.powerups as pu
 from Algo.Grid import Grid
@@ -38,10 +38,10 @@ calDeltaRightID = "CALDELTARight"
 
 
 # initialise car objects
-car1 = Car("CAR_ID_1", "Test", "Test", ("172.20.10.6", 9999), GREEN_C, color="green", x=160, y=20, orientation=180, ai=False)
+car1 = Car("CAR_ID_1", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, color="yellow", x=160, y=20, orientation=180, ai=False)
 car1.rank = 3
-# car2 = Car("CAR_ID_2", "Test", "Test", ("172.20.10.8", 9999), BLUE_C, color="blue", x=140, y=20, orientation=180, ai=False)
-# car2.rank = 2
+car2 = Car("CAR_ID_2", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, color="green", x=140, y=20, orientation=180, ai=True)
+car2.rank = 2
 # car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
 # car3.rank = 1
 #car4 = Car("CAR4", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, x=180, y=20, orientation=180)
@@ -53,7 +53,7 @@ car1.rank = 3
 
 
 dict_cars = {}
-cars = [car1]
+cars = [car1, car2]
 for car in cars:         
     dict_cars[car.color] = car
 
@@ -107,22 +107,22 @@ def moveCar(car: Car):
     print(f"Coord: {car.x}, {car.y} {car.orientation} {car.fm_orientation}")
 
 
-    return list_occupation
+    return 
     # updateMov.updateCarMovement(car, updateMov.GREEN_V)
 
     # print(f"Updated prediction coords ({car.predicted_x}, {car.predicted_y}), cur dir: {car.orientation}  velocity: {car.velocity} flowmap orientation: {car.fm_orientation} delta: {car.delta}and desired_orientation: {car.desired_orientation} for {car.id}")
 
 
 def updateCarMovement():
-    threading.Timer(0.05, updateCarMovement).start()
+    threading.Timer(0.001, updateCarMovement).start()
     # for rank in range(1,4):
 
     #     for rank_2 in range(0,3):
     #         if cars[rank_2].rank ==  rank:
     #             car = cars[rank_2]
     #             break
-
-    moveCar(car)
+    for car in cars:
+        moveCar(car)
 
     # car.left_circle, car.right_circle = ovt.calculateCircles(car)
 
@@ -301,7 +301,7 @@ def parseInfo(info):
         print(f"Stopped {cars[0].id}")
         return "200"
     elif id == startID:
-        updateCarMovement()
+        # updateCarMovement()
         print(f"Start moving cars")
         for car in cars:
             car.started = True

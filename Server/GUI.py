@@ -202,20 +202,39 @@ class GUI:
 
             drawMap.drawGridFlow()
             drawMap.drawVector()
-            #drawMap.drawself.GridOccupation()
-            drawMap.drawBusyGrid(GridOccupation.busy_grid)
-            GridOccupation.busy_grid = []
+            # drawMap.drawGridOccupation()
+            
 
             y = 47
             for x in range(15, 30):
-                GridOccupation.busy_grid.append((x,y))
-            GridOccupation.resetBusy()
+               GridOccupation.busy_grid.append((x, y))
 
             x = 12
             for y in range(17, 45):
-                GridOccupation.busy_grid.append((x, y))
-            GridOccupation.resetBusy()
+               GridOccupation.busy_grid.append((x, y))
 
+            y = 12
+            for x in range(13, 49):
+               GridOccupation.busy_grid.append((x, y))
+
+            x = 2
+            for y in range(0, 60):
+               GridOccupation.busy_grid.append((x, y))
+
+            x = 57
+            for y in range(0, 60):
+               GridOccupation.busy_grid.append((x, y))
+
+            y = 2
+            for x in range(0, 60):
+               GridOccupation.busy_grid.append((x, y))
+
+            y = 57
+            for x in range(0, 60):
+               GridOccupation.busy_grid.append((x, y))
+            drawMap.drawBusyGrid(GridOccupation.busy_grid)
+            GridOccupation.resetBusy()
+            GridOccupation.busy_grid = []
 
             #print(len(GridOccupation.busy_grid2))
 
