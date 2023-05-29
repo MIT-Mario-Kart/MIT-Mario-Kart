@@ -1,7 +1,7 @@
 import pygame
 
 from Server.Algo.GridOccupation import GridOccupation
-from Server.GUI.GUI_2 import GUI
+from Server.GUI.GUI import GUI
 from Server.Game.Player import Player
 
 
@@ -23,14 +23,12 @@ class Game:
         pygame.init()
         pygame.joystick.init()
 
-        self.player_list = []
-        for car in self.car_list:
-            self.car_list.append(Player(car.name, car.ai, car.rank, car))
-
         self.gui = GUI()
 
         grid_occupation = GridOccupation(GUI.CIRCUIT_POS_X + GUI.MOVE_MAP_X, GUI.CIRCUIT_POS_Y + GUI.MOVE_MAP_Y, 532,
                                          self.NB_CASE_OCCUPATION)
+
+        self.gui.gui_init()
 
     def update(self):
 

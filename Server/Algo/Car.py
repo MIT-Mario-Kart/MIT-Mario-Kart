@@ -1,11 +1,12 @@
-class Car:
-    RED_C = (255, 0, 0)
-    BLUE_C = (0, 0, 255)
-    GREEN_C = (0, 255, 0)
-    VIOLET_C = (238, 130, 238)
-    ROSE_C = (255, 29, 206)
-    BRUN_C = (88, 41, 0)
+RED_C = (255, 0, 0)
+BLUE_C = (0, 0, 255)
+GREEN_C = (0, 255, 0)
+VIOLET_C = (238, 130, 238)
+ROSE_C = (255, 29, 206)
+BRUN_C = (88, 41, 0)
 
+
+class Car:
     def __init__(self, name, rank, id, ai, colour, x=0, y=0, orientation=0, desired_velocity=0):
         self.name = name
         self.rank = rank

@@ -1,204 +1,162 @@
 import pygame
 
-# from Algo.Control import moveCar
-from Algo.Control import cars
-#from Algo.Control import rank_list
-from Algo.Control import updateCarMovement
-from Algo.Overtake.overtake import *
 from Server.GUI.GUi_FlowMaps import GUI_FlowMaps
 from Server.Algo.GridOccupation import GridOccupation
 
-# Define some colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREY = Server.Game.Game.GRIS_CLAIR
 
-CAR_SIZE = 25
+class GUI:
+    # Color
+    BLACK = (0, 0, 0)
+    WHITE = (255, 255, 255)
+    GREY = (120, 120, 120)
 
-player1 = Server.Game.Player("BLUE", False, 1, cars[0], 0)
-player2 = Server.Game.Player("RED", False, 2, cars[1], 1)
-player3 = Server.Game.Player("GREEN", False, 3, cars[2], 2)
-#player4 = Game.Player("VIOLET", False, 4, cars[3],3)
-#player5 = Game.Player("ROSE", False, 5, cars[4],4)
-#player6 = Game.Player("BRUN", False, 6, cars[5],5)
+    #
+    SCALE = 2.75
 
-players = [player1, player2, player3]
+    CAR_SIZE = 25
 
-gameStarted = False
-game = Server.Game.Game(players)
-game.gui_init()
-screen = game.get_window()
+    # CIRCUIT_POS_X = 285
+    CIRCUIT_POS_X = 256
+    CIRCUIT_POS_Y = 203
 
-SCALE = 2.75
-# CIRCUIT_POS_X = 285
-CIRCUIT_POS_X = 256
-CIRCUIT_POS_Y = 203
+    MOVE_MAP_X = -100
+    MOVE_MAP_Y = 0
 
-MOVE_MAP_X = -100
-MOVE_MAP_Y = 0
+    x_feu = 210
+    y_feu = 70
+    # Image du feu de départ
+    feu1 = pygame.image.load("../Image/Feu_Depart/Feu_1.png")
+    feu1 = pygame.transform.scale(feu1, (x_feu, y_feu))
+    feu2 = pygame.image.load("../Image/Feu_Depart/Feu_2.png")
+    feu2 = pygame.transform.scale(feu2, (x_feu, y_feu))
+    feu3 = pygame.image.load("../Image/Feu_Depart/Feu_3.png")
+    feu3 = pygame.transform.scale(feu3, (x_feu, y_feu))
+    feu4 = pygame.image.load("../Image/Feu_Depart/Feu_4.png")
+    feu4 = pygame.transform.scale(feu4, (x_feu, y_feu))
+    feu5 = pygame.image.load("../Image/Feu_Depart/Feu_5.png")
+    feu5 = pygame.transform.scale(feu5, (x_feu, y_feu))
 
-# # Set the window title
-pygame.display.set_caption("Car Information")
+    # Image PowerUp
+    random = pygame.image.load("../Image/PowerUp/random.png")
+    random = pygame.transform.scale(random, (30, 30))
 
-# # Create a font for the text
-font = pygame.font.Font(None, 36)
+    stop = pygame.image.load("../Image/PowerUp/stop.png")
+    stop = pygame.transform.scale(stop, (30, 30))
 
-# # Load the image
-image = pygame.image.load("../../Image/circuit.jpeg")
-# # Get the image size
-image_width = image.get_width()
-image_height = image.get_height()
-# # Set the image position
-image_x = 200  # 400 = screen center
-image_y = 150  # 300 = screen center
-image = pygame.transform.scale(image, (600, 600))
+    sens = pygame.image.load("../Image/PowerUp/sens.png")
+    sens = pygame.transform.scale(sens, (30, 30))
 
-# # Set up the clock to control the frame rate
-clock = pygame.time.Clock()
+    ralentir = pygame.image.load("../Image/PowerUp/ralentir.jpg")
+    ralentir = pygame.transform.scale(ralentir, (30, 30))
 
-# # Loop until the user clicks the close button
-done = False
-on_the_line = False
+    # # Load the image
+    image_circuit = pygame.image.load("../Image/circuit.jpeg")
 
-# # Set the initial fullscreen state to False
-# fullscreen = False
-NB_CASE_OCCUPATION = 60
+    fenetre = None
+    font = None
+    # # Load the image
+    image_circuit = pygame.image.load("/Users/thomaskemper/Documents/Making intelligent things/Projet 2 - Mario Kart/Projet GUI/Image/circuit.jpeg")
 
-drawMap = GUI_FlowMaps(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, screen, NB_CASE_OCCUPATION)
+    image_x = 200  # 400 = screen center
+    image_y = 150  # 300 = screen center
+    image_circuit = pygame.transform.scale(image_circuit, (600, 600))
 
-GridOccupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
+    screen_info = None
+    screen_width = None
+    screen_height = None
 
-while not done:
+    def __init__(self):
+        self.gui_init()
 
-    for player in players:
-        player.update(Server.Game.Game.second)
+    def gui_init(self):
+        # Get the screen size
+        self.screen_info = pygame.display.Info()
+        self.screen_width = self.screen_info.current_w
+        self.screen_height = self.screen_info.current_h
 
-    if game.running == True and gameStarted == False:
-        gameStarted = True
-        updateCarMovement()
+        self.fenetre = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.font = pygame.font.SysFont("Calibri", 28)
 
-    game.player_update()
-    game.gui_update()
+        # # Set the window title
+        pygame.display.set_caption("MIT KART")
 
-    # Update local variable guiCars
-    guiCars = cars
+    def gui_update(self, begin, second, cars):
+        # Effacement de l'écran
+        self.fenetre.fill(self.GREY)
 
-    # --- Main event loop
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            done = True
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_f:
-                # Toggle fullscreen mode when the user presses the 'f' key
-                fullscreen = not fullscreen
-                if fullscreen:
-                    screen = pygame.display.set_mode(size, pygame.FULLSCREEN)
-                else:
-                    screen = pygame.display.set_mode(size)
+        # Display the image on the screen
+        self.fenetre.blit(self.image_circuit, (self.image_x + self.MOVE_MAP_X, self.image_y + self.MOVE_MAP_Y))
 
-    # --- Game logic should go here
+        # Affichage du feu de départ
+        x_feu = 300
+        y_feu = 70
 
-    # --- Drawing code should go here
-    # rect = pygame.Rect(0, 0, 20, 20)
-    # pygame.draw.rect(screen, PALE_BLUE, rect, width=0)
+        if begin == 0:
+            self.fenetre.blit(self.feu1, (x_feu, y_feu))
 
-    # Clear the screen to pale blue
-    # screen.fill(GREY)
+        elif begin == 1:
+            self.fenetre.blit(self.feu1, (x_feu, y_feu))
 
-    # moveCar(guiCar)
+        elif begin == 2:
+            self.fenetre.blit(self.feu2, (x_feu, y_feu))
 
-    # Display the image on the screen
-    screen.blit(image, (image_x + MOVE_MAP_X, image_y + MOVE_MAP_Y))
+        elif begin == 3:
+            self.fenetre.blit(self.feu3, (x_feu, y_feu))
 
-    # Draw the START line
-    rect = pygame.Rect(350, 230, 20, 80)
-    pygame.draw.rect(screen, BLACK, rect)
+        elif begin == 4:
+            self.fenetre.blit(self.feu4, (x_feu, y_feu))
 
-    # Draw checkpoint
-    rect = pygame.Rect(350, 630, 20, 80)
-    pygame.draw.rect(screen, BLACK, rect)
-    # Loop through the cars and draw them and their information
-    # Create a text string with the car's information
-    Y_DISPLACEMENT = 25
-    count = 0
-    for car in guiCars:
-        # text = "Car {0}: ({1}, {2}) - Orientation = {3} - Speed: {4} - Velocity: {5}".format(
-        #   count, int(car.x), int(car.y), int(car.orientation), car.speed, car.velocity)
-        # Render the text as a surface
-        # text_surface = font.render(text, True, BLACK)
+        elif begin == 5:
+            self.fenetre.blit(self.feu5, (x_feu, y_feu))
 
-        # Text position
-        # text_x = text_surface.get_width()/8
-        # text_y = text_surface.get_height()/2 + count * Y_DISPLACEMENT
+        # Affichage des joueurs
+        x = 700
+        y = 130
 
-        # Draw the text on the screen
-        # screen.blit(text_surface, [text_x, text_y])
+        # Ligne d'en-tête
+        pygame.draw.line(self.fenetre, self.WHITE, (30 + x, y - 20), (self.screen_width - 30, y - 20), 2)
 
-        # Draw the car
-        pygame.draw.rect(screen, car.colour, (MOVE_MAP_X + CIRCUIT_POS_X + (car.x) * SCALE - CAR_SIZE/2,
-                                              MOVE_MAP_Y + CIRCUIT_POS_Y + (car.y) * SCALE - CAR_SIZE/2, CAR_SIZE, CAR_SIZE))
+        pygame.draw.line(self.fenetre, self.WHITE, (x, y - 20), (self.screen_height - 30, y - 20), 2)
 
-        if 340 < MOVE_MAP_X + CIRCUIT_POS_X + car.x * SCALE < 380 and 190 < MOVE_MAP_Y + CIRCUIT_POS_Y + car.y * SCALE < 310 and \
-                players[count].on_the_line == False:
-            players[count].add_lap()
+        # Affichage du Temps
+        temps_render = self.font.render(str(second), True, self.BLACK)
+        self.fenetre.blit(temps_render, (x + 570, y - 70))
 
-            game.rank_update()
-            i = 0
-            for car_2 in guiCars:
-                car_2.rank = players[i].rank
-                i += 1
+        for i, car in enumerate(cars):
+            # Nom du joueur
+            nom_joueur = self.font.render(car.name, True, self.WHITE)
+            self.fenetre.blit(nom_joueur, (110 + x, y))
 
-        if 270 < MOVE_MAP_X + CIRCUIT_POS_X + car.x * SCALE < 340 and 190 < MOVE_MAP_Y + CIRCUIT_POS_Y + car.y * SCALE < 500:
-            players[count].not_on_the_line()
+            # Position
+            position = self.font.render(str(car.rank), True, self.WHITE)
+            self.fenetre.blit(position, (50 + x, y))
+            rect = pygame.Rect(40 + x, y - 5, 640, 40)
+            pygame.draw.rect(self.fenetre, self.BLACK, rect, 2)
 
+            # Temps au tour
 
-        if 340 < MOVE_MAP_X + CIRCUIT_POS_X + car.x * SCALE < 380 and 610 < MOVE_MAP_Y + CIRCUIT_POS_Y + car.y * SCALE < 730 and \
-                players[count].on_the_line == False:
+            temps_tour = self.font.render(str(round(car.curr_lap, 3)), True, self.WHITE)
+            self.fenetre.blit(temps_tour, (290 + x, y))
 
-            players[count].add_lap()
+            # Meilleure temps
+            temps_tour = self.font.render(str(car.best_lap), True, self.WHITE)
+            self.fenetre.blit(temps_tour, (410 + x, y))
 
-            game.rank_update()
-            i = 0
-            for car_2 in guiCars:
-                car_2.rank = players[i].rank
-                i += 1
+            # Nombre de tours
+            tours = self.font.render(str(car.lap_count) + "/10", True, self.WHITE)
+            self.fenetre.blit(tours, (540 + x, y))
 
-        if  430 < MOVE_MAP_X + CIRCUIT_POS_X + car.x * SCALE < 500 and 610 < MOVE_MAP_Y + CIRCUIT_POS_Y + car.y * SCALE < 730:
-            players[count].not_on_the_line()
-        #game.rank_update()
+            # PowerUp
+            #self.fenetre.blit(car.power, (635 + x, y))
 
-        count = count + 1
+            y += 50
 
-        # GridOccupation.addBusy( car.x * SCALE, car.y * SCALE)
+        for car in cars:
+            pygame.draw.rect(self.fenetre, car.colour,
+                             (self.MOVE_MAP_X + self.CIRCUIT_POS_X + (car.x) * self.SCALE - self.CAR_SIZE / 2,
+                              self.MOVE_MAP_Y + self.CIRCUIT_POS_Y + (car.y) * self.SCALE - self.CAR_SIZE / 2,
+                              self.CAR_SIZE,
+                              self.CAR_SIZE))
 
-    #drawMap.drawGridFlow()
-    #drawMap.drawVector()
-    drawMap.drawGridOccupation()
-    drawMap.drawBusyGrid(GridOccupation.busy_grid)
-    GridOccupation.busy_grid = []
-
-    y = 47
-    for x in range(15, 30):
-        GridOccupation.busy_grid.append((x,y))
-
-
-    x = 12
-    for y in range(17, 45):
-        GridOccupation.busy_grid.append((x, y))
-
-
-    y = 12
-    for x in range(13, 49):
-        GridOccupation.busy_grid.append((x, y))
-    GridOccupation.resetBusy()
-
-    #print(len(GridOccupation.busy_grid2))
-
-    # --- Go ahead and update the screen
-    pygame.display.update()
-
-    # --- Limit to 60 frames per second
-    clock.tick(60)
-
-# Close the PyGame window and quit
-pygame.quit()
+        # --- Go ahead and update the screen
+        pygame.display.update()
