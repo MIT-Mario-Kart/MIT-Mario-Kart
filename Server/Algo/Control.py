@@ -38,7 +38,7 @@ calDeltaRightID = "CALDELTARight"
 
 
 # initialise car objects
-car1 = Car("CAR_ID_1", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, color="yellow", x=160, y=20, orientation=180, ai=False)
+car1 = Car("CAR_ID_1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, color="blue", x=160, y=20, orientation=180, ai=True)
 car1.rank = 3
 car2 = Car("CAR_ID_2", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, color="green", x=140, y=20, orientation=180, ai=True)
 car2.rank = 2
@@ -317,7 +317,7 @@ def parseInfo(info):
                     car.acc = 200
                     car.inverted = 1
                     print("STOP POWERUP")
-                elif car.startTime == -1 and info[1] == POWERUP:
+                elif not(car.ai) and car.startTime == -1 and info[1] == POWERUP:
                     pu.powerUp(car)
                 if info[1] == RED:
                     print("RED")
@@ -401,13 +401,7 @@ def calculateDeltaCar(car : Car):
     # sendCarInfo(car, car.delta)
 
 def find_velocity_and_orientation(car):
-    if car.moving:
-        if car.count == 100:
-            car.orientation = calcOrientation([[car.old_x, car.old_y], [car.x, car.y]])
-            car.count = 0
-        else:
-            car.count += 1
-
+    pass
 
 def find_info_flowmap(car: Car):
     # Assumes that coord x and y are between 0 and 199
