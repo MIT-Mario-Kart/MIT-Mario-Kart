@@ -242,8 +242,8 @@ directions[18][13] = a9
 
 # top right
 for x in range(5, 20):
-    directions[x][1] = a8
-    directions[x][3] = a10
+    directions[x][1] = a7
+    directions[x][3] = a11
 
 # left
 for y in range(2, 14):
@@ -256,8 +256,8 @@ directions[15][17] = a2
 directions[16][16] = a2
 directions[16][17] = a2
 for x in range(4, 14):
-    directions[x][16] = a4
-    directions[x][18] = a2
+    directions[x][16] = a5
+    directions[x][18] = a1
 
 
 # center
@@ -270,7 +270,7 @@ for y in range(7, 14):
 
 for x in range(6, 16):
     directions[x][4] = a5
-    directions[x][6] = a2
+    directions[x][6] = a1
 
 for x in range(4,6):
     for y in range(6,8):
