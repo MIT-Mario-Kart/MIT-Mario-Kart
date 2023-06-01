@@ -10,21 +10,21 @@
 #define PIN_REVERSE 13    // D7
 #define SERVO_PIN 15      // D8
 
-#define CAR_ID "CAR_ID_1"
+#define CAR_ID "CAR_ID_2"
 #define CAR_ID_RESET "CAR_ID_RESET"
 #define CAR_ID_PU "CAR_ID_PU"
 
 // Assignment of the sensor pins
-#define S0 4            // D2
-#define S1 5            // D1
+#define S0 5            // D1
+#define S1 4            // D2
 #define S2 0            // D3
 #define S3 2            // D4
 #define sensorOut 14    // D5
 
 // Connection constants
-const char* ssid = "albert";                    // your network SSID (name)
-const char* password = "aaaabbbb";              // your network password
-const char* serverAddress = "172.20.10.6";      // server address
+const char* ssid = "Rok's iPhone";                    // your network SSID (name)
+const char* password = "babalilo";              // your network password
+const char* serverAddress = "172.20.10.3";      // server address
 const int serverPort = 8899;                    // server port
 
 WiFiClient client;
