@@ -22,7 +22,7 @@ car3.rank = 1
 
 car_list = [car1, car2, car3]
 
-game = Game(car_list)
+game = Game(car_list, 11)
 
 while True:
     game.update()

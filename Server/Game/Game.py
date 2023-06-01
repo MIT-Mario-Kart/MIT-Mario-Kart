@@ -3,7 +3,7 @@ import pygame
 from Server.Algo.Control import updateCarMovement, updateCarList
 from Server.Algo.GridOccupation import GridOccupation
 from Server.GUI.GUI import GUI
-from Server.Game.Player import Player
+from Server.Game.Player_old import Player
 
 
 class Game:
@@ -18,8 +18,9 @@ class Game:
 
     NB_CASE_OCCUPATION = 60
 
-    def __init__(self, car_list: list):
+    def __init__(self, car_list: list, nb_lap):
         self.car_list = car_list
+        self.nb_lap = nb_lap
 
         pygame.init()
         pygame.joystick.init()
@@ -29,7 +30,7 @@ class Game:
         self.grid_occupation = GridOccupation(GUI.CIRCUIT_POS_X + GUI.MOVE_MAP_X, GUI.CIRCUIT_POS_Y + GUI.MOVE_MAP_Y, 532,
                                          self.NB_CASE_OCCUPATION)
 
-        self.gui = GUI(self.NB_CASE_OCCUPATION)
+        self.gui = GUI(self.NB_CASE_OCCUPATION, self.nb_lap)
 
 
 
@@ -49,7 +50,11 @@ class Game:
             self.elapsed_time = pygame.time.get_ticks() - self.start_time
             self.second = round(self.elapsed_time / 1000, 1)
 
+
             updateCarList(self.car_list)
+
+            for car in self.car_list:
+               car.update(self.second)
             #updateCarMovement()
 
         else:
@@ -74,8 +79,6 @@ class Game:
                 self.running = True
                 self.start_time = pygame.time.get_ticks()
 
-        # --- Limit to 60 frames per second
-        pygame.time.Clock().tick(60)
 
         y = 47
         for x in range(15, 30):
@@ -107,10 +110,13 @@ class Game:
 
 
         #self.grid_occupation.resetBusy()
-        self.gui.gui_update(self.begin, self.second, self.car_list, self.grid_occupation.busy_grid)
         self.rank_update()
+        self.gui.gui_update(self.begin, self.second, self.car_list, self.grid_occupation.busy_grid)
 
 
+
+        # --- Limit to 60 frames per second
+        pygame.time.Clock().tick(60)
 
     def rank_update(self):
         new_car_list = []
@@ -130,5 +136,3 @@ class Game:
 
         self.car_list = new_car_list
 
-
-        return

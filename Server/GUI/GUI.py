@@ -62,8 +62,9 @@ class GUI:
     screen_width = None
     screen_height = None
 
-    def __init__(self, nb_case_occupation):
+    def __init__(self, nb_case_occupation, nb_lap):
         self.gui_init(nb_case_occupation)
+        self.nb_lap = nb_lap
 
     def gui_init(self, nb_case_occupation):
         # Get the screen size
@@ -80,6 +81,7 @@ class GUI:
         self.drawMap = GUI_FlowMaps(self.CIRCUIT_POS_X + self.MOVE_MAP_X, self.CIRCUIT_POS_Y + self.MOVE_MAP_Y, 532, self.fenetre, nb_case_occupation)
 
     def gui_update(self, begin, second, cars, busy_grid):
+
         # Effacement de l'écran
         self.fenetre.fill(self.GREY)
 
@@ -136,7 +138,7 @@ class GUI:
 
             # Temps au tour
 
-            temps_tour = self.font.render(str(round(car.curr_lap, 3)), True, self.WHITE)
+            temps_tour = self.font.render(str(car.curr_lap), True, self.WHITE)
             self.fenetre.blit(temps_tour, (290 + x, y))
 
             # Meilleure temps
@@ -144,11 +146,13 @@ class GUI:
             self.fenetre.blit(temps_tour, (410 + x, y))
 
             # Nombre de tours
-            tours = self.font.render(str(car.lap_count) + "/10", True, self.WHITE)
+            tours = self.font.render(str(car.lap_count) + "/" + str(self.nb_lap), True, self.WHITE)
             self.fenetre.blit(tours, (540 + x, y))
 
             # PowerUp
             #self.fenetre.blit(car.power, (635 + x, y))
+
+
 
             y += 50
 
@@ -159,11 +163,13 @@ class GUI:
                               self.CAR_SIZE,
                               self.CAR_SIZE))
 
+
         #GridOccupation.resetBusy()
         #self.drawMap.drawGridFlow()
         #self.drawMap.drawVector()
-        self.drawMap.drawGridOccupation()
-        self.drawMap.drawBusyGrid(busy_grid)
+        #self.drawMap.drawGridOccupation()
+        #self.drawMap.drawBusyGrid(busy_grid)
 
         # --- Go ahead and update the screen
         pygame.display.update()
+
