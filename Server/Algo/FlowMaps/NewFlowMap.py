@@ -227,7 +227,7 @@ for x in range(8, 10):
 # directions[5][15] = a12
 for x in range(10, 12):
     for y in range(30, 32):
-        directions[x][y] = a12
+        directions[x][y] = a5
 
 # bottom right zone =======================================================================================================
 
@@ -818,3 +818,15 @@ for x in range(34, 36):
 for x in range(36, 38):
     for y in range(10, 12):
         directions[x][y] = a11
+
+for x in range(18, 36):
+    for y in range(28, 30):
+        directions[x][y] = a9
+
+for x in range(34, 36):
+    for y in range(30, 34):
+        directions[x][y] = a12
+
+for x in range(10, 11):
+    for y in range(11, 30):
+        directions[x][y] = a4
