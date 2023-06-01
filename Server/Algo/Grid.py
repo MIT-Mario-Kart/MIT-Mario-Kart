@@ -8,19 +8,64 @@ class Grid:
         self.top_right_color = 'red'
         self.bot_left_color = 'green'
         self.bot_right_color = 'blue'
-        self.width = 200
-        self.height = 200
+        self.width = 193
+        self.height = 188.5
+        self.calibrationColor = "yellow"
+        self.calibrated = True
+        self.calibratedLeft = False
+        self.calibratedRight = False
 
-    def setupGrid(self, top_left, top_right, bot_left, bot_right):
-        self.top_left = top_left
-        self.top_right = top_right
-        self.bot_left = bot_left
-        self.bot_right = bot_right
+        self.detect_point = False
+        self.point = [40, 100]
+        self.diff_x = 0
+        self.diff_y = 0
+
+        self.left = [40, 100]
+        self.top = [162, 42]
+        self.real_left = []
+        self.real_top = []
+        self.diff_x = 0
+        self.diff_y = 0
+        self.coeff = 0.05
+        self.center = [100, 100]
+        self.newCoeff = 0.05
+
+        #goal is to use this to convert
+        self.centerInIOSCoords = [990, 540];
 
 
-        print(f"Grid Setup, top_left: {self.top_left}, top_right: {self.top_right}, bot_left: {self.bot_left}, bot_right: {self.bot_right}")
-
+    # def getCircuitCoords(self, x, y):
+    #     x_diff = abs(self.real_left[0] - self.real_top[0]) # tel coords
+    #     y_diff = abs(self.real_left[1] - self.real_top[1])
+    #     scaleX = x_diff / abs(self.left[0] - self.top[0]) # tel coords / fm coords = size of 1 square
+    #     scaleY = y_diff / abs(self.left[1] - self.top[1])
+    #     tel_origin = [self.real_left[0] + (200 - self.left[0]) * scaleX , self.real_left[1] - (200 - self.left[1]) * scaleY] # tel coords
+    #     tel_origin_fm = [tel_origin[0] / scaleX , tel_origin[1] / scaleY] # fm coords
+    #     newX = tel_origin_fm[0] - x / scaleX # fm coords
+    #     newY = tel_origin_fm[1] + y / scaleY
+    #     return [newX, newY]
+    
     def getCircuitCoords(self, x, y):
-        new_X = (x - self.top_left[0]) / abs((self.top_right[0]) - self.top_left[0]) * self.width
-        new_Y = (y - self.top_left[1]) / abs(self.bot_left[1] - self.top_left[1]) * self.height
+        #new_X = ((self.bot_right[0] - x) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) + self.diff_x
+        #new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + self.diff_y
+        #new_X = (self.center[0] - new_X) * self.coeff + new_X
+        #new_Y = (self.center[1] - new_Y) * self.coeff + new_Y
+        
+        print(f"{x} {y}")
+        patchedX = x + (self.centerInIOSCoords[0] - x) * self.newCoeff;
+        patchedY = y + (self.centerInIOSCoords[1] - y) * self.newCoeff;
+
+
+        new_X = ((self.bot_right[0] - patchedX) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) + self.diff_x
+        new_Y = ((patchedY - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + self.diff_y
         return new_X, new_Y
+    
+    def setupGrid(self, coordinates):
+        coordinates.sort(key= lambda p : (p[1], p[0]))
+        top = coordinates[2:]
+        top.sort()
+        self.top_left, self.top_right = top
+        bot = coordinates[0:2]
+        bot.sort()
+        self.bot_left, self.bot_right = bot
+        print(f"Grid Setup, top_left: {self.top_left}, top_right: {self.top_right}, bot_left: {self.bot_left}, bot_right: {self.bot_right}")

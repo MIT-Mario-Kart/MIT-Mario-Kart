@@ -1,10 +1,11 @@
 # xy orientation delta(servo) et xy autres voitures
 import math
-import numpy as np
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Wedge
 
-# leftCircle has to be claculated with claculateCircles()
+
+# leftCircle has to be calculated with calculateCircles()
 def isInLeftCircle(pos, leftCircle: Wedge):
   transformed_pos = leftCircle.get_transform().transform(pos)
   return leftCircle.contains_point(transformed_pos)
@@ -41,14 +42,18 @@ def overtake(mycar, otherCars):
       leftC = c.left_circle
       rightC = c.right_circle   
       distance = math.dist(myPos, pos)
-      if distance < 0.2 :
+      if distance < 0.1 :
             distance = 1
       sensibility = 4 # to test
 
       if (isInLeftCircle(myPos, leftC)):
         mycar.delta = mycar.delta + (distance / sensibility)
+        if (mycar.delta > 180):
+          mycar.delta = 180
         mycar.orientation = mycar.delta + (distance / sensibility)
 
       if (isInRightCircle(myPos, rightC)):
         mycar.delta = mycar.delta - (distance / sensibility)
+        if (mycar.delta < 0):
+          mycar.delta = 0
         mycar.orientation = mycar.delta - (distance / sensibility)

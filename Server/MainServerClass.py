@@ -10,23 +10,23 @@ class handler(BaseRequestHandler):
     clients = set()
 
     def handle(self):
-        # print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
+        print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
         self.clients.add(self.request)
         
         while True:
             msg = self.request.recv(bufferSize)
             if not msg:
-                # print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
+                print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
                 break # exits handler, framework closes socket
-            print(f'Received: {msg}')
+            # print(f'Received: {msg}')
             
             # If the string contains CR_ID_PU then it's coming from the car
             # We need to get rid of the end of the string
             # 'CAR_ID_RESET\x00\x03\x00\x00\xe4\xe9\xfe?Z\x00\x00\x00\x0c\x00\x00\x00DS @\xc4\x88\xfe?\xfc\xff\xff\xff'
             
-            if "CAR_ID_PU" in str(msg):
-                msg = str(msg).split("\\n")[0][2:] + "\n" + str(msg).split("\\n")[1][0]
-                toSend = recvInfo(msg, False)
+            if "CAR_ID_" in str(msg):
+                # msg = str(msg).split("\\n")[0][2:] + "\n" + str(msg).split("\\n")[1][0]
+                toSend = recvInfo(msg)
             else:
                 toSend = recvInfo(msg)
                 
@@ -34,7 +34,7 @@ class handler(BaseRequestHandler):
                 if toSend == "CAL":
                     self.sendToCameraAck()
                 else:
-                    print(f"Sent {toSend}")
+                    # print(f"Sent {toSend}")
                     self.request.send((str(toSend) + "\n").encode())
 
     def sendToCameraAck(self):
@@ -54,6 +54,3 @@ class handler(BaseRequestHandler):
 class MainServer(ThreadingTCPServer):
     def __init__(self, server_address):
         super().__init__(server_address, handler)
-        joystick_instance = joystick.Joystick()  # Create an instance of the Joystick class
-        joystick_instance.start()  # Start the joystick instance
-            

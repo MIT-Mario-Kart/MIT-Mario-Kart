@@ -1,5 +1,6 @@
 import pygame
 from random import *
+#import Algo.Control
 
 
 class PowerUp:
@@ -24,26 +25,39 @@ class Player:
     speed = 0
     power = PowerUp.random
     curr_lap = 0
+    last_lap = 0
     best_lap = 0
     lap_count = 0
+    on_the_line = False
 
-    def __init__(self, name, ai, rank):
+    def __init__(self, name, ai, rank, car_server, car_list_index):
         self.name = str(name)
         self.ai = bool(ai)
         self.rank = int(rank)
+        self.car_server = car_server
+        self.car_list_index = car_list_index
 
     def shuffle(self):
         self.power = choice(PowerUp.list_power)
 
     def add_lap(self):
+        self.on_the_line = True
         self.lap_count += 1
+        self.last_lap += self.curr_lap
 
         if self.curr_lap < self.best_lap:
-            self.best_lap = self.curr_lap
-            self.curr_lap = 0
+            self.best_lap = round(self.curr_lap,3)
+
+        elif self.best_lap == 0 and self.lap_count == 2:
+            self.best_lap = round(self.curr_lap,3)
+
+        self.curr_lap = 0
 
     def update(self, second):
-        self.curr_lap = second
+        self.curr_lap = second - self.last_lap
+
+    def not_on_the_line(self):
+        self.on_the_line = False
 
 
 # class Game:
@@ -88,6 +102,7 @@ class Game:
     seconde_depart = 0
     start_time_depart = 0
     elapsed_time_depart = 0
+    checkpoint_list = []
 
     def __init__(self, player_list):
         self.player_list = list(player_list)
@@ -97,6 +112,7 @@ class Game:
 
     def gui_init(self):
         pygame.init()
+        pygame.joystick.init()
 
         # Création de la fenêtre
         global fenetre
@@ -115,17 +131,12 @@ class Game:
         global font
         font = pygame.font.SysFont("Calibri", 28)
 
-    def gui_update(self):
-        # Gestion des événements
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                quit()
+    def player_update(self):
+        for player in self.player_list:
+            player.update(self.second)
 
-            elif event.type == pygame.KEYDOWN and self.running == False:
-                if event.key == pygame.K_SPACE:
-                    self.begin = 1
-                    self.start_time_depart = pygame.time.get_ticks()
+
+    def gui_update(self):
 
         # Effacement de l'écran
         fenetre.fill(self.GRIS_FONCE)
@@ -196,8 +207,10 @@ class Game:
             pygame.draw.rect(fenetre, self.NOIR, rect, 2)
 
             # Temps au tour
+
             temps_tour = font.render(str(round(joueur.curr_lap, 3)), True, self.JAUNE)
             fenetre.blit(temps_tour, (290 + x, y))
+
 
             # Meilleure temps
             temps_tour = font.render(str(joueur.best_lap), True, self.JAUNE)
@@ -209,6 +222,7 @@ class Game:
 
             # PowerUp
             fenetre.blit(joueur.power, (635 + x, y))
+
 
             y += 50
 
@@ -233,3 +247,29 @@ class Game:
             
     def get_window(self):
         return fenetre
+
+    def rank_update(self):
+        new_player_list = []
+        new_car_list = []
+        i = 1
+        while len(self.player_list) != 0:
+            min : Player = self.player_list[0]
+            for player in self.player_list:
+                if player.curr_lap < min.curr_lap and player.lap_count > min.lap_count \
+                        or player.lap_count > min.lap_count:
+                    min = player
+
+            self.player_list.remove(min)
+            new_player_list.append(min)
+            new_car_list.append(min.car_server)
+            min.rank = i
+
+            i += 1
+
+        self.player_list = new_player_list
+
+        return
+
+
+
+
