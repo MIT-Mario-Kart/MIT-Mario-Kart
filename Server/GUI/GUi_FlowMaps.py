@@ -54,3 +54,9 @@ class GUI_FlowMaps:
             pygame.draw.rect(self.screen, self.GREEN, (
             self.pos_x + x * self.case_width_occupation, self.pos_y + y * self.case_width_occupation,
             self.case_width_occupation, self.case_width_occupation))
+
+    def drawCarOrientation(self, car_list):
+        for car in car_list:
+            rotated_arrow = pygame.transform.rotate(self.ARROW,  car.orientation - 90)
+            self.screen.blit(rotated_arrow, (self.pos_x + car.x * 2.75 - 10,
+                                             self.pos_y + car.y * 2.75 - 6))
