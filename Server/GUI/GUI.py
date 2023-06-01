@@ -53,10 +53,12 @@ class GUI:
     font = None
     # # Load the image
     image_circuit = pygame.image.load("../Image/circuit.jpeg")
+    image_circuit_2 = pygame.image.load("../Image/circuit_2.jpg")
 
     image_x = 200  # 400 = screen center
     image_y = 150  # 300 = screen center
     image_circuit = pygame.transform.scale(image_circuit, (600, 600))
+    image_circuit_2 = pygame.transform.scale(image_circuit_2, (600, 600))
 
     screen_info = None
     screen_width = None
@@ -166,10 +168,12 @@ class GUI:
 
         #GridOccupation.resetBusy()
         #self.drawMap.drawGridFlow()
+        self.drawMap.drawGridFlow_2()
         #self.drawMap.drawVector()
+        self.drawMap.drawVector_40()
         #self.drawMap.drawGridOccupation()
         #self.drawMap.drawBusyGrid(busy_grid)
-        self.drawMap.drawCarOrientation(cars)
+        #self.drawMap.drawCarOrientation(cars)
 
         # --- Go ahead and update the screen
         pygame.display.update()
