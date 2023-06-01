@@ -210,16 +210,13 @@ void loop() {
       
   } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 255, 30)) {
     // check if the sensor detects a white tape (OUT)
-      tmpZone = currZone;
-      currZone = out;
+
       isPowerupd = 5;
 
   } else if(isInMargin(redColor, 255, 40) && isInMargin(greenColor, 255, 40) && isInMargin(blueColor, 180, 40)) {
      // check if the sensor detects the CIRCUIT to reset powerup
       isPowerupd = 0;
-      if (currZone == out){
-        currZone = tmpZone;
-      }
+      
       
         
   }
