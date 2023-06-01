@@ -6,7 +6,7 @@ class GUI_FlowMaps:
     BLACK = (0, 0, 0)
     GREEN = (0, 255, 0)
     ARROW = pygame.image.load("Arrow.png")
-    nb_case_flow = 20
+    nb_case_flow = 40
 
     def __init__(self, pos_x, pos_y, width, screen, nb_case_occupation):
         self.pos_x = pos_x
@@ -15,8 +15,7 @@ class GUI_FlowMaps:
         self.screen = screen
         self.case_width_flow = width / self.nb_case_flow
         self.case_width_occupation = width / nb_case_occupation
-        self.ARROW = pygame.transform.scale(self.ARROW, (self.case_width_flow - 15, self.case_width_flow - 12))
-        # self.ARROW = pygame.transform.scale(self.ARROW, (1, 1))
+        self.ARROW = pygame.transform.scale(self.ARROW, (self.case_width_flow - 7.5, self.case_width_flow - 6))
         self.nb_case_flow = self.nb_case_flow
         self.nb_case_occupation = nb_case_occupation
 
@@ -42,7 +41,7 @@ class GUI_FlowMaps:
     def drawVector(self):
         for x in range(0, self.nb_case_flow):
             for y in range(0, self.nb_case_flow):
-                rotated_arrow = pygame.transform.rotate(self.ARROW, vector[10*x][10*y] - 90)
+                rotated_arrow = pygame.transform.rotate(self.ARROW, vector[x][y] - 90)
                 self.screen.blit(rotated_arrow, (self.pos_x + self.case_width_flow / 2 - 5 + x * self.case_width_flow,
                                                  self.pos_y + self.case_width_flow / 2 + y * self.case_width_flow - 3))
 

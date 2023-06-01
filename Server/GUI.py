@@ -15,15 +15,17 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREY = Game.Game.GRIS_CLAIR
 
+CIRCUIT_SCALE = 1.5
+
 CAR_SIZE = 25
-SCALE = 2.75
+SCALE = 2.75*CIRCUIT_SCALE
 # CIRCUIT_POS_X = 285
 CIRCUIT_POS_X = 256
 CIRCUIT_POS_Y = 203
 
 MOVE_MAP_X = -100
-MOVE_MAP_Y = 0
-CAR_SIZE = 25
+MOVE_MAP_Y = -100
+CAR_SIZE = 25*CIRCUIT_SCALE
 NB_CASE_OCCUPATION = 60
 GridOccupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
 
@@ -62,7 +64,7 @@ class GUI:
         # # Set the image position
         image_x = 200  # 400 = screen center
         image_y = 150  # 300 = screen center
-        image = pygame.transform.scale(image, (600, 600))
+        image = pygame.transform.scale(image, (600*CIRCUIT_SCALE, 600*CIRCUIT_SCALE))
 
         # # Set up the clock to control the frame rate
         clock = pygame.time.Clock()
@@ -74,7 +76,7 @@ class GUI:
         # # Set the initial fullscreen state to False
         # fullscreen = False
 
-        drawMap = GUI_FlowMaps(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, screen, NB_CASE_OCCUPATION)
+        drawMap = GUI_FlowMaps(CIRCUIT_POS_X + MOVE_MAP_X + 30, CIRCUIT_POS_Y + MOVE_MAP_Y + 25, 532*CIRCUIT_SCALE, screen, NB_CASE_OCCUPATION)
 
         # GridOccupation = GridOccupation(CIRCUIT_POS_X + MOVE_MAP_X, CIRCUIT_POS_Y + MOVE_MAP_Y, 532, NB_CASE_OCCUPATION)
 
