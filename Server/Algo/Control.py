@@ -55,12 +55,12 @@ class Control:
     
 
 
-    def moveCar(car: Car):
+    def moveCar(self, car: Car):
         car.old_x = car.x
         car.old_y = car.y
         # car.x = car.predicted_x  # todo prevent errors because of threads
         # car.y = car.predicted_y  # todo prevent errors because of threads
-        find_info_flowmap(car)
+        self.find_info_flowmap(car)
         # if (car.started):
         #     return car.delta
 
@@ -107,8 +107,8 @@ class Control:
         # print(f"Updated prediction coords ({car.predicted_x}, {car.predicted_y}), cur dir: {car.orientation}  velocity: {car.velocity} flowmap orientation: {car.fm_orientation} delta: {car.delta}and desired_orientation: {car.desired_orientation} for {car.id}")
 
 
-    def updateCarMovement():
-        threading.Timer(0.001, updateCarMovement).start()
+    def updateCarMovement(self):
+        threading.Timer(0.001, self.updateCarMovement).start()
         # print(len(self.cars))
         for rank in range(1, 4):
 
@@ -118,16 +118,16 @@ class Control:
                     break
                 
         for car in self.cars:
-            moveCar(car)
+            self.moveCar(car)
 
 
-    def updateCarList(carList: list):
+    def updateCarList(self, carList: list):
         self.cars = carList
         for car in self.cars:
             dict_cars[car.id] = car
 
 
-    def parseCoordFromLine(coordinates):
+    def parseCoordFromLine(self, coordinates):
         res = []
         for coord in coordinates.split(','):
             try:
@@ -137,14 +137,14 @@ class Control:
         return res
 
 
-    def getPowerUp(pow):
+    def getPowerUp(self, pow):
         return int(pow.rstrip())
 
 
-    def updatePowerUp(car: Car, pow):
-        car.powerup = getPowerUp(pow)
+    def updatePowerUp(self, car: Car, pow):
+        car.powerup = self.getPowerUp(pow)
 
-    def sendCarInfo(car: Car, toSend):
+    def sendCarInfo(self, car: Car, toSend):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # s.bind(('172.20.10.2', 7777))
             s.connect(car.server)
@@ -160,10 +160,10 @@ class Control:
             info = info.decode()
 
         info = [inf for inf in info.split('\n') if inf != ""]
-        return parseInfo(info)
+        return self.parseInfo(info)
 
 
-    def parseJson(recv_data):
+    def parseJson(self, recv_data):
         # print("received")
         # print(recv_data)
         recv_data = recv_data.rstrip()
@@ -203,11 +203,11 @@ class Control:
         return {"yellow": yellow_points_list, "green": green_points_list, "blue": blue_points_list, "yellowAngles": yellow_angles_list, "greenAngles": green_angles_list, "blueAngles": blue_angles_list}
 
 
-    def parseInfo(info):
+    def parseInfo(self, info):
         id = info[0]
         if id == calibrationID:
             # all calibration points have the same color
-            calibrationPoints = parseJson(info[1])["yellow"]
+            calibrationPoints = self.parseJson(info[1])["yellow"]
             calibrationPoints.sort(key=lambda p: (p[1], p[0]))  # order them along the y axis
 
             # # if we implement the color system
@@ -223,7 +223,7 @@ class Control:
 
         elif id == camID:
             # print(info)
-            points = parseJson(info[1])
+            points = self.parseJson(info[1])
             for id, val in points.items():
                 # id will be the color of the car (green or blue for now)
                 # value will be an array of array
@@ -245,7 +245,7 @@ class Control:
                             # print(f"{id}Angles")
                             car.orientation = points.get(f"{id}Angles")[0]
                             if car.started:
-                                moveCar(car)
+                                self.moveCar(car)
                             car.cam = True
                         else:
                             car.cam = False
@@ -344,13 +344,13 @@ class Control:
             #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 
 
-    def getCoordForCar(car: Car, coordinates):
+    def getCoordForCar(self, car: Car, coordinates):
         car.old_x = car.x
         car.old_y = car.y
-        car.x, car.y, car.orientation = parseCoordFromLine(coordinates)
+        car.x, car.y, car.orientation = self.parseCoordFromLine(coordinates)
 
 
-    def calculateDeltaCar(car: Car):
+    def calculateDeltaCar(self, car: Car):
         right = car.orientation - car.fm_orientation
         right = right + 360 if right < 0 else right
         left = car.fm_orientation - car.orientation
@@ -398,10 +398,10 @@ class Control:
         #     car.delta = car.old_delta
         # sendCarInfo(car, car.delta)
 
-    def find_velocity_and_orientation(car):
+    def find_velocity_and_orientation(self, car):
         pass
 
-    def find_info_flowmap(car: Car):
+    def find_info_flowmap(self, car: Car):
         # Assumes that coord x and y are between 0 and 199
         if car.x < 0:
             car.fm_orientation= 0
