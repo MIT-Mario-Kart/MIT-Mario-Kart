@@ -39,7 +39,7 @@ dict_cars = {}
 
 class Control:
     def __init__(self, cars):
-        self.cars = cars
+        self.cars = cars.copy()
         for car in self.cars:         
             dict_cars[car.color] = car
 
@@ -185,6 +185,7 @@ class Control:
 
 
     def parseInfo(self, info):
+        # print(self.cars)
         id = info[0]
         if id == calibrationID:
             # all calibration points have the same color
