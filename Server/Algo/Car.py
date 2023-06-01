@@ -1,48 +1,70 @@
-class Car:
-  
-  def __init__(self, id, id_pu, id_reset, server, colour, x=0, y=0, orientation=0, desired_velocity= 0, ai=True, powerup = 0, rank= 0, color="blue"):
-    self.rank = rank
-    self.id = id
-    self.id_pu = id_pu
-    self.id_reset = id_reset
-    self.server = server
-    self.old_x = None
-    self.old_y = None
-    self.x = x
-    self.y = y
-    self.predicted_x = 0
-    self.predicted_y = 0
-    self.velocity = 0
-    self.desired_velocity = desired_velocity
-    self.orientation = orientation
-    self.desired_orientation = 0
-    self.fm_orientation = 0
-    self.old_delta = 90
-    self.delta = 90 # steering angle
-    self.a = 1 # acceleration
-    self.acc = 200
-    self.zone = 1
-    self.ai = ai
-    self.speed = "GREEN"
-    self.powerup = powerup
-    self.inverted = 1
-    self.left_circle = None
-    self.right_circle = None
-    self.colour = colour
-    self.color = color
-    self.moving = False
-    self.count = 0
-    self.started = False
-    self.new_orientation = orientation
-    self.cam = True
-    self.orientations = []
-    self.manette = None
-    self.joystick_connected= False
-    self.startTime = -1
-    
+from random import choice
+import PowerUp
+
 RED_C = (255, 0, 0)
 BLUE_C = (0, 0, 255)
 GREEN_C = (0, 255, 0)
 VIOLET_C = (238, 130, 238)
 ROSE_C = (255, 29, 206)
 BRUN_C = (88, 41, 0)
+
+class Car:
+    def __init__(self, name, rank, id, colour, color, x=0, y=0, orientation=0, desired_velocity=0, ai=True):
+        self.name = name
+        self.rank = rank
+        self.id = id
+        self.ai = ai
+        self.colour = colour
+        self.curr_lap = 0
+        self.last_lap = 0
+        self.best_lap = 0
+        self.lap_count = 0
+        self.powerup = 0
+        self.old_x = x
+        self.old_y = y
+        self.x = x
+        self.y = y
+        self.predicted_x = x
+        self.predicted_y = y
+        self.velocity = 0
+        self.desired_velocity = desired_velocity
+        self.orientation = orientation
+        self.desired_orientation = 0
+        self.fm_orientation = 0
+        self.old_delta = 90
+        self.delta = 90  # steering angle
+        self.a = 1  # acceleration
+        self.zone = 1
+        self.speed = "GREEN"
+        self.inverted = False
+        self.left_circle = None
+        self.right_circle = None
+        self.finished = False
+        self.color = color
+        self.joystick_connected = False
+        self.manette = None
+        self.started = False
+        self.startTime = -1
+        self.acc = 200
+
+    def shuffle(self):
+        self.power = choice(PowerUp.list_power)
+
+    def add_lap(self):
+        self.on_the_line = True
+        self.lap_count += 1
+        self.last_lap += self.curr_lap
+
+        if self.curr_lap < self.best_lap:
+            self.best_lap = round(self.curr_lap, 3)
+
+        elif self.best_lap == 0 and self.lap_count == 2:
+            self.best_lap = round(self.curr_lap, 3)
+
+        self.curr_lap = 0
+
+    def update(self, second):
+        self.curr_lap = second - self.last_lap
+
+    #def not_on_the_line(self):
+      #  self.on_the_line = False

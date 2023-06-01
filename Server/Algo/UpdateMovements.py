@@ -1,6 +1,4 @@
 import Algo.Car as Car
-import math
-from Algo.GridOccupation import GridOccupation
 
 MAX_VELOCITY = 7
 ANGLE_UNIT = 15
@@ -135,10 +133,11 @@ def updateCarMovement(car: Car, desired_velocity: float, grid):
         # Update velocity
         car.velocity = min(MAX_VELOCITY, car.velocity + car.a)
 
-
     # grid.setNextPositionOccupy2(car)
 
     # grid.resetBusy()
+
+
 
 
 
