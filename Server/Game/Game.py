@@ -16,9 +16,10 @@ class Game:
 
     NB_CASE_OCCUPATION = 60
 
-    def __init__(self, car_list: list, nb_lap):
+    def __init__(self, car_list: list, nb_lap, control):
         self.car_list = car_list
         self.nb_lap = nb_lap
+        self.control = control
 
         pygame.init()
         pygame.joystick.init()
@@ -64,7 +65,7 @@ class Game:
             self.second = round(self.elapsed_time / 1000, 1)
 
 
-            # updateCarList(self.car_list)
+            self.control.updateCarList(self.car_list)
 
             for car in self.car_list:
                if car.lap_count == self.nb_lap + 1:
