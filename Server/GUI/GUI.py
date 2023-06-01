@@ -169,6 +169,7 @@ class GUI:
         #self.drawMap.drawVector()
         #self.drawMap.drawGridOccupation()
         #self.drawMap.drawBusyGrid(busy_grid)
+        self.drawMap.drawCarOrientation(cars)
 
         # --- Go ahead and update the screen
         pygame.display.update()
