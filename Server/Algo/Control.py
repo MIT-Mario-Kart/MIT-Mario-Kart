@@ -37,6 +37,8 @@ grid = Grid()
 launched = False
 dict_cars = {}
 
+
+
 class Control:
     def __init__(self, cars):
         self.cars = cars.copy()
@@ -53,7 +55,15 @@ class Control:
     
 
     
-
+    def isOnFinishLine(car : Car):
+        if ((150 <= car.x <160) and (10 <= car.y < 40)) :
+            return True
+        return False
+    
+    def hasAllCheckpoints(car : Car):
+        if len(car.checkpoints) >= 6:
+            return True
+        return False
 
     def moveCar(self, car: Car):
         car.old_x = car.x
@@ -298,14 +308,21 @@ class Control:
                         print("STOP POWERUP")
                     elif not(car.ai) and car.startTime == -1 and info[1] == POWERUP:
                         pu.powerUp(car, self.cars)
-                    if info[1] == RED:
-                        print("RED")
-                    elif info[1] == BLUE:
-                        print("BLUE")
-                    elif info[1] == GREEN:
-                        print("GREEN")
+                    if info[1] == RED or info[1] == BLUE or info[1] == GREEN:
+                        cur = info[1]
+                        if len(car.checkpoints) == 0 or car.checkpoints[-1] != cur:
+                            car.checkpoints.append(cur)
+                            print("New checkpoint")
+                            print(cur)
+
                     elif info[1] == OFF:
+                        print("Out of the map")
                         return "200 0"
+                    
+                    if self.isOnFinishLine(car) and self.hasAllCheckpoints(car):
+                        car.add_Lap()
+
+                        
                     if car.ai:
                         if car.started:
                             return f"{int(car.delta)} {car.acc}"

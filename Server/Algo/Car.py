@@ -46,6 +46,7 @@ class Car:
         self.started = False
         self.startTime = -1
         self.acc = 200
+        self.chekpoints = []
 
     def shuffle(self):
         self.power = choice(PowerUp.list_power)
@@ -62,6 +63,7 @@ class Car:
             self.best_lap = round(self.curr_lap, 3)
 
         self.curr_lap = 0
+        self.checkpoints = []
 
     def update(self, second):
         self.curr_lap = second - self.last_lap
