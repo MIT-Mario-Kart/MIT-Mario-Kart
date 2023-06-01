@@ -1,6 +1,7 @@
 from socketserver import ThreadingTCPServer,BaseRequestHandler
 import socket
 from Algo.Control import recvInfo
+import joystick
 
 # set up server
 bufferSize = 4096

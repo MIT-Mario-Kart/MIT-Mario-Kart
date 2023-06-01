@@ -1,121 +1,31 @@
-#include <ESP8266WiFi.h>
-#include <Servo.h>
-#include <dummy.h>
-#include <math.h>
-#include <SoftwareSerial.h>
-#include <ESP8266WebServer.h>
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse, parse_qs
 
-// Pins
-#define PIN_FORWARD 12    // D6
-#define PIN_REVERSE 13    // D7
-#define SERVO_PIN 15      // D8
+class JoystickHandler(BaseHTTPRequestHandler):
+    
+    def do_PUT(self):
+        content_length = int(self.headers['Content-Length'])
+        body = self.rfile.read(content_length).decode('utf-8')
+        parsed_url = urlparse(self.path)
+        query_params = parse_qs(parsed_url.query)
 
-#define CAR_ID "CAR_ID_TEST"
-#define CAR_ID_RESET "CAR_ID_RESET"
-#define CAR_ID_PU "CAR_ID_PU"
+        angle = query_params['angle'][0]
+        direction = query_params['direction'][0]
+        
+        #angle is 0 - 180
+        #direction is 1 (forward) or -1 (backward)
+        
+        
 
-// Assignment of the sensor pins
-#define S0 4            // D2
-#define S1 16           // D0
-#define S2 0            // D3
-#define S3 2            // D4
-#define sensorOut 14    // D5
-
-#define RX_PIN 3        // RX (blue)
-#define TX_PIN 1        // TX (green)
-#define BAUD_RATE 115200
-#define BREAK_CHAR "\n"
-SoftwareSerial ESPSerial(RX_PIN, TX_PIN);
-int RXDelay = 0;
-
-// Connection constants
-const char* ssid = "Dan the Pol";               // your network SSID (name)
-const char* password = "RETR0ProkT765";         // your network password
-
-WiFiClient client;
-
-// ------------------- ESP32 colour sensor code --------------------
-enum Zone {
-  red,
-  green,
-  blue,
-};
-
-Zone currZone = green;
-
-int zoneOrPowUp = 0;
-const long int PU_MAX = 5000;
-long int puDelay = 0;
-bool timerIsStarted = false;
-
-bool isInMargin(int color, int theorical, int approx){
-  int isIn = false;
-  if (theorical - approx <= color && color <= theorical + approx){
-    isIn = true;
-  }
-  return isIn;
-}
-
-void sendZoneOrPowUp() {
-
-  char toSend[14];
-  sprintf(toSend, CAR_ID_PU "%d" BREAK_CHAR, zoneOrPowUp);
-  // Length of sent string (of characters to send) is 11, counting BREAK_CHAR
-  ESPSerial.write(toSend, 11);
-
-}
-
-void sendReset() {
-
-  // 13 characters to send
-  ESPSerial.write(CAR_ID_RESET BREAK_CHAR);
-  
-}
-
-//Calibration values (must be updated before updated before each use)
-int redMin = 9174;
-int redMax = 33333;
-int greenMin = 9615;
-int greenMax = 14705;
-int blueMin = 12987;
-int blueMax = 26315;
-int redColor = 0;
-int greenColor = 0;
-int blueColor = 0;
-int redFrequency = 0;
-int redEdgeTime = 0;
-int greenFrequency = 0;
-int greenEdgeTime = 0;
-int blueFrequency = 0;
-int blueEdgeTime = 0;
-int sensorFrequency = 0;
-int sensorEdgeTime = 0;
-
-const int RED = 2;
-const int GREEN = 3;
-const int BLUE = 4;
-// ---------------------------------------------------------------
-
-
-
-void sendIP() {
-  String IP = WiFi.localIP().toString();
-  IP.concat(BREAK_CHAR);
-  char IP_ca[IP.length() + 1];
-  IP.toCharArray(IP_ca, IP.length());
-  ESPSerial.write(IP_ca);
-}
-
-
-// Global variables
-Servo myservo;
-double speed_percentage = 1;
-int dir = 0;
-double received_acc = 1.0;
-double acceleration = 1.0;
-const char webpageCode[] =
-R"=====(
-<!DOCTYPE HTML>
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()  
+        
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        self.wfile.write(bytes('''<!DOCTYPE HTML>
 <!--
  The MIT License (MIT)
  This file is part of the JoyStick Project (https://github.com/bobboteck/JoyStick).
@@ -179,6 +89,25 @@ body
 	width:200px;
 	height:200px;
 	margin:50px
+}
+
+.button-container {
+    text-align: center;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #af4c4c;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.selected {
+    background-color: #960000;
 }
 		</style>
 		<script>
@@ -260,11 +189,11 @@ var JoyStick = (function(container, parameters, callback)
     var title = (typeof parameters.title === "undefined" ? "joystick" : parameters.title),
         width = (typeof parameters.width === "undefined" ? 0 : parameters.width),
         height = (typeof parameters.height === "undefined" ? 0 : parameters.height),
-        internalFillColor = (typeof parameters.internalFillColor === "undefined" ? "#00AA00" : parameters.internalFillColor),
+        internalFillColor = (typeof parameters.internalFillColor === "undefined" ? "#AC0000" : parameters.internalFillColor),
         internalLineWidth = (typeof parameters.internalLineWidth === "undefined" ? 2 : parameters.internalLineWidth),
-        internalStrokeColor = (typeof parameters.internalStrokeColor === "undefined" ? "#003300" : parameters.internalStrokeColor),
+        internalStrokeColor = (typeof parameters.internalStrokeColor === "undefined" ? "#330000" : parameters.internalStrokeColor),
         externalLineWidth = (typeof parameters.externalLineWidth === "undefined" ? 2 : parameters.externalLineWidth),
-        externalStrokeColor = (typeof parameters.externalStrokeColor ===  "undefined" ? "#008000" : parameters.externalStrokeColor),
+        externalStrokeColor = (typeof parameters.externalStrokeColor ===  "undefined" ? "#800000" : parameters.externalStrokeColor),
         autoReturnToCenter = (typeof parameters.autoReturnToCenter === "undefined" ? true : parameters.autoReturnToCenter);
 
     callback = callback || function(StickStatus) {};
@@ -607,27 +536,59 @@ var JoyStick = (function(container, parameters, callback)
 		<div id="joy3Div" style="width:200px;height:200px;margin:50px;position:fixed;bottom:30px;left:500px;"></div>
 		<!-- Example of two JoyStick integrated in the page structure -->
         <h1 style="text-align: center; color:#ff0000">EPFL</h1>
-        <h2 style="text-align: center;">Autonomous Car</h2>
+        <!-- <h2 style="text-align: center;">Autonomous Car</h2> -->
+        <h2 style="text-align: center;">MarioKart Project</h2>
+        <h3 style="text-align: center;">Car Id: ''' + carId + '''</h3>
 		<div class="row">
 			<div class="columnLateral">
 				<div id="joy1Div" style="width:200px;height:200px;margin:50px"></div>
+                <div class="button-container">
+                    <button class="button" onclick="handleOption('forward')" id="forwardBtn">Forward</button>
+                    <button class="button" onclick="handleOption('backward')" id="backwardBtn">Backward</button>
+                </div>
 				 Mode: <b id="mode">Mode</b><br /> 
 				 Angle: <b id="angle">Angle</b><br />
-                 <h6>Arthur Bigot</h6>
+                 <!-- <h6>Arthur Bigot</h6> -->
                  <h6>Using <a href="https://github.com/bobboteck/JoyStick">Joystick</a> lib from Roberto D'Amico</h6>
 			</div>	
 		</div>
 		<script type="text/javascript">
 
+        var mode = "FORWARD";
+
+        var forwardButton = document.getElementById("forwardBtn");
+        var backwardButton = document.getElementById("backwardBtn");
+
+        forwardButton.classList.add("selected");
+        backwardButton.classList.remove("selected");
+
+        function handleOption(option) {
+            if (option === 'forward') {
+                forwardButton.classList.add("selected");
+                backwardButton.classList.remove("selected");
+                mode = "FORWARD";
+                //      console.log('Forward option selected');
+            } else if (option === 'backward') {
+                forwardButton.classList.remove("selected");
+                backwardButton.classList.add("selected");
+                mode = "BACKWARD";
+                //console.log('Backward option selected');
+            }
+        }
+
         var modeInput = document.getElementById("mode");
         var angleInput = document.getElementById("angle");
+
+        modeInput.textContent = mode;
+        angleInput.textContent = 0;
 
         var joy2Param = { "title": "joystick", "autoReturnToCenter": false };
         var Joy1 = new JoyStick('joy1Div', joy2Param, function(stickData) {
             //code called each time there is an update
             
             //direction 1 for forward, 0 for backward
-            var direction = parseInt(stickData.y) > 0 ? 1 : -1;
+            //var direction = parseInt(stickData.y) > 0 ? 1 : -1;
+            var direction = mode == "FORWARD" ? 1 : -1;
 
             //center is (100, 100)
             let tangX = stickData.xPosition - 100;
@@ -649,7 +610,7 @@ var JoyStick = (function(container, parameters, callback)
 			xhr.open('PUT', "./data.html?angle="+angle+"&direction="+direction)
 		    xhr.send();
 
-            
+            /*
             let directionString = "";
             switch(direction){
                 case -1:
@@ -662,279 +623,24 @@ var JoyStick = (function(container, parameters, callback)
                     directionString = "FORWARD"
                 break;
             }
+            */
 
             //update html
-            modeInput.textContent = directionString;
+            //modeInput.textContent = directionString;
+            modeInput.textContent = mode;
             angleInput.textContent = angle;
         });
 		</script>
 	</body>
-</html>
-
-)=====";
-
-ESP8266WebServer server(80);
-
-#define PU_NONE 0
-#define PU_STOP 1
-#define PU_SLOWDOWN 2
-#define PU_SPEEDUP 3
-#define PU_INVERT 4
-
-#define SLOWDOWN_PRCNT 0.8
-#define SPEEDUP_PRCNT 1.2
-int receivedPowerup = PU_NONE;
-bool isPowerupd = false;
-bool invertControls = false;
-
-void webpage(){
-  server.send(200, "text/html", webpageCode);
-}
-
-void handleJoystickData(){
-  int angle = server.arg(0).toInt();
-  int direction = server.arg(1).toInt();
-
-  if(invertControls) {
-    angle = 180 - angle;
-  }
-
-  myservo.write(angle);
-
-  // 1 if forward
-  // 0 if stop
-  // -1 if reverse
-  acceleration = direction;
-
-  //return an HTTP 200
-  server.send(200, "text/plain", "");   
-}
-
-
-
-
-
-
-void setup() {
-
-  // Pin stuff
-  pinMode(PIN_FORWARD,OUTPUT); // D6 F (project)
-  pinMode(PIN_REVERSE,OUTPUT); // D7 R (project)
-  myservo.attach(SERVO_PIN); // D8 (project)
-
-    /*definition of the sensor pins*/
-  pinMode(S0, OUTPUT);
-  pinMode(S1, OUTPUT);
-  pinMode(S2, OUTPUT);
-  pinMode(S3, OUTPUT);
-  pinMode(sensorOut, INPUT);
-
-  /*Scaling the output frequency
-  S0/S1
-  LOW/LOW=AUS, LOW/HIGH=2%,
-  HIGH/LOW=20%, HIGH/HIGH=100%*/
-  digitalWrite(S0, HIGH);
-  digitalWrite(S1, HIGH);
-
-  ESPSerial.begin(BAUD_RATE);
-
-  // Connect to Wi-Fi network
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(1000);
-    sendIP();
-  }
-
-  server.begin();
-
-  server.on("/", webpage);
-  server.on("/data.html", handleJoystickData);  
-}
-
-
-
-
-
-
-void loop() {
-
-  // -------------- Reset powerups ---------------
-  if (timerIsStarted && ((millis() - puDelay) > PU_MAX)) {
-    sendReset();
-    timerIsStarted = false;
-    puDelay = 0;
-    zoneOrPowUp = currZone + 1;
-
-    // My powerups
-    receivedPowerup = PU_NONE;
-    isPowerupd = false;
-    invertControls = false;
-  }
-
-  // --------------------------------------------
-
-  //------------------------------- Colour sensor -------------------------------
-
-  /*Determination of the photodiode type during measurement
-    S2/S3
-    LOW/LOW=RED, LOW/HIGH=BLUE,
-    HIGH/HIGH=GREEN, HIGH/LOW=CLEAR*/
-  digitalWrite(S2, LOW);
-  digitalWrite(S3, LOW);
-  
-  /*Frequency measurement of the specified color and its as- signment to an RGB value between 0-255*/
-  float(redEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
-  float(redFrequency) = (1 / (redEdgeTime / 1000000)); redColor = map(redFrequency, redMax, redMin, 255, 0); 
-  if (redColor > 255) {
-    redColor = 255;
-  }
-  if (redColor < 0) {
-    redColor = 0;
-  }
-
-  digitalWrite(S2, HIGH);
-  digitalWrite(S3, HIGH);
-  /*Frequency measurement of the specified color and its as-
-  signment to an RGB value between 0-255*/
-  float(greenEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
-  float(greenFrequency) = (1 / (greenEdgeTime / 1000000));
-  greenColor = map(greenFrequency, greenMax, greenMin, 255, 0);
-  if (greenColor > 255) {
-    greenColor = 255;
-  }
-  if (greenColor < 0) {
-    greenColor = 0;
-  } 
-  
-  digitalWrite(S2, LOW);
-  digitalWrite(S3, HIGH);
-  /*Frequency measurement of the specified color and its as-
-  signment to an RGB value between 0-255*/
-  float(blueEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
-  float(blueFrequency) = (1 / (blueEdgeTime / 1000000)); blueColor = map(blueFrequency, blueMax, blueMin, 255, 0); 
-  if (blueColor > 255) {
-    blueColor = 255;
-  }
-  if (blueColor < 0) {
-    blueColor = 0;
-  }
-
-  digitalWrite(S2, HIGH);
-  digitalWrite(S3, LOW);
-
-  if(isInMargin(redColor, 245, 30) && isInMargin(greenColor, 20, 30) && isInMargin(blueColor, 8, 30)) {
-    // check if the sensor detects a RED tape
-    if (currZone != red){
-      currZone = red;
-      zoneOrPowUp = RED;
-      sendZoneOrPowUp();
-    }
-  } else if(isInMargin(redColor, 20, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 0, 30)) {
-    // check if the sensor detects a GREEN tape
-    if (currZone != green){
-      currZone = green;
-      zoneOrPowUp = GREEN;
-      sendZoneOrPowUp();
-    }
-  } else if(isInMargin(redColor, 6, 30) && isInMargin(greenColor, 170, 30) && isInMargin(blueColor, 240, 30)) {
-    // check if the sensor detects a BLUE tape
-    if (currZone != blue){
-      currZone = blue;
-      zoneOrPowUp = BLUE;
-      sendZoneOrPowUp();
-    }
-  } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
-    // check if the sensor detects a black tape (POWERUP)
-    if (zoneOrPowUp != 1){
-      zoneOrPowUp = 1; // to change back to zero when sent once
-      sendZoneOrPowUp();
-      puDelay = millis();
-      timerIsStarted = true;
-    }
-  } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 135, 30)) {
-     // check if the sensor detects the CIRCUIT to reset powerup
-    if (zoneOrPowUp != 0){ 
-      zoneOrPowUp = 0;
-      sendZoneOrPowUp();
-    }
-  }
-
-  // ---------------------------------------------------------------------------- 
-
-  // ------------------------- Receiving powerups -------------------------
-
-  String data = "";
-
-  // if (ESPSerial.available() > 0 && RXDelay == 0 && !isPowerupd) {
-    
-  //   while(ESPSerial.available()) {
-  //     char next = ESPSerial.read();
-  //     if(next == '\n') {
-  //       break;
-  //     } else {
-  //       data.concat(next);
-  //     }
-  //   }
-
-  //   char rcvd[data.length()+1];
-  //   data.toCharArray(rcvd, data.length());
-  //   receivedPowerup = atoi(rcvd);
-  // }
-
-  //. --------------------------------------------------------------------
-
-
-  // ------------------ Powerup management ----------------------
-
-
-  if(receivedPowerup == PU_STOP) {
-
-    isPowerupd = false;
-    speed_percentage = 0;
-    
-  } else if(isPowerupd) {
-
-      // Should be ok
-
-  } else if(receivedPowerup == PU_SLOWDOWN) {
-
-    isPowerupd = true;
-    speed_percentage = SLOWDOWN_PRCNT;
-
-  } else if(receivedPowerup == PU_SPEEDUP) {
-
-    isPowerupd = true;
-    speed_percentage = SPEEDUP_PRCNT;
-
-  } else if(receivedPowerup == PU_INVERT) {
-
-    isPowerupd = true;
-    invertControls = true;
-
-  }
-
-
-  // Controlling motors
-
-  if(acceleration == 1) {
-
-    analogWrite(PIN_FORWARD, 120 * speed_percentage);
-    digitalWrite(PIN_REVERSE, LOW);
-
-  } else if (acceleration == 0) {
-
-    digitalWrite(PIN_FORWARD, LOW);
-    digitalWrite(PIN_REVERSE, LOW);
-
-  } else if(acceleration == -1) {
-
-    digitalWrite(PIN_FORWARD, LOW);
-    analogWrite(PIN_REVERSE, 120 * speed_percentage);
-
-  }
-  
-  server.handleClient(); 
-  if(!isPowerupd){
-    RXDelay = (RXDelay + 1) % 100;
-  }
-}
+</html>'''
+, 'utf-8'))
+
+def run(port=8000, id="car-1", server_class=HTTPServer, handler_class=JoystickHandler):
+    global carId
+    carId = id
+    server_address = ('', port)
+    httpd = server_class(server_address, handler_class)
+    print(f"Starting JoyStick server on port {port}...")
+    httpd.serve_forever()
+
+run()

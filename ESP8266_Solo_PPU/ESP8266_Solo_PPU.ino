@@ -1,21 +1,80 @@
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
-
-#include <uri/UriBraces.h>
-#include <uri/UriRegex.h>
-
 #include <Servo.h>
+#include <dummy.h>
+#include <math.h>
+#include <ESP8266WebServer.h>
+#include <cstdlib>
 
-#ifndef STASSID
-#define STASSID "Arthur"
-#define STAPSK "testtest"
-#endif
+// Pins
+#define PIN_FORWARD 12    // D6
+#define PIN_REVERSE 13    // D7
+#define SERVO_PIN 15      // D8
 
-const char *ssid = STASSID;
-const char *password = STAPSK;
+// Assignment of the sensor pins
+#define S0 4            // D2
+#define S1 5            // D1
+#define S2 0            // D3
+#define S3 2            // D4
+#define sensorOut 14    // D5
+
+// Connection constants
+const char* ssid = "Dan the Pol";               // your network SSID (name)
+const char* password = "RETR0ProkT765";         // your network password
+
+WiFiClient client;
+
+// ------------------- Colour sensor code --------------------
+enum Zone {
+  red,
+  green,
+  blue,
+};
+
+Zone currZone = green;
+
+int zoneOrPowUp = 0;
+const long int PU_MAX = 5000;
+long int puDelay = 0;
+bool timerIsStarted = false;
+
+bool isInMargin(int color, int theorical, int approx){
+  int isIn = false;
+  if (theorical - approx <= color && color <= theorical + approx){
+    isIn = true;
+  }
+  return isIn;
+}
+
+//Calibration values (must be updated before updated before each use)
+int redMin = 9174;
+int redMax = 33333;
+int greenMin = 9615;
+int greenMax = 14705;
+int blueMin = 12987;
+int blueMax = 26315;
+int redColor = 0;
+int greenColor = 0;
+int blueColor = 0;
+int redFrequency = 0;
+int redEdgeTime = 0;
+int greenFrequency = 0;
+int greenEdgeTime = 0;
+int blueFrequency = 0;
+int blueEdgeTime = 0;
+int sensorFrequency = 0;
+int sensorEdgeTime = 0;
+
+const int RED = 2;
+const int GREEN = 3;
+const int BLUE = 4;
+// ---------------------------------------------------------------
+
+// Global variables
 Servo myservo;
+double speed_percentage = 1;
+int dir = 0;
+double received_acc = 1.0;
+double acceleration = 0.0;
 const char webpageCode[] =
 R"=====(
 <!DOCTYPE HTML>
@@ -578,60 +637,266 @@ var JoyStick = (function(container, parameters, callback)
 
 ESP8266WebServer server(80);
 
-void handleJoystickData(){
-  int angle = server.arg(0).toInt();
-  int direction = server.arg(1).toInt();
+#define PU_NONE 0
+#define PU_STOP 1
+#define PU_SLOWDOWN 2
+#define PU_SPEEDUP 3
+#define PU_INVERT 4
 
-  myservo.write(angle);
+#define SLOWDOWN_PRCNT 0.86
+#define SPEEDUP_PRCNT 1.15
+#define NORMAL_SPEED 220
+int receivedPowerup = PU_NONE;
+bool isPowerupd = false;
+bool invertControls = false;
 
-  if(direction == 1){
-    digitalWrite(12, 1);
-    digitalWrite(13, 0);
-  }else if(direction == -1){
-    digitalWrite(12, 0);
-    digitalWrite(13, 1);
-  }else if(direction == 0){
-    digitalWrite(12, 0);
-    digitalWrite(13, 0);
+void activatePowerup() {
+
+  srand((unsigned) time(NULL));
+  receivedPowerup = (abs(rand()) % 3) + 2;
+
+  if(receivedPowerup == PU_SLOWDOWN){
+    Serial.println("Slowdown");
+  } else if(receivedPowerup == PU_SPEEDUP) {
+    Serial.println("Speedup");
+  } else if(receivedPowerup == PU_INVERT) {
+    Serial.println("Invert");
+  } else {
+    Serial.println("Error on PU");
   }
 
-  //return an HTTP 200
-  server.send(200, "text/plain", "");   
 }
 
 void webpage(){
   server.send(200, "text/html", webpageCode);
 }
 
-void setup(void) {
-  pinMode(12, OUTPUT);
-  pinMode(13, OUTPUT);
+void handleJoystickData(){
+  int angle = server.arg(0).toInt();
+  int direction = server.arg(1).toInt();
 
-  myservo.attach(15);
-
-  Serial.begin(115200);
-  WiFi.mode(WIFI_STA);
-  WiFi.begin(ssid, password);
-  Serial.println("");
-
-  // Wait for connection
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  if(invertControls) {
+    angle = 180 - angle;
   }
-  Serial.println("");
-  Serial.print("Connected to ");
-  Serial.println(ssid);
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
 
-  server.begin();
-  Serial.println("HTTP server started");
+  myservo.write(angle);
 
-  server.on("/", webpage);
-  server.on("/data.html", handleJoystickData);  
+  // 1 if forward
+  // 0 if stop
+  // -1 if reverse
+  acceleration = direction;
+
+  //return an HTTP 200
+  server.send(200, "text/plain", "");
 }
 
-void loop(void) {
-  server.handleClient();
+
+
+
+// --------------------------------------------------------
+
+
+
+
+void setup() {
+
+  // Pin stuff
+  pinMode(PIN_FORWARD,OUTPUT);
+  pinMode(PIN_REVERSE,OUTPUT);
+  myservo.attach(SERVO_PIN);
+
+    /*definition of the sensor pins*/
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(sensorOut, INPUT);
+
+  /*Scaling the output frequency
+  S0/S1
+  LOW/LOW=AUS, LOW/HIGH=2%,
+  HIGH/LOW=20%, HIGH/HIGH=100%*/
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, HIGH);
+
+  Serial.begin(115200);
+
+  // Connect to Wi-Fi network
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(1000);
+  }
+
+  Serial.print("IP: ");
+  Serial.println(WiFi.localIP());
+  server.begin();
+
+  server.on("/", webpage);
+  server.on("/data.html", handleJoystickData);
+}
+
+
+
+
+
+
+
+void loop() {
+
+ // Reset powerups
+  if (timerIsStarted && ((millis() - puDelay) > PU_MAX)) {
+    
+    timerIsStarted = false;
+    puDelay = 0;
+    zoneOrPowUp = currZone + 1;
+
+    // My powerups
+    receivedPowerup = PU_NONE;
+    isPowerupd = false;
+    invertControls = false;
+    Serial.println("Powerup reset");
+  }
+
+  //------------------------------- Colour sensor -------------------------------
+
+  /*Determination of the photodiode type during measurement
+    S2/S3
+    LOW/LOW=RED, LOW/HIGH=BLUE,
+    HIGH/HIGH=GREEN, HIGH/LOW=CLEAR*/
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, LOW);
+  
+  /*Frequency measurement of the specified color and its as- signment to an RGB value between 0-255*/
+  float(redEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
+  float(redFrequency) = (1 / (redEdgeTime / 1000000)); redColor = map(redFrequency, redMax, redMin, 255, 0); 
+  if (redColor > 255) {
+    redColor = 255;
+  }
+  if (redColor < 0) {
+    redColor = 0;
+  }
+
+  digitalWrite(S2, HIGH);
+  digitalWrite(S3, HIGH);
+  /*Frequency measurement of the specified color and its as-
+  signment to an RGB value between 0-255*/
+  float(greenEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
+  float(greenFrequency) = (1 / (greenEdgeTime / 1000000));
+  greenColor = map(greenFrequency, greenMax, greenMin, 255, 0);
+  if (greenColor > 255) {
+    greenColor = 255;
+  }
+  if (greenColor < 0) {
+    greenColor = 0;
+  } 
+  
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, HIGH);
+  /*Frequency measurement of the specified color and its as-
+  signment to an RGB value between 0-255*/
+  float(blueEdgeTime) = pulseIn(sensorOut, HIGH) + pulseIn (sensorOut, LOW);
+  float(blueFrequency) = (1 / (blueEdgeTime / 1000000)); blueColor = map(blueFrequency, blueMax, blueMin, 255, 0); 
+  if (blueColor > 255) {
+    blueColor = 255;
+  }
+  if (blueColor < 0) {
+    blueColor = 0;
+  }
+
+  digitalWrite(S2, HIGH);
+  digitalWrite(S3, LOW);
+
+
+  if(isInMargin(redColor, 245, 30) && isInMargin(greenColor, 20, 30) && isInMargin(blueColor, 8, 30)) {
+    // check if the sensor detects a RED tape
+    if (currZone != red){
+      currZone = red;
+      zoneOrPowUp = RED;
+
+    }
+  } else if(isInMargin(redColor, 20, 30) && isInMargin(greenColor, 200, 30) && isInMargin(blueColor, 0, 30)) {
+    // check if the sensor detects a GREEN tape
+    if (currZone != green){
+      currZone = green;
+      zoneOrPowUp = GREEN;
+
+    }
+  } else if(isInMargin(redColor, 6, 30) && isInMargin(greenColor, 170, 30) && isInMargin(blueColor, 240, 30)) {
+    // check if the sensor detects a BLUE tape
+    if (currZone != blue){
+      currZone = blue;
+      zoneOrPowUp = BLUE;
+
+    }
+  } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
+    // check if the sensor detects a black tape (POWERUP)
+    if (zoneOrPowUp != 1 && !isPowerupd) {
+      zoneOrPowUp = 1;            // to change back to zero when sent once
+      activatePowerup();
+      puDelay = millis();
+      timerIsStarted = true;
+    }
+  } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 135, 30)) {
+     // check if the sensor detects the CIRCUIT to reset powerup
+    if (zoneOrPowUp != 0){ 
+      zoneOrPowUp = 0;
+      Serial.println("Circuit");
+    }
+  }
+
+  // ----------------------------------------------------------------------------
+
+  //------------------ Powerup management ----------------------
+
+
+  if(receivedPowerup == PU_STOP) {
+
+    isPowerupd = false;
+    speed_percentage = 0;
+    
+  } else if(isPowerupd) {
+
+      // Should be ok]
+
+  } else if(receivedPowerup == PU_SLOWDOWN) {
+
+    isPowerupd = true;
+    speed_percentage = SLOWDOWN_PRCNT;
+
+  } else if(receivedPowerup == PU_SPEEDUP) {
+
+    isPowerupd = true;
+    speed_percentage = SPEEDUP_PRCNT;
+
+  } else if(receivedPowerup == PU_INVERT) {
+
+    isPowerupd = true;
+    invertControls = true;
+
+  } else if(receivedPowerup == PU_NONE) {
+
+    speed_percentage = 1;
+
+  }
+
+  // Controlling motors
+
+  if(acceleration == 1) {
+
+    analogWrite(PIN_FORWARD, NORMAL_SPEED * speed_percentage);
+    digitalWrite(PIN_REVERSE, LOW);
+
+  } else if (acceleration == 0) {
+
+    digitalWrite(PIN_FORWARD, LOW);
+    digitalWrite(PIN_REVERSE, LOW);
+
+  } else if(acceleration == -1) {
+
+    digitalWrite(PIN_FORWARD, LOW);
+    analogWrite(PIN_REVERSE, NORMAL_SPEED * speed_percentage);
+
+  }
+  
+  server.handleClient(); 
 }
