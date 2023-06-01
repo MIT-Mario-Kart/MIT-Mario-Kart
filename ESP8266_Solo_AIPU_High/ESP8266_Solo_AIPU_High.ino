@@ -10,21 +10,21 @@
 #define PIN_REVERSE 13    // D7
 #define SERVO_PIN 15      // D8
 
-#define CAR_ID "CAR_ID_2"
+#define CAR_ID "CAR_ID_1"
 #define CAR_ID_RESET "CAR_ID_RESET"
 #define CAR_ID_PU "CAR_ID_PU"
 
 // Assignment of the sensor pins
-#define S0 5            // D1
-#define S1 4            // D2
+#define S0 4            // D2
+#define S1 5            // D1
 #define S2 0            // D3
 #define S3 2            // D4
 #define sensorOut 14    // D5
 
 // Connection constants
-const char* ssid = "Rok's iPhone";                    // your network SSID (name)
-const char* password = "babalilo";              // your network password
-const char* serverAddress = "172.20.10.3";      // server address
+const char* ssid = "albert";                    // your network SSID (name)
+const char* password = "aaaabbbb";              // your network password
+const char* serverAddress = "172.20.10.6";      // server address
 const int serverPort = 8899;                    // server port
 
 WiFiClient client;
@@ -34,11 +34,9 @@ enum Zone {
   red,
   green,
   blue,
-  out,
 };
 
 Zone currZone = green;
-Zone tmpZone = green;
 
 const long int PU_MAX = 5000;
 long int puDelay = 0;
@@ -82,11 +80,10 @@ char toSend[15];
 
 // #define PU_INVERT 4
 
-#define STOP 0.00
-#define SLOWDOWN_PRCNT 0.80
-#define SPEEDUP_PRCNT 1.20
+#define SLOWDOWN_PRCNT 0.75
+#define SPEEDUP_PRCNT 1.25
 #define NORMAL_PRCNT 1.00
-#define NORMAL_SPEED 210
+#define NORMAL_SPEED 200
 int isPowerupd = 0;
 
 
@@ -207,21 +204,10 @@ void loop() {
   } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a black tape (POWERUP)
       isPowerupd = 1;
-      
-  } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
-    // check if the sensor detects a white tape (OUT)
-      tmpZone = currZone;
-      currZone = out;
-      isPowerupd = 5;
 
   } else if(isInMargin(redColor, 255, 40) && isInMargin(greenColor, 255, 40) && isInMargin(blueColor, 180, 40)) {
      // check if the sensor detects the CIRCUIT to reset powerup
       isPowerupd = 0;
-      if (currZone == out){
-        currZone = tmpZone;
-      }
-      
-        
   }
 
   switch (currZone) {
@@ -235,10 +221,6 @@ void loop() {
 
   case green:
     speed_percentage = SPEEDUP_PRCNT;
-    break;
-
-  case out:
-    speed_percentage = STOP;
     break;
     
   default:
