@@ -355,7 +355,7 @@ class Control:
                     
                     if car.ai:
                         if car.started:
-                            ovt.overtake(car, self.cars)
+                            # ovt.slowDown(car, self.cars)
                             return f"{int(car.delta)} {car.acc}"
                         else:
                             return "200 0"
