@@ -59,4 +59,30 @@ def overtake(mycar, otherCars):
             mycar.delta = 0
         else :
            mycar.delta = mycar.delta - derivation
+
+
+def slowDown(mycar, otherCars):
+
+
+  for c in otherCars:
+    if (mycar.id != c.id):
+
+        myPos = (mycar.x, mycar.y)
+        pos = (c.x, c.y)
+
+        circles = calculateCircles(c)
+        leftC = circles[0]
+        rightC = circles[1]
+
+        distance = math.dist(myPos, pos)
+
+        sensibility = 500 # to test
+        slowDown = sensibility / distance 
+        if mycar.acc - slowDown < 0 :
+            mycar.acc = slowDown
+        
+        if (isInLeftCircle(myPos, leftC) or isInRightCircle(myPos, rightC)):
+            mycar.acc -= slowDown
+        
+
            

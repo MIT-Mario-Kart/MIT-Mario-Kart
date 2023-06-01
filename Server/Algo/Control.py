@@ -14,6 +14,7 @@ from Algo.Grid import Grid
 import Algo.UpdateMovements as updateMov
 import GUI
 import datetime
+import Algo.overtake as ovt
 # constant definitions
 POWERUP = '1'
 POWERUP_TIME = 5
@@ -328,6 +329,7 @@ class Control:
 
                     if car.ai:
                         if car.started:
+                            ovt.overtake(car, self.cars)
                             return f"{int(car.delta)} {car.acc}"
                         else:
                             return "200 0"
