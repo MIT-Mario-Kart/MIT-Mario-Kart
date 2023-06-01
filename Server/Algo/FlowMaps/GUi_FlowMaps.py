@@ -16,6 +16,7 @@ class GUI_FlowMaps:
         self.case_width_flow = width / self.nb_case_flow
         self.case_width_occupation = width / nb_case_occupation
         self.ARROW = pygame.transform.scale(self.ARROW, (self.case_width_flow - 15, self.case_width_flow - 12))
+        # self.ARROW = pygame.transform.scale(self.ARROW, (1, 1))
         self.nb_case_flow = self.nb_case_flow
         self.nb_case_occupation = nb_case_occupation
 

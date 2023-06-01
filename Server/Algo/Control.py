@@ -39,8 +39,8 @@ calDeltaRightID = "CALDELTARight"
 
 
 # initialise car objects
-car1 = Car("CAR_ID_2", "Test", "Test", ("172.20.10.6", 9999), GREEN_C, color="green", x=160, y=20, orientation=180, ai=False, rank=3)
-car2 = Car("CAR_ID_1", "Test", "Test", ("172.20.10.8", 9999), BLUE_C, color="blue", x=140, y=20, orientation=180, ai=False, rank=2)
+car1 = Car("CAR_ID_2", "Test", "Test", ("172.20.10.6", 9999), GREEN_C, color="green", x=160, y=20, orientation=180, ai=True, rank=3)
+# car2 = Car("CAR_ID_1", "Test", "Test", ("172.20.10.8", 9999), BLUE_C, color="blue", x=140, y=20, orientation=180, ai=False, rank=2)
 #car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180, rank=1)
 #car4 = Car("CAR4", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, x=180, y=20, orientation=180, rank=4)
 #car5 = Car("CAR5", "Test", "Test", ("172.20.10.8", 9999), ROSE_C, x=100, y=20, orientation=180, rank=6)
@@ -48,7 +48,7 @@ car2 = Car("CAR_ID_1", "Test", "Test", ("172.20.10.8", 9999), BLUE_C, color="blu
 
 
 dict_cars = {}
-cars = [car1, car2]
+cars = [car1]
 for car in cars:         
     dict_cars[car.color] = car
 
@@ -415,6 +415,10 @@ def find_info_flowmap(car: Car):
         car.x = 0 if car.x < 0 else car.x
         car.y = 190 if car.y >= 200 else car.y
         car.y = 0 if car.y < 0 else car.y
-        car.fm_orientation = fmdir[int(car.x // 10)][int(car.y // 10)]
+        # car.fm_orientation = fmdir[int(car.x // 10)][int(car.y // 10)]
+
+        # For FlowMap subdivided into smaller squares (1cm x 1cm)
+        car.fm_orientation = fmdir[int(car.x)][int(car.y)]
+
 
 
