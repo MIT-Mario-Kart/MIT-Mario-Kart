@@ -29,6 +29,8 @@ class GridOccupation:
         for x in range(13, 49):
             self.old_busy_grid2[x][y] = 1
 
+
+
     def addBusy(self, car_x, car_y):
         x_grid = car_x // self.case_width
         y_grid = car_y // self.case_width
@@ -121,7 +123,6 @@ class GridOccupation:
     def setNextPositionOccupy2(self, car: Car):
         left = 0
         right = 0
-        print(car.id)
 
         CAR_LENGHT = 30
         CAR_WIDTH = 16

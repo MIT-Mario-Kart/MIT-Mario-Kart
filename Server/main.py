@@ -1,14 +1,28 @@
-from MainServerClass import MainServer
-from Algo.Control import cars
 import threading
-import GUI
+
+from MainServerClass import MainServer
+from Algo.Car import Car, BLUE_C, RED_C, GREEN_C
+from Game.Game import Game
+
 
 def launch_server():
     server = MainServer(('', 8899))
     server.serve_forever()
 
+
 my_thread = threading.Thread(target=launch_server)
 my_thread.start()
 
-gui = GUI.GUI()
-gui.launchGUI(cars)
+car1 = Car("CAR1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, x=160, y=20, orientation=180)
+car1.rank = 3
+car2 = Car("CAR2", "Test", "Test", ("172.20.10.8", 9999), RED_C, x=140, y=20, orientation=180)
+car2.rank = 2
+car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
+car3.rank = 1
+
+car_list = [car1, car2, car3]
+
+game = Game(car_list, 11)
+
+while True:
+    game.update()

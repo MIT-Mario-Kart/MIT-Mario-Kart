@@ -9,11 +9,9 @@ import ast
 from Algo.Car import Car
 from Algo.Car import RED_C, BLUE_C, GREEN_C, BRUN_C, VIOLET_C, ROSE_C
 from Algo.FlowMaps.NewFlowMap import directions as fmdir
-import Algo.Overtake.overtake as ovt
 import Algo.FlowMaps.powerups as pu
 from Algo.Grid import Grid
 import Algo.UpdateMovements as updateMov
-from Algo.Orientation import calcOrientation
 import GUI
 import datetime
 
@@ -110,18 +108,22 @@ def moveCar(car: Car):
 
 def updateCarMovement():
     threading.Timer(0.001, updateCarMovement).start()
-    # for rank in range(1,4):
+    # print(len(cars))
+    for rank in range(1, 4):
 
-    #     for rank_2 in range(0,3):
-    #         if cars[rank_2].rank ==  rank:
-    #             car = cars[rank_2]
-    #             break
+        for rank_2 in range(0, 3):
+            if cars[rank_2].rank == rank:
+                car = cars[rank_2]
+                break
+            
     for car in cars:
         moveCar(car)
 
-    # car.left_circle, car.right_circle = ovt.calculateCircles(car)
 
-
+def updateCarList(carList: list):
+    cars = carList
+    for car in cars:
+        dict_cars[car.id] = car
 
 
 def parseCoordFromLine(coordinates):
@@ -347,7 +349,7 @@ def getCoordForCar(car: Car, coordinates):
     car.x, car.y, car.orientation = parseCoordFromLine(coordinates)
 
 
-def calculateDeltaCar(car : Car):
+def calculateDeltaCar(car: Car):
     right = car.orientation - car.fm_orientation
     right = right + 360 if right < 0 else right
     left = car.fm_orientation - car.orientation
@@ -400,8 +402,6 @@ def find_velocity_and_orientation(car):
 
 def find_info_flowmap(car: Car):
     # Assumes that coord x and y are between 0 and 199
-    # car.started = False
-    # car.delta = 200
     if car.x < 0:
         car.fm_orientation= 0
     elif car.x >= 200:
@@ -411,10 +411,6 @@ def find_info_flowmap(car: Car):
     elif car.y >= 200:
         car.y.fm_orientaion = 90
     else:
-        car.x = 190 if car.x >= 200 else car.x
-        car.x = 0 if car.x < 0 else car.x
-        car.y = 190 if car.y >= 200 else car.y
-        car.y = 0 if car.y < 0 else car.y
         car.fm_orientation = fmdir[int(car.x // 10)][int(car.y // 10)]
 
 

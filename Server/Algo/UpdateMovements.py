@@ -1,4 +1,4 @@
-import Algo.Car as Car
+import Server.Algo.Car as Car
 import math
 from Algo.GridOccupation import GridOccupation
 
@@ -135,10 +135,11 @@ def updateCarMovement(car: Car, desired_velocity: float, grid):
         # Update velocity
         car.velocity = min(MAX_VELOCITY, car.velocity + car.a)
 
-
     # grid.setNextPositionOccupy2(car)
 
     # grid.resetBusy()
+
+
 
 
 

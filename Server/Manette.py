@@ -50,22 +50,6 @@ class Manette:
 
 def updateManette():
 
-    # # Gère les événements
-    # for event in pygame.event.get():
-    #     if event.type == pygame.JOYDEVICEADDED:
-    #         joystick = pygame.joystick.Joystick(event.device_index)
-    #         joystick.init()
-    #         joysticks.append(joystick)
-
-    #         for car in cars:
-    #             if not(car.ai) and not(car.joystick_connected):
-    #                 manette = Manette(joystick)
-    #                 car.Manette = manette
-    #                 manettes.append(manette)
-    #                 car.joystick_connected = True
-    #     elif event.type == pygame.QUIT:
-    #         break
-
     # Met à jour les carrés et les dessine à l'écran
     for manette in manettes:
         # print("Updated manette")
