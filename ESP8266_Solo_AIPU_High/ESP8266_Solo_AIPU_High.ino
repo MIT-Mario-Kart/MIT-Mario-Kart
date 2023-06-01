@@ -204,11 +204,11 @@ void loop() {
       isPowerupd = 4;
 
     }
-  } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
-    // check if the sensor detects a black tape (POWERUP)
+  } else if(isInMargin(redColor, 200, 30) && isInMargin(greenColor, 225, 30) && isInMargin(blueColor, 50, 30)) {
+    // check if the sensor detects a brown tape (POWERUP)
       isPowerupd = 1;
       
-  } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
+  } else if(isInMargin(redColor, 255, 30) && isInMargin(greenColor, 255, 30) && isInMargin(blueColor, 255, 30)) {
     // check if the sensor detects a white tape (OUT)
       tmpZone = currZone;
       currZone = out;
