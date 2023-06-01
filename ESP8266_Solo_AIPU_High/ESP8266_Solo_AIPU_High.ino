@@ -239,7 +239,7 @@ void loop() {
     break;
 
   case out:
-    speed_percentage = STOP;
+    speed_percentage = NORMAL_PRCNT;
     break;
     
   default:
