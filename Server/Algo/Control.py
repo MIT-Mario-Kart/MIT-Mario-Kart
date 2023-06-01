@@ -107,7 +107,7 @@ class Control:
             # print("Zone 6")
 
         self.calculateDeltaCar(car)
-        print(f"Coord: {car.x}, {car.y} {car.orientation} {car.fm_orientation}")
+        # print(f"Coord: {car.x}, {car.y} {car.orientation} {car.fm_orientation}")
 
 
         return 
@@ -173,7 +173,7 @@ class Control:
 
 
     def parseJson(self, recv_data):
-        colors = ["yellow", "green", "blue", "orange"]
+        colors = ["yellow", "green", "blue", "orange", "red", "pink"]
         # print("received")
         # print(recv_data)
         result = {}
@@ -321,11 +321,10 @@ class Control:
                         print("GREEN")
                     # elif info[1] == OFF:
                     #     print("Out of the map")
-                    #     return "200 0"
                     
                     if self.isOnFinishLine(car) and self.hasAllCheckpoints(car):
                         car.add_Lap()
-
+                        print("NEW LAP")
                     if car.ai:
                         if car.started:
                             return f"{int(car.delta)} {car.acc}"
@@ -415,6 +414,6 @@ class Control:
         elif car.y >= 200:
             car.y.fm_orientaion = 90
         else:
-            car.fm_orientation = fmdir[int(car.x // 10)][int(car.y // 10)]
+            car.fm_orientation = fmdir[int(car.x // 5)][int(car.y // 5)]
 
 
