@@ -74,30 +74,30 @@ class Control:
             coeff = 0.9
 
         if car.x <= 60 and car.y <= 30:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, GUI.GridOccupation)
+            list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
             # print("Zone 1")
         elif car.x <= 40 and car.y >= 130:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, GUI.GridOccupation)
+            list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
             # print("Zone 2")
         elif car.x >= 120 and car.y >= 120:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V, GUI.GridOccupation)
+            list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
             # print("Zone 3")
         elif 40 <= car.x and car.x <= 90 and 40 <= car.y and car.y <= 150:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V, GUI.GridOccupation)
+            list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
             # print("Zone 4")
         elif car.x >= 160 and car.y <= 60:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V, GUI.GridOccupation)
+            list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
             car.speed = "RED"
             # print("Zone 5")
         else:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V, GUI.GridOccupation)
+            list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V)
             car.speed = "GREEN"
             # print("Zone 6")
 
-        calculateDeltaCar(car)
+        self.calculateDeltaCar(car)
         print(f"Coord: {car.x}, {car.y} {car.orientation} {car.fm_orientation}")
 
 

@@ -91,6 +91,8 @@ class Game:
                 self.begin = 5
                 self.running = True
                 self.start_time = pygame.time.get_ticks()
+                for car in self.car_list:
+                    car.started = True
 
         y = 47
         for x in range(15, 30):
