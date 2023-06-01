@@ -34,9 +34,11 @@ enum Zone {
   red,
   green,
   blue,
+  out,
 };
 
 Zone currZone = green;
+Zone tmpZone = green;
 
 const long int PU_MAX = 5000;
 long int puDelay = 0;
@@ -80,10 +82,11 @@ char toSend[15];
 
 // #define PU_INVERT 4
 
-#define SLOWDOWN_PRCNT 0.75
-#define SPEEDUP_PRCNT 1.25
+#define STOP 0.00
+#define SLOWDOWN_PRCNT 0.80
+#define SPEEDUP_PRCNT 1.20
 #define NORMAL_PRCNT 1.00
-#define NORMAL_SPEED 200
+#define NORMAL_SPEED 210
 int isPowerupd = 0;
 
 
@@ -204,10 +207,21 @@ void loop() {
   } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
     // check if the sensor detects a black tape (POWERUP)
       isPowerupd = 1;
+      
+  } else if(isInMargin(redColor, 0, 30) && isInMargin(greenColor, 0, 30) && isInMargin(blueColor, 0, 30)) {
+    // check if the sensor detects a white tape (OUT)
+      tmpZone = currZone;
+      currZone = out;
+      isPowerupd = 5;
 
   } else if(isInMargin(redColor, 255, 40) && isInMargin(greenColor, 255, 40) && isInMargin(blueColor, 180, 40)) {
      // check if the sensor detects the CIRCUIT to reset powerup
       isPowerupd = 0;
+      if (currZone == out){
+        currZone = tmpZone;
+      }
+      
+        
   }
 
   switch (currZone) {
@@ -221,6 +235,10 @@ void loop() {
 
   case green:
     speed_percentage = SPEEDUP_PRCNT;
+    break;
+
+  case out:
+    speed_percentage = STOP;
     break;
     
   default:
