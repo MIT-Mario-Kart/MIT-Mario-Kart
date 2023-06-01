@@ -60,7 +60,7 @@ class GUI_FlowMaps:
     def drawVector_40(self):
         for x in range(0, self.nb_case_flow_2):
             for y in range(0, self.nb_case_flow_2):
-                rotated_arrow = pygame.transform.rotate(self.ARROW, vector[5*x][5*y] - 90)
+                rotated_arrow = pygame.transform.rotate(self.ARROW, vector[x][y] - 90)
                 self.screen.blit(rotated_arrow, (self.pos_x + self.case_width_flow_2 / 2 - 5 + x * self.case_width_flow_2,
                                                  self.pos_y + self.case_width_flow_2 / 2 + y * self.case_width_flow_2 - 3))
 
