@@ -22,8 +22,9 @@ POWERUP = '1'
 POWERUP_TIME = 5
 
 RED = '2'
-BLUE = '3'
-GREEN = '4'
+GREEN = '3'
+BLUE = '4'
+OFF = '5'
 
 # initialise IDs
 calibrationID = "CAL"
@@ -38,18 +39,12 @@ calDeltaRightID = "CALDELTARight"
 
 
 # initialise car objects
-car1 = Car("CAR_ID_1", "Test", "Test", ("172.20.10.6", 9999), BLUE_C, color="blue", x=160, y=20, orientation=180, ai=True)
-car1.rank = 3
-car2 = Car("CAR_ID_2", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, color="green", x=140, y=20, orientation=180, ai=True)
-car2.rank = 2
-# car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180)
-# car3.rank = 1
-#car4 = Car("CAR4", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, x=180, y=20, orientation=180)
-#car4.rank = 4
-#car5 = Car("CAR5", "Test", "Test", ("172.20.10.8", 9999), ROSE_C, x=100, y=20, orientation=180)
-#car5.rank = 6
-#car6 = Car("CAR6", "Test", "Test", ("172.20.10.8", 9999), BRUN_C, x=110, y=20, orientation=180)
-#car6.rank = 5
+car1 = Car("CAR_ID_2", "Test", "Test", ("172.20.10.6", 9999), GREEN_C, color="green", x=160, y=20, orientation=180, ai=False, rank=3)
+car2 = Car("CAR_ID_1", "Test", "Test", ("172.20.10.8", 9999), BLUE_C, color="blue", x=140, y=20, orientation=180, ai=False, rank=2)
+#car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180, rank=1)
+#car4 = Car("CAR4", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, x=180, y=20, orientation=180, rank=4)
+#car5 = Car("CAR5", "Test", "Test", ("172.20.10.8", 9999), ROSE_C, x=100, y=20, orientation=180, rank=6)
+#car6 = Car("CAR6", "Test", "Test", ("172.20.10.8", 9999), BRUN_C, x=110, y=20, orientation=180, rank=5)
 
 
 dict_cars = {}
@@ -314,17 +309,18 @@ def parseInfo(info):
             if id == car.id:
                 if car.startTime != -1 and (datetime.datetime.now() - car.startTime).seconds >= POWERUP_TIME:
                     car.startTime = -1
-                    car.acc = 200
-                    car.inverted = 1
+                    car.acc = pu.NORMAL
                     print("STOP POWERUP")
                 elif not(car.ai) and car.startTime == -1 and info[1] == POWERUP:
-                    pu.powerUp(car)
+                    pu.powerUp(car, cars)
                 if info[1] == RED:
                     print("RED")
                 elif info[1] == BLUE:
                     print("BLUE")
                 elif info[1] == GREEN:
                     print("GREEN")
+                elif info[1] == OFF:
+                    return "200 0"
                 if car.ai:
                     if car.started:
                         return f"{int(car.delta)} {car.acc}"
