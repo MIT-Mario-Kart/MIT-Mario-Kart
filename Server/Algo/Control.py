@@ -85,7 +85,7 @@ class Control:
         if car.x <= 60 and car.y <= 30:
             list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
-            if car.checkpoints[-1] != BLUE:
+            if len(car.checkpoints) == 0 or car.checkpoints[-1] != BLUE:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
                 print(car.speed)
@@ -93,7 +93,7 @@ class Control:
         elif car.x <= 40 and car.y >= 130:
             list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
-            if car.checkpoints[-1] != BLUE:
+            if len(car.checkpoints) == 0 or car.checkpoints[-1] != BLUE:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
                 print(car.speed)
@@ -101,7 +101,7 @@ class Control:
         elif car.x >= 120 and car.y >= 120:
             list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
             car.speed = "RED"
-            if car.checkpoints[-1] != RED:
+            if len(car.checkpoints) == 0 or car.checkpoints[-1] != RED:
                 car.checkpoints.append(RED)
                 print("New checkpoint")
                 print(car.speed)
@@ -109,7 +109,7 @@ class Control:
         elif 40 <= car.x and car.x <= 90 and 40 <= car.y and car.y <= 150:
             list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
-            if car.checkpoints[-1] != BLUE:
+            if len(car.checkpoints) == 0 or car.checkpoints[-1] != BLUE:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
                 print(car.speed)
@@ -117,7 +117,7 @@ class Control:
         elif car.x >= 160 and car.y <= 60:
             list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
             car.speed = "RED"
-            if car.checkpoints[-1] != RED:
+            if len(car.checkpoints) == 0 or car.checkpoints[-1] != RED:
                 car.checkpoints.append(RED)
                 print("New checkpoint")
                 print(car.speed)
@@ -125,14 +125,14 @@ class Control:
         else:
             list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V)
             car.speed = "GREEN"
-            if car.checkpoints[-1] != GREEN:
+            if len(car.checkpoints) == 0 or car.checkpoints[-1] != GREEN:
                 car.checkpoints.append(GREEN)
                 print("New checkpoint")
                 print(car.speed)
             # print("Zone 6")
 
         if self.isOnFinishLine(car) and self.hasAllCheckpoints(car):
-            car.add_Lap()
+            car.add_lap()
             print("NEW LAP")
 
         self.calculateDeltaCar(car)
@@ -348,9 +348,9 @@ class Control:
                         print("BLUE ARD")
                     elif info[1] == GREEN:
                         print("GREEN ARD")
-                    # elif info[1] == OFF:
-                    #     print("Out of the map")
-                    
+                    elif not(car.ai) and info[1] == OFF:
+                        print("Out of the map")
+                        return "200 0"
                     
                     if car.ai:
                         if car.started:

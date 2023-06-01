@@ -45,7 +45,7 @@ class Car:
         self.manette = None
         self.started = False
         self.startTime = -1
-        self.acc = 200
+        self.acc = 180
         self.checkpoints = []
 
     def shuffle(self):
