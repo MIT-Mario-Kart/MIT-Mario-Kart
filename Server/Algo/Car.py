@@ -44,7 +44,9 @@ class Car:
         self.joystick_connected = False
         self.manette = None
         self.started = False
-        
+        self.startTime = -1
+        self.acc = 200
+
     def shuffle(self):
         self.power = choice(PowerUp.list_power)
 

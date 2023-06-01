@@ -186,6 +186,7 @@ class Control:
 
 
     def parseInfo(self, info):
+        # print(self.cars)
         id = info[0]
         if id == calibrationID:
             # all calibration points have the same color

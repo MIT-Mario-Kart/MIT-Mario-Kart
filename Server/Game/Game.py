@@ -4,11 +4,12 @@ from Algo.GridOccupation import GridOccupation
 from GUI.GUI import GUI
 import Manette
 
+
 class Game:
     running = False
     begin = 0
     start_time = 0
-    elapsed_time = 0        
+    elapsed_time = 0
     second = 0
     seconde_depart = 0
     start_time_depart = 0
@@ -24,14 +25,11 @@ class Game:
         pygame.init()
         pygame.joystick.init()
 
-
-
-        self.grid_occupation = GridOccupation(GUI.CIRCUIT_POS_X + GUI.MOVE_MAP_X, GUI.CIRCUIT_POS_Y + GUI.MOVE_MAP_Y, 532,
-                                         self.NB_CASE_OCCUPATION)
+        self.grid_occupation = GridOccupation(GUI.CIRCUIT_POS_X + GUI.MOVE_MAP_X, GUI.CIRCUIT_POS_Y + GUI.MOVE_MAP_Y,
+                                              532,
+                                              self.NB_CASE_OCCUPATION)
 
         self.gui = GUI(self.NB_CASE_OCCUPATION, self.nb_lap)
-
-
 
     def update(self):
 
@@ -47,7 +45,7 @@ class Game:
             elif event.type == pygame.JOYDEVICEADDED:
                 # print(f"New Manette conneted!")
                 for car in self.car_list:
-                    if not(car.ai) and not(car.joystick_connected):
+                    if not (car.ai) and not (car.joystick_connected):
                         joystick = pygame.joystick.Joystick(event.device_index)
                         joystick.init()
                         Manette.joysticks.append(joystick)
@@ -64,14 +62,13 @@ class Game:
             self.elapsed_time = pygame.time.get_ticks() - self.start_time
             self.second = round(self.elapsed_time / 1000, 1)
 
-
-            self.control.updateCarList(self.car_list)
+            # self.control.updateCarList(self.car_list)
 
             for car in self.car_list:
-               if car.lap_count == self.nb_lap + 1:
-                   car.finished = True
-               car.update(self.second)
-            #updateCarMovement()
+                if car.lap_count == self.nb_lap + 1:
+                    car.finished = True
+                car.update(self.second)
+            # updateCarMovement()
 
         else:
             self.elapsed_time_depart = pygame.time.get_ticks() - self.start_time_depart
@@ -94,7 +91,6 @@ class Game:
                 self.begin = 5
                 self.running = True
                 self.start_time = pygame.time.get_ticks()
-
 
         y = 47
         for x in range(15, 30):
@@ -124,12 +120,9 @@ class Game:
         for x in range(0, 60):
             self.grid_occupation.busy_grid.append((x, y))
 
-
-        #self.grid_occupation.resetBusy()
+        # self.grid_occupation.resetBusy()
         self.rank_update()
         self.gui.gui_update(self.begin, self.second, self.car_list, self.grid_occupation.busy_grid)
-
-
 
         # --- Limit to 60 frames per second
         pygame.time.Clock().tick(60)
@@ -151,4 +144,3 @@ class Game:
             i += 1
 
         self.car_list = new_car_list
-
