@@ -153,7 +153,7 @@ class Control:
             s.close()
 
 
-    def recvInfo(info, needToBeDecoded=True):
+    def recvInfo(self, info, needToBeDecoded=True):
         # print(info)
         # receiving coordinates from client
         if (needToBeDecoded):
@@ -218,7 +218,7 @@ class Control:
             # bot_right = calibrationPoints[grid.bot_right_color][0]
 
             grid.setupGrid(calibrationPoints)
-            
+
             return "CAL"
 
         elif id == camID:
@@ -254,7 +254,7 @@ class Control:
                     #     if id == calibrationColor:
                     #         if len(val) == 1:
                     #             x, y = grid.getCircuitCoords(val[0][0], val[0][1])
-                    #             grid.diff_x = x - grid.point[0] 
+                    #             grid.diff_x = x - grid.point[0]
                     #             grid.diff_y = y - grid.point[1]
                     #             grid.calibrated = True
                     # elif grid.calibratedLeft:
@@ -269,7 +269,7 @@ class Control:
                     #             grid.real_top = val[0]
                     #             print(grid.real_top)
                     #             grid.calibratedRight = False
-                    #             grid.calibrated = True   
+                    #             grid.calibrated = True
                             # print(f"{id}Angles")
                             # car.orientation = points.get(f"{id}Angles")[0]
                         print(f"Coord: {car.x}, {car.y} {car.orientation}")
@@ -335,12 +335,12 @@ class Control:
                                 acc = car.acc
                             elif car.manette.backward == 1:
                                 acc = -car.acc
-                            
+
                             return f"{int(car.manette.horiz_move * 90 + 90)} {acc}"
                         else:
                             return "200 0"
-                
-            # else: 
+
+            # else:
             #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 
 
@@ -356,13 +356,13 @@ class Control:
         left = car.fm_orientation - car.orientation
         left = left + 360 if left < 0 else left
 
-        
-        
 
-        # old_delta = car.delta 
+
+
+        # old_delta = car.delta
         # tmp_delta = car.delta
         if (left <= right):
-            
+
             left = 90 if left > 90 else left
             car.desired_orientation = left
             car.delta = 90 + left
@@ -376,7 +376,7 @@ class Control:
         #     print(f"LEFT {left}")
             # car.delta = 180 if left <10 else 90
         else:
-            
+
             right = 90 if right > 90 else right
             car.delta = 90 - right
             # car.delta = 0 if right < 10 else 90
@@ -391,7 +391,7 @@ class Control:
             #     right = 0.1
             car.desired_orientation = -right
             # print(f"RIGHT {right}")
-        
+
             # car.delta = 90 - (right / 180) * 90
 
         # if abs(car.delta - car.old_delta) < 10:

@@ -24,10 +24,10 @@ class handler(BaseRequestHandler):
             
             if "CAR_ID_" in str(msg):
                 # msg = str(msg).split("\\n")[0][2:] + "\n" + str(msg).split("\\n")[1][0]
-                toSend = self.control.recvInfo(msg)
+                toSend = self.server.control.recvInfo(msg)
             else:
-                toSend = self.control.recvInfo(msg)
-                
+                toSend = self.server.control.recvInfo(msg)
+
             if toSend != None:
                 if toSend == "CAL":
                     self.sendToCameraAck()
@@ -50,6 +50,6 @@ class handler(BaseRequestHandler):
             
 
 class MainServer(ThreadingTCPServer):
-    def __init__(self, server_address, control):
+    def __init__(self, server_address, control_in):
         super().__init__(server_address, handler)
-        self.control = control
+        self.control = control_in
