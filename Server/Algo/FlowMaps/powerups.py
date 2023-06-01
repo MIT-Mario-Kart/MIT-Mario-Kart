@@ -16,6 +16,7 @@ def slowdown(mycar, cars):
         if car != mycar:
             car.a = SLOW
         car.startTime = datetime.datetime.now()
+
 def stopCar(myCar):
     myCar.a = STOP
 
@@ -25,10 +26,12 @@ def powerUp(myCar, cars):
     if pu == 0:
         slowdown(myCar, cars)
         print("START POWERUP SLOW")
+        myCar.powerup = "slow"
 
     elif pu==1:
         speedup(myCar)
         print("START POWERUP FAST")
+        myCar.powerup = "fast"
     # elif pu==2:
     #     stopCar(myCar)
     #     print("STOP CAR")

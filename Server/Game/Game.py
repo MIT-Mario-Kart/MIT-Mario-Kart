@@ -2,7 +2,7 @@ import pygame
 
 from Algo.GridOccupation import GridOccupation
 from GUI.GUI import GUI
-
+import Manette
 
 class Game:
     running = False
@@ -43,6 +43,21 @@ class Game:
                 if event.key == pygame.K_SPACE:
                     self.begin = 1
                     self.start_time_depart = pygame.time.get_ticks()
+            elif event.type == pygame.JOYDEVICEADDED:
+                # print(f"New Manette conneted!")
+                for car in self.car_list:
+                    if not(car.ai) and not(car.joystick_connected):
+                        joystick = pygame.joystick.Joystick(event.device_index)
+                        joystick.init()
+                        Manette.joysticks.append(joystick)
+
+                        manette = Manette.Manette(joystick)
+                        car.manette = manette
+                        Manette.manettes.append(manette)
+                        print(f"Manette added to {car.id}")
+                        car.joystick_connected = True
+                        break
+            Manette.updateManette()
 
         if self.running:
             self.elapsed_time = pygame.time.get_ticks() - self.start_time

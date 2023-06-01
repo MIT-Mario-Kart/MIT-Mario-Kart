@@ -163,44 +163,25 @@ class Control:
         return self.parseInfo(info)
 
 
-    def parseJson(self, recv_data):
+    def parseJson(recv_data):
+        colors = ["yellow", "green", "blue", "orange"]
         # print("received")
         # print(recv_data)
+        result = {}
         recv_data = recv_data.rstrip()
         data = json.loads(recv_data)
         point_regex = r"{(\d+), (\d+)}"
-
-        yellow_points_str = data["yellow"]
-        points = []
-        for match in re.finditer(point_regex, yellow_points_str):
-            x, y = match.groups()
-            points.append([int(y), int(x)])
-        yellow_points_list = points
-
-        green_points_str = data["green"]
-        points = []
-        for match in re.finditer(point_regex, green_points_str):
-            x, y = match.groups()
-            points.append([int(y), int(x)])
-        green_points_list = points
-
-        blue_points_str = data["blue"]
-        points = []
-        for match in re.finditer(point_regex, blue_points_str):
-            x, y = match.groups()
-            points.append([int(y), int(x)])
-        blue_points_list = points
-
-        yellow_angles_str = data["yellowAngles"]
-        yellow_angles_list = [int(x) for x in ast.literal_eval(yellow_angles_str)]
-
-        green_angles_str = data["greenAngles"]
-        green_angles_list = [int(x) for x in ast.literal_eval(green_angles_str)]
-
-        blue_angles_str = data["blueAngles"]
-        blue_angles_list = [int(x) for x in ast.literal_eval(blue_angles_str)]
-
-        return {"yellow": yellow_points_list, "green": green_points_list, "blue": blue_points_list, "yellowAngles": yellow_angles_list, "greenAngles": green_angles_list, "blueAngles": blue_angles_list}
+        
+        for color in colors:
+            points_str= data[color]
+            points = []
+            for match in re.finditer(point_regex, points_str):
+                x, y = match.groups()
+                points.append([int(y), int(x)])
+            result[color] = points
+            angles_str = data[f"{color}Angles"]
+            result[f"{color}Angles"] = [int(x) for x in ast.literal_eval(angles_str)]
+        return result
 
 
     def parseInfo(self, info):
