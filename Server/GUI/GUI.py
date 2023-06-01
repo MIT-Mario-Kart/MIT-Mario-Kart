@@ -9,9 +9,9 @@ class GUI:
     BLACK = (0, 0, 0)
     WHITE = (255, 255, 255)
     GREY = (120, 120, 120)
-
-    #
-    SCALE = 2.75
+    CIRCUIT_SCALE = 1.5
+    
+    SCALE = 2.75 * CIRCUIT_SCALE
 
     CAR_SIZE = 25
 
@@ -20,7 +20,8 @@ class GUI:
     CIRCUIT_POS_Y = 203
 
     MOVE_MAP_X = -100
-    MOVE_MAP_Y = 0
+    MOVE_MAP_Y = -100
+    CAR_SIZE = 25*CIRCUIT_SCALE
 
     x_feu = 210
     y_feu = 70
@@ -56,7 +57,10 @@ class GUI:
 
     image_x = 200  # 400 = screen center
     image_y = 150  # 300 = screen center
-    image_circuit = pygame.transform.scale(image_circuit, (600, 600))
+    # image_circuit = pygame.transform.scale(image_circuit, (600, 600))
+    image = pygame.transform.scale(image_circuit, (600*CIRCUIT_SCALE, 600*CIRCUIT_SCALE))
+
+
 
     screen_info = None
     screen_width = None
@@ -78,7 +82,7 @@ class GUI:
         # # Set the window title
         pygame.display.set_caption("MIT KART")
 
-        self.drawMap = GUI_FlowMaps(self.CIRCUIT_POS_X + self.MOVE_MAP_X, self.CIRCUIT_POS_Y + self.MOVE_MAP_Y, 532, self.fenetre, nb_case_occupation)
+        self.drawMap = GUI_FlowMaps(self.CIRCUIT_POS_X + self.MOVE_MAP_X + 30, self.CIRCUIT_POS_Y + self.MOVE_MAP_Y + 25, 565*self.CIRCUIT_SCALE, self.fenetre, nb_case_occupation)
 
     def gui_update(self, begin, second, cars, busy_grid):
 
@@ -165,8 +169,8 @@ class GUI:
 
 
         #GridOccupation.resetBusy()
-        #self.drawMap.drawGridFlow()
-        #self.drawMap.drawVector()
+        self.drawMap.drawGridFlow()
+        self.drawMap.drawVector()
         #self.drawMap.drawGridOccupation()
         #self.drawMap.drawBusyGrid(busy_grid)
         self.drawMap.drawCarOrientation(cars)

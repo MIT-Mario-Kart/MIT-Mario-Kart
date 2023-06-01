@@ -16,7 +16,7 @@ class handler(BaseRequestHandler):
             if not msg:
                 print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
                 break # exits handler, framework closes socket
-            print(f'Received: {msg}')
+            # print(f'Received: {msg}')
             
             # If the string contains CR_ID_PU then it's coming from the car
             # We need to get rid of the end of the string
@@ -32,7 +32,7 @@ class handler(BaseRequestHandler):
                 if toSend == "CAL":
                     self.sendToCameraAck()
                 else:
-                    # print(f"Sent {toSend}")
+                    print(f"Sent {toSend}")
                     self.request.send((str(toSend) + "\n").encode())
 
     def sendToCameraAck(self):

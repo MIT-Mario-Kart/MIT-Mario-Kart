@@ -51,7 +51,7 @@ class Grid:
         #new_X = (self.center[0] - new_X) * self.coeff + new_X
         #new_Y = (self.center[1] - new_Y) * self.coeff + new_Y
         
-        print(f"{x} {y}")
+        # print(f"{x} {y}")
         patchedX = x + (self.centerInIOSCoords[0] - x) * self.newCoeff;
         patchedY = y + (self.centerInIOSCoords[1] - y) * self.newCoeff;
 
