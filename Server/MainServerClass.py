@@ -1,6 +1,5 @@
 from socketserver import ThreadingTCPServer,BaseRequestHandler
 import socket
-from Algo.Control import recvInfo
 
 # set up server
 bufferSize = 4096
@@ -25,9 +24,9 @@ class handler(BaseRequestHandler):
             
             if "CAR_ID_" in str(msg):
                 # msg = str(msg).split("\\n")[0][2:] + "\n" + str(msg).split("\\n")[1][0]
-                toSend = recvInfo(msg)
+                toSend = self.control.recvInfo(msg)
             else:
-                toSend = recvInfo(msg)
+                toSend = self.control.recvInfo(msg)
                 
             if toSend != None:
                 if toSend == "CAL":
@@ -51,5 +50,6 @@ class handler(BaseRequestHandler):
             
 
 class MainServer(ThreadingTCPServer):
-    def __init__(self, server_address):
+    def __init__(self, server_address, control):
         super().__init__(server_address, handler)
+        self.control = control

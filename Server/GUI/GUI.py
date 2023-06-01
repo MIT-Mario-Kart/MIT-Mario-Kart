@@ -1,7 +1,7 @@
 import pygame
 
-from Server.GUI.GUi_FlowMaps import GUI_FlowMaps
-from Server.Algo.GridOccupation import GridOccupation
+from GUI.GUi_FlowMaps import GUI_FlowMaps
+from Algo.GridOccupation import GridOccupation
 
 
 class GUI:

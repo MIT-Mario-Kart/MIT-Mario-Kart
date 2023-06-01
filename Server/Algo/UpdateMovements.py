@@ -1,6 +1,4 @@
-import Server.Algo.Car as Car
-import math
-from Algo.GridOccupation import GridOccupation
+import Algo.Car as Car
 
 MAX_VELOCITY = 7
 ANGLE_UNIT = 15

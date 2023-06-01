@@ -1,16 +1,14 @@
 import pygame
 
-from Server.Algo.Control import updateCarMovement, updateCarList
-from Server.Algo.GridOccupation import GridOccupation
-from Server.GUI.GUI import GUI
-from Server.Game.Player_old import Player
+from Algo.GridOccupation import GridOccupation
+from GUI.GUI import GUI
 
 
 class Game:
     running = False
     begin = 0
     start_time = 0
-    elapsed_time = 0
+    elapsed_time = 0        
     second = 0
     seconde_depart = 0
     start_time_depart = 0
@@ -51,9 +49,11 @@ class Game:
             self.second = round(self.elapsed_time / 1000, 1)
 
 
-            updateCarList(self.car_list)
+            # updateCarList(self.car_list)
 
             for car in self.car_list:
+               if car.lap_count == self.nb_lap + 1:
+                   car.finished = True
                car.update(self.second)
             #updateCarMovement()
 
@@ -122,9 +122,9 @@ class Game:
         new_car_list = []
         i = 1
         while len(self.car_list) != 0:
-            min : Player = self.car_list[0]
+            min = self.car_list[0]
             for car in self.car_list:
-                if car.curr_lap < min.curr_lap and car.lap_count > min.lap_count \
+                if car.curr_lap < min.curr_lap and car.lap_count >= min.lap_count \
                         or car.lap_count > min.lap_count:
                     min = car
 

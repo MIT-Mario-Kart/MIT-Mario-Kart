@@ -1,3 +1,6 @@
+from random import choice
+import PowerUp
+
 RED_C = (255, 0, 0)
 BLUE_C = (0, 0, 255)
 GREEN_C = (0, 255, 0)
@@ -5,9 +8,8 @@ VIOLET_C = (238, 130, 238)
 ROSE_C = (255, 29, 206)
 BRUN_C = (88, 41, 0)
 
-
 class Car:
-    def __init__(self, name, rank, id, ai, colour, x=0, y=0, orientation=0, desired_velocity=0):
+    def __init__(self, name, rank, id, colour, color, x=0, y=0, orientation=0, desired_velocity=0, ai=True):
         self.name = name
         self.rank = rank
         self.id = id
@@ -37,6 +39,8 @@ class Car:
         self.inverted = False
         self.left_circle = None
         self.right_circle = None
+        self.finished = False
+        self.color = color
 
     def shuffle(self):
         self.power = choice(PowerUp.list_power)
