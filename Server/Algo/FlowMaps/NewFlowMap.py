@@ -16,28 +16,46 @@ directions = [[a3 for _ in range(200)] for _ in range(200)]
 
 # continuous blocks ================================================================================================
 
-for x in range(7,16):
-    for y in range(1,4):
+# for x in range(7,16):
+#     for y in range(1,4):
+#         directions[x][y] = a9
+for x in range(70, 160):
+    for y in range(10, 40):
         directions[x][y] = a9
 
-for x in range(1,4):
-    for y in range(4,13):
+# for x in range(1,4):
+#     for y in range(4,13):
+#         directions[x][y] = a6
+for x in range(10, 40):
+    for y in range(40, 130):
         directions[x][y] = a6
 
-for x in range(4,14):
-    for y in range(16,19):
+# for x in range(4,14):
+#     for y in range(16,19):
+#         directions[x][y] = 0
+for x in range(40, 140):
+    for y in range(160, 190):
         directions[x][y] = 0
 
-for x in range(9,16):
-    for y in range(13,16):
+# for x in range(9,16):
+#     for y in range(13,16):
+#         directions[x][y] = a9
+for x in range(90, 160):
+    for y in range(130, 160):
         directions[x][y] = a9
 
-for x in range(4,7):
-    for y in range(10,14):
+# for x in range(4,7):
+#     for y in range(10,14):
+#         directions[x][y] = a12
+for x in range(40, 70):
+    for y in range(100, 140):
         directions[x][y] = a12
 
-for x in range(10,16):
-    for y in range(4,8):
+# for x in range(10,16):
+#     for y in range(4,8):
+#         directions[x][y] = a3
+for x in range(100, 160):
+    for y in range(40, 80):
         directions[x][y] = a3
 
 # top left zone =====================================================================================================
