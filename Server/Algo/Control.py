@@ -39,7 +39,7 @@ dict_cars = {}
 
 class Control:
     def __init__(self, cars):
-        self.cars = cars
+        self.cars = cars.copy()
         for car in self.cars:         
             dict_cars[car.color] = car
 
@@ -163,7 +163,7 @@ class Control:
         return self.parseInfo(info)
 
 
-    def parseJson(recv_data):
+    def parseJson(self, recv_data):
         colors = ["yellow", "green", "blue", "orange"]
         # print("received")
         # print(recv_data)
@@ -173,14 +173,15 @@ class Control:
         point_regex = r"{(\d+), (\d+)}"
         
         for color in colors:
-            points_str= data[color]
-            points = []
-            for match in re.finditer(point_regex, points_str):
-                x, y = match.groups()
-                points.append([int(y), int(x)])
-            result[color] = points
-            angles_str = data[f"{color}Angles"]
-            result[f"{color}Angles"] = [int(x) for x in ast.literal_eval(angles_str)]
+            points_str= data.get(color)
+            if points_str:
+                points = []
+                for match in re.finditer(point_regex, points_str):
+                    x, y = match.groups()
+                    points.append([int(y), int(x)])
+                result[color] = points
+                angles_str = data[f"{color}Angles"]
+                result[f"{color}Angles"] = [int(x) for x in ast.literal_eval(angles_str)]
         return result
 
 

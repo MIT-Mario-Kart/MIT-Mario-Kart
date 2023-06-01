@@ -14,8 +14,9 @@ car2 = Car("CAR2", 2, "CAR_ID_1", BLUE_C, color="blue", x=140, y=20, orientation
 
 car_list = [car1, car2]
 control = Control(car_list)
-game = Game(car_list, 11, control)
 my_thread = threading.Thread(target=launch_server, args=[control])
 my_thread.start()
+game = Game(car_list, 11, control)
+
 while True:
     game.update()
