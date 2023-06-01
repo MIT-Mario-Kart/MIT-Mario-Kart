@@ -53,12 +53,12 @@ class GUI:
     font = None
     # # Load the image
     image_circuit = pygame.image.load("../Image/circuit.jpeg")
-    image_circuit_2 = pygame.image.load("../Image/circuit_2.jpg")
+    # image_circuit_2 = pygame.image.load("../Image/circuit_2.jpg")
 
     image_x = 200  # 400 = screen center
     image_y = 150  # 300 = screen center
     image_circuit = pygame.transform.scale(image_circuit, (600, 600))
-    image_circuit_2 = pygame.transform.scale(image_circuit_2, (600, 600))
+    # image_circuit_2 = pygame.transform.scale(image_circuit_2, (600, 600))
 
     screen_info = None
     screen_width = None
@@ -120,8 +120,8 @@ class GUI:
         pygame.draw.line(self.fenetre, self.WHITE, (30 + x, y - 20), (self.screen_width - 30, y - 20), 2)
 
         # Draw the START line
-        rect = pygame.Rect(350, 230, 20, 80)
-        pygame.draw.rect(self.fenetre, self.BLACK, rect)
+        # rect = pygame.Rect(350, 230, 20, 80)
+        # pygame.draw.rect(self.fenetre, self.BLACK, rect)
 
         # Affichage du Temps
         temps_render = self.font.render(str(second), True, self.BLACK)

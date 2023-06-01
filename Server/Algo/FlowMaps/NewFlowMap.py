@@ -1,4 +1,5 @@
 a1 = 60
+a1_2 = 15
 a2 = 30
 a3 = 0
 a4 = 320
@@ -6,6 +7,7 @@ a5 = 300
 a6 = 270
 a7 = 240
 a8 = 210
+a8_2 = 195
 a9 = 180
 a10 = 150
 a11 = 130
@@ -830,3 +832,39 @@ for x in range(34, 36):
 for x in range(10, 11):
     for y in range(11, 30):
         directions[x][y] = a4
+
+for x in range(4, 32):
+    for y in range(36, 38):
+        directions[x][y] = a1
+
+for x in range(34, 36):
+    for y in range(30, 36):
+        directions[x][y] = a11
+
+for y in range(2, 4):
+    for x in range(6, 36):
+        directions[x][y] = a8_2
+
+for x in range(32, 34):
+    for y in range(8, 10):
+        directions[x][y] = a11
+
+for x in range(32, 38):
+    for y in range(4, 6):
+        directions[x][y] = a9
+
+for x in range(4, 6):
+    for y in range(4, 6):
+        directions[x][y] = a6
+
+for x in range(6, 8):
+    for y in range(2, 4):
+        directions[x][y] = a7
+
+for x in range(26, 30):
+    for y in range(32, 34):
+        directions[x][y] = a3
+
+for x in range(10, 11):
+    for y in range(11, 29):
+        directions[x][y] =  a1

@@ -32,7 +32,7 @@ class handler(BaseRequestHandler):
                 if toSend == "CAL":
                     self.sendToCameraAck()
                 else:
-                    print(f"Sent {toSend}")
+                    # print(f"Sent {toSend}")
                     self.request.send((str(toSend) + "\n").encode())
 
     def sendToCameraAck(self):
