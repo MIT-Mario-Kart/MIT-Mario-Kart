@@ -49,6 +49,9 @@ class GUI:
     ralentir = pygame.image.load("../Image/PowerUp/ralentir.jpg")
     ralentir = pygame.transform.scale(ralentir, (30, 30))
 
+    speedup = pygame.image.load("../Image/PowerUp/speedup.jpg")
+    speedup = pygame.transform.scale(speedup, (30, 30))
+
     fenetre = None
     font = None
     # # Load the image
@@ -164,6 +167,12 @@ class GUI:
 
             if car.finished:
                 self.fenetre.blit(self.image_flag, (690 + x, y))
+            elif car.powerup == "slow":
+                self.fenetre.blit(self.ralentir, (690 + x, y))
+            elif car.powerup == "fast":
+                self.fenetre.blit(self.speedup, (690 + x, y))
+            elif car.powerup == "stop":
+                self.fenetre.blit(self.stop, (690 + x, y))
 
 
 

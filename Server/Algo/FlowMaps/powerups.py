@@ -21,7 +21,7 @@ def stopCar(myCar):
     myCar.a = STOP
 
 def powerUp(myCar, cars):
-    pu = random.randint(0,1)
+    pu = random.randint(0,2)
 
     if pu == 0:
         slowdown(myCar, cars)
@@ -32,8 +32,9 @@ def powerUp(myCar, cars):
         speedup(myCar)
         print("START POWERUP FAST")
         myCar.powerup = "fast"
-    # elif pu==2:
-    #     stopCar(myCar)
-    #     print("STOP CAR")
+    elif pu==2:
+        stopCar(myCar)
+        print("STOP CAR")
+        myCar.powerup = "stop"
     myCar.startTime = datetime.datetime.now()  
 
