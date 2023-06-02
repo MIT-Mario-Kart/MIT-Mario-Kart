@@ -48,6 +48,7 @@ class Manette:
 
 
 
+
 def updateManette():
 
     # Met à jour les carrés et les dessine à l'écran
