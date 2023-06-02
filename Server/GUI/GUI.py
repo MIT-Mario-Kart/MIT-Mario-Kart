@@ -64,6 +64,9 @@ class GUI:
     screen_width = None
     screen_height = None
 
+    image_flag = pygame.image.load("../Image/drapeau.jpeg")
+    image_flag = pygame.transform.scale(image_flag, (50, 30))
+
     def __init__(self, nb_case_occupation, nb_lap):
         self.gui_init(nb_case_occupation)
         self.nb_lap = nb_lap
@@ -153,6 +156,9 @@ class GUI:
 
             # PowerUp
             #self.fenetre.blit(car.power, (635 + x, y))
+
+            if car.finished:
+                self.fenetre.blit(self.image_flag, (690 + x, y))
 
 
 
