@@ -19,7 +19,7 @@ class GUI:
     CIRCUIT_POS_X = 256
     CIRCUIT_POS_Y = 203
 
-    MOVE_MAP_X = -100
+    MOVE_MAP_X = -100 - 30
     MOVE_MAP_Y = 0
 
     x_feu = 210
@@ -53,12 +53,12 @@ class GUI:
     font = None
     # # Load the image
     image_circuit = pygame.image.load("../Image/circuit.jpeg")
-    # image_circuit_2 = pygame.image.load("../Image/circuit_2.jpg")
+    image_circuit_2 = pygame.image.load("../Image/circuit_2.png")
 
     image_x = 200  # 400 = screen center
     image_y = 150  # 300 = screen center
     image_circuit = pygame.transform.scale(image_circuit, (600, 600))
-    # image_circuit_2 = pygame.transform.scale(image_circuit_2, (600, 600))
+    image_circuit_2 = pygame.transform.scale(image_circuit_2, (515, 515))
 
     screen_info = None
     screen_width = None
@@ -88,7 +88,8 @@ class GUI:
         self.fenetre.fill(self.GREY)
 
         # Display the image on the screen
-        self.fenetre.blit(self.image_circuit, (self.image_x + self.MOVE_MAP_X, self.image_y + self.MOVE_MAP_Y))
+        #self.fenetre.blit(self.image_circuit, (self.image_x + self.MOVE_MAP_X, self.image_y + self.MOVE_MAP_Y))
+        self.fenetre.blit(self.image_circuit_2, (self.image_x + self.MOVE_MAP_X + 70, self.image_y + self.MOVE_MAP_Y + 60))
 
         # Affichage du feu de départ
         x_feu = 300
@@ -139,12 +140,11 @@ class GUI:
             pygame.draw.rect(self.fenetre, self.BLACK, rect, 2)
 
             # Temps au tour
-
-            temps_tour = self.font.render(str(car.curr_lap), True, self.WHITE)
+            temps_tour = self.font.render(str(round(car.curr_lap, 1)), True, self.WHITE)
             self.fenetre.blit(temps_tour, (290 + x, y))
 
             # Meilleure temps
-            temps_tour = self.font.render(str(car.best_lap), True, self.WHITE)
+            temps_tour = self.font.render(str(round(car.best_lap, 1)), True, self.WHITE)
             self.fenetre.blit(temps_tour, (410 + x, y))
 
             # Nombre de tours
@@ -168,9 +168,9 @@ class GUI:
 
         #GridOccupation.resetBusy()
         #self.drawMap.drawGridFlow()
-        self.drawMap.drawGridFlow_2()
+        #self.drawMap.drawGridFlow_2()
         #self.drawMap.drawVector()
-        self.drawMap.drawVector_40()
+        #self.drawMap.drawVector_40()
         #self.drawMap.drawGridOccupation()
         #self.drawMap.drawBusyGrid(busy_grid)
         #self.drawMap.drawCarOrientation(cars)
