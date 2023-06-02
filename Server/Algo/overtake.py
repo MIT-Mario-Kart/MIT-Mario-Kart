@@ -1,10 +1,13 @@
-# xy orientation delta(servo) et xy autres voitures
 import math
-import numpy as np
+""" import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Wedge
+from matplotlib.patches import Wedge """
 
-# leftCircle has to be claculated with claculateCircles()
+OVT_WIDTH = 6
+OVT_LENGTH = 30
+SLOW_DOWN = 500
+
+""" # leftCircle has to be claculated with claculateCircles()
 def isInLeftCircle(pos, leftCircle):
   transformed_pos = leftCircle.get_transform().transform(pos)
   return leftCircle.contains_point(transformed_pos)
@@ -13,8 +16,6 @@ def isInLeftCircle(pos, leftCircle):
 def isInRightCircle(pos, rightCircle):
   transformed_pos = rightCircle.get_transform().transform(pos)
   return rightCircle.contains_point(transformed_pos)
-
-
 
 def calculateCircles(mycar):
 
@@ -61,7 +62,7 @@ def overtake(mycar, otherCars):
            mycar.delta = mycar.delta - derivation
 
 
-def slowDown(mycar, otherCars):
+def slowDown2(mycar, otherCars):
 
 
   for c in otherCars:
@@ -84,5 +85,49 @@ def slowDown(mycar, otherCars):
         if (isInLeftCircle(myPos, leftC) or isInRightCircle(myPos, rightC)):
             mycar.acc -= slowDown
         
+ """
+# check if car2 is just behind car1
+def isInOvtZone(car1, car2):
+  myX = car1.x
+  myY = car1.y
+  x = car2.x
+  y = car2.y
 
-           
+  if car1.orientation < 90 :
+        if(myX - OVT_LENGTH < x < myX and myY - OVT_WIDTH < y < myY - OVT_WIDTH):
+            return True
+  
+  elif car1.orientation < 180 :
+        if(myX - OVT_WIDTH < x < myX + OVT_WIDTH and myY < y < myY + OVT_LENGTH):
+            return True
+        
+  elif car1.orientation < 270 :
+        if(myX < x < myX + OVT_LENGTH and myY - OVT_WIDTH < y < myY + OVT_WIDTH):
+            return True
+        
+  elif car1.orientation < 360 :
+        if(myX - OVT_WIDTH < x < myX + OVT_WIDTH and myY - OVT_LENGTH < y < myY):
+            return True
+        
+  return False
+
+
+# slows down mycar if it is just behind another car       
+def slowDown(mycar, otherCars):
+
+  myPos = (mycar.x, mycar.y)
+ 
+  
+  for c in otherCars:
+    if (mycar.id != c.id):
+
+      if (isInOvtZone(c, mycar)):
+
+        pos = (c.x, c.y)
+        distance = math.dist(myPos, pos)
+        newAcc = mycar.acc - (SLOW_DOWN / distance)
+
+        if newAcc < 0 :
+            mycar.acc = 0
+        else :
+            mycar.acc = newAcc
