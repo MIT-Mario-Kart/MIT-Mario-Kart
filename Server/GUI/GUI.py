@@ -168,11 +168,11 @@ class GUI:
             if car.finished:
                 self.fenetre.blit(self.image_flag, (690 + x, y))
             elif car.powerup == "slow":
-                self.fenetre.blit(self.ralentir, (690 + x, y))
+                self.fenetre.blit(self.ralentir, (635 + x, y))
             elif car.powerup == "fast":
-                self.fenetre.blit(self.speedup, (690 + x, y))
+                self.fenetre.blit(self.speedup, (635 + x, y))
             elif car.powerup == "stop":
-                self.fenetre.blit(self.stop, (690 + x, y))
+                self.fenetre.blit(self.stop, (635 + x, y))
 
 
 
