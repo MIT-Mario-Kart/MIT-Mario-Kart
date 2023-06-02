@@ -67,7 +67,8 @@ class Game:
             for car in self.car_list:
                 if car.lap_count == self.nb_lap + 1:
                     car.finished = True
-                car.update(self.second)
+                if not car.finished:
+                    car.update(self.second)
             # updateCarMovement()
 
         else:

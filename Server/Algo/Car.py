@@ -39,7 +39,7 @@ class Car:
         self.inverted = False
         self.left_circle = None
         self.right_circle = None
-        self.finished = False
+        self.finished = True
         self.color = color
         self.joystick_connected = False
         self.manette = None
