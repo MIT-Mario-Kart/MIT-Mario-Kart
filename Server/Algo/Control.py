@@ -24,6 +24,9 @@ GREEN = '3'
 BLUE = '4'
 OFF = '5'
 
+BLUE_PRCNT = 1.0
+RED_PRCNT = 0.8
+GREEN_PRCNT = 1.2
 # initialise IDs
 calibrationID = "CAL"
 camID = "CAM"
@@ -38,6 +41,7 @@ grid = Grid()
 launched = False
 dict_cars = {}
 
+powerups_list = [[[10, 20], [30, 40]]]
 class Control:
     def __init__(self, cars):
         self.cars = cars.copy()
@@ -53,7 +57,11 @@ class Control:
 
     
 
-    
+    def isOnPowerUp(self, car):
+        for pu in powerups_list:
+            if pu[0][0] <= car.x <= pu[0][1] and pu[1][0] <= car.y <= pu[1][1]:
+                return True
+        return False
 
     def isOnFinishLine(self, car : Car):
         if ((150 <= car.x <160) and (10 <= car.y < 40)) :
@@ -70,7 +78,6 @@ class Control:
         car.old_y = car.y
         # car.x = car.predicted_x  # todo prevent errors because of threads
         # car.y = car.predicted_y  # todo prevent errors because of threads
-        self.find_info_flowmap(car)
         # if (car.started):
         #     return car.delta
 
@@ -78,65 +85,82 @@ class Control:
             # car.x = car.predicted_x  # todo prevent errors because of threads
             # car.y = car.predicted_y  # todo prevent errors because of threads
 
-        coeff = 1.0
+        # coeff = 1.0
 
-        if car.id == self.cars[0].id:
-            coeff = 0.9
+        # if car.id == self.cars[0].id:
+        #     coeff = 0.9
 
         if car.x <= 60 and car.y <= 30:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
+            # list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != BLUE:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
                 print(car.speed)
+                car.acc *= BLUE_PRCNT
             # print("Zone 1")
         elif car.x <= 40 and car.y >= 130:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
+            # list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != BLUE:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
                 print(car.speed)
+                car.acc *= BLUE_PRCNT
             # print("Zone 2")
         elif car.x >= 120 and car.y >= 120:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
+            # list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
             car.speed = "RED"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != RED:
                 car.checkpoints.append(RED)
                 print("New checkpoint")
                 print(car.speed)
+                car.acc *= RED_PRCNT
             # print("Zone 3")
         elif 40 <= car.x and car.x <= 90 and 40 <= car.y and car.y <= 150:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
+            # list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != BLUE:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
                 print(car.speed)
+                car.acc *= BLUE_PRCNT
             # print("Zone 4")
         elif car.x >= 160 and car.y <= 60:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
+            # list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
             car.speed = "RED"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != RED:
                 car.checkpoints.append(RED)
                 print("New checkpoint")
                 print(car.speed)
+                car.acc *= RED_PRCNT
             # print("Zone 5")
         else:
-            list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V)
+            # list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V)
             car.speed = "GREEN"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != GREEN:
                 car.checkpoints.append(GREEN)
                 print("New checkpoint")
                 print(car.speed)
+                car.acc *= GREEN_PRCNT
             # print("Zone 6")
 
         if self.isOnFinishLine(car) and self.hasAllCheckpoints(car):
             car.add_lap()
             print("NEW LAP")
 
-        self.calculateDeltaCar(car)
+        if self.isOnPowerUp(car):
+            if car.startTime == -1:
+                pu.powerUp(car, self.cars)
+
+        if car.startTime != -1 and (datetime.datetime.now() - car.startTime).seconds >= POWERUP_TIME:
+            car.startTime = -1
+            car.acc = pu.NORMAL
+            print("STOP POWERUP")
+
+        if car.ai:
+            self.find_info_flowmap(car)
+            self.calculateDeltaCar(car)
         # print(f"Coord: {car.x}, {car.y} {car.orientation} {car.fm_orientation}")
 
 
@@ -331,43 +355,37 @@ class Control:
             for car in self.cars:
                 # print(f"{car.id} {id}")
                 if id == car.id:
-                    if car.startTime != -1 and (datetime.datetime.now() - car.startTime).seconds >= POWERUP_TIME:
-                        car.startTime = -1
-                        car.acc = pu.NORMAL
-                        print("STOP POWERUP")
-                    elif not(car.ai) and car.startTime == -1 and info[1] == POWERUP:
-                        pu.powerUp(car, self.cars)
                     # if info[1] == RED or info[1] == BLUE or info[1] == GREEN:
                     #     cur = info[1]
                     #     if len(car.checkpoints) == 0 or car.checkpoints[-1] != cur:
                     #         car.checkpoints.append(cur)
                     #         print("New checkpoint")
                     #         print(cur)
-                    if info[1] == RED:
-                        print("RED ARD")
-                    elif info[1] == BLUE:
-                        print("BLUE ARD")
-                    elif info[1] == GREEN:
-                        print("GREEN ARD")
-                    elif not(car.ai) and info[1] == OFF:
+                    # if info[1] == RED:
+                    #     print("RED ARD")
+                    # elif info[1] == BLUE:
+                    #     print("BLUE ARD")
+                    # elif info[1] == GREEN:
+                    #     print("GREEN ARD")
+                    if not(car.ai) and info[1] == OFF:
                         print("Out of the map")
                         return "200 0"
                     
                     if car.ai:
                         if car.started:
-                            ovt.overtake(car, self.cars)
-                            return f"{int(car.delta)} {car.acc}"
+                            # ovt.slowDown(car, self.cars)
+                            return f"{int(car.delta)} {int(car.acc)}"
                         else:
                             return "200 0"
                     else:
-                        if car.joystick_connected:
+                        if car.started and car.joystick_connected:
                             acc = 0
                             if car.manette.forward == 1:
                                 acc = car.acc
                             elif car.manette.backward == 1:
                                 acc = -car.acc
 
-                            return f"{int(car.manette.horiz_move * 90 + 90)} {acc}"
+                            return f"{int(car.manette.horiz_move * 90 + 90)} {int(acc)}"
                         else:
                             return "200 0"
 
