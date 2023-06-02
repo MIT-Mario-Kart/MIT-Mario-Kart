@@ -67,6 +67,8 @@ class GUI:
     image_flag = pygame.image.load("../Image/drapeau.jpeg")
     image_flag = pygame.transform.scale(image_flag, (50, 30))
 
+    image_fond = pygame.image.load("../Image/image_fond.jpg")
+
     def __init__(self, nb_case_occupation, nb_lap):
         self.gui_init(nb_case_occupation)
         self.nb_lap = nb_lap
@@ -83,12 +85,15 @@ class GUI:
         # # Set the window title
         pygame.display.set_caption("MIT KART")
 
+        self.image_fond = pygame.transform.scale(self.image_fond, (self.screen_width, self.screen_height))
+
         self.drawMap = GUI_FlowMaps(self.CIRCUIT_POS_X + self.MOVE_MAP_X, self.CIRCUIT_POS_Y + self.MOVE_MAP_Y, 532, self.fenetre, nb_case_occupation)
 
     def gui_update(self, begin, second, cars, busy_grid):
 
         # Effacement de l'écran
-        self.fenetre.fill(self.GREY)
+        #self.fenetre.fill(self.GREY)
+        self.fenetre.blit(self.image_fond, (0, 0))
 
         # Display the image on the screen
         #self.fenetre.blit(self.image_circuit, (self.image_x + self.MOVE_MAP_X, self.image_y + self.MOVE_MAP_Y))
@@ -133,25 +138,25 @@ class GUI:
 
         for i, car in enumerate(cars):
             # Nom du joueur
-            nom_joueur = self.font.render(car.name, True, self.WHITE)
+            nom_joueur = self.font.render(car.name, True, self.BLACK)
             self.fenetre.blit(nom_joueur, (110 + x, y))
 
             # Position
-            position = self.font.render(str(car.rank), True, self.WHITE)
+            position = self.font.render(str(car.rank), True, self.BLACK)
             self.fenetre.blit(position, (50 + x, y))
             rect = pygame.Rect(40 + x, y - 5, 640, 40)
             pygame.draw.rect(self.fenetre, self.BLACK, rect, 2)
 
             # Temps au tour
-            temps_tour = self.font.render(str(round(car.curr_lap, 1)), True, self.WHITE)
+            temps_tour = self.font.render(str(round(car.curr_lap, 1)), True, self.BLACK)
             self.fenetre.blit(temps_tour, (290 + x, y))
 
             # Meilleure temps
-            temps_tour = self.font.render(str(round(car.best_lap, 1)), True, self.WHITE)
+            temps_tour = self.font.render(str(round(car.best_lap, 1)), True, self.BLACK)
             self.fenetre.blit(temps_tour, (410 + x, y))
 
             # Nombre de tours
-            tours = self.font.render(str(car.lap_count) + "/" + str(self.nb_lap), True, self.WHITE)
+            tours = self.font.render(str(car.lap_count) + "/" + str(self.nb_lap), True, self.BLACK)
             self.fenetre.blit(tours, (540 + x, y))
 
             # PowerUp
