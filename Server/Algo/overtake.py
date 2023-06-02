@@ -123,11 +123,13 @@ def slowDown(mycar, otherCars):
 
       if (isInOvtZone(c, mycar)):
 
+        print("Changing acc")
         pos = (c.x, c.y)
         distance = math.dist(myPos, pos)
         newAcc = mycar.acc - (SLOW_DOWN / distance)
-
+        print(newAcc)
         if newAcc < 0 :
             mycar.acc = 0
         else :
             mycar.acc = newAcc
+            

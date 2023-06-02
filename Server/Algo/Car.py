@@ -47,6 +47,7 @@ class Car:
         self.startTime = -1
         self.acc = 180
         self.checkpoints = []
+        self.request = None
 
     def shuffle(self):
         self.power = choice(PowerUp.list_power)

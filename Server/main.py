@@ -6,17 +6,17 @@ from Game.Game import Game
 from Algo.Control import Control
 
 def launch_server(control):
-    server = MainServer(('', 8899), control)
+    server = MainServer(('', 8877), control)
     server.serve_forever()
 
-car1 = Car("CAR1", 1, "CAR_ID_4", GREEN_C, color="green", x=160, y=20, orientation=180, ai=True)
-car2 = Car("CAR2", 2, "CAR_ID_2", RED_C, color="red", x=140, y=20, orientation=180, ai=True)
-car3 = Car("CAR3", 2, "CAR_ID_3", ROSE_C, color="pink", x=140, y=20, orientation=180, ai=True)
-# car4 = Car("CAR4", 2, "CAR_ID_4", BLUE_C, color="blue", x=140, y=20, orientation=180, ai=True)
+#car1 = Car("CAR1", 1, "CAR_ID_4", GREEN_C, color="green", x=160, y=20, orientation=180, ai=True)
+car1 = Car("CAR1", 2, "CAR_ID_3", RED_C, color="red", x=140, y=20, orientation=180, ai=True)
+#car3 = Car("CAR3", 2, "CAR_ID_3", ROSE_C, color="pink", x=140, y=20, orientation=180, ai=True)
+#car2 = Car("CAR2", 2, "CAR_ID_3", BLUE_C, color="blue", x=180, y=20, orientation=180, ai=True)
 
 
 
-car_list = [car1, car2, car3]
+car_list = [car1]
 control = Control(car_list)
 my_thread = threading.Thread(target=launch_server, args=[control])
 my_thread.start()

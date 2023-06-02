@@ -24,6 +24,7 @@ GREEN = '3'
 BLUE = '4'
 OFF = '5'
 
+NORMAL = 200
 BLUE_PRCNT = 1.0
 RED_PRCNT = 0.8
 GREEN_PRCNT = 1.2
@@ -41,7 +42,7 @@ grid = Grid()
 launched = False
 dict_cars = {}
 
-powerups_list = [[[10, 20], [30, 40]]]
+powerups_list = []#[[[10, 20], [30, 40]]]
 class Control:
     def __init__(self, cars):
         self.cars = cars.copy()
@@ -74,6 +75,7 @@ class Control:
         return False
     
     def moveCar(self, car: Car):
+        print("here")
         car.old_x = car.x
         car.old_y = car.y
         # car.x = car.predicted_x  # todo prevent errors because of threads
@@ -97,7 +99,7 @@ class Control:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
                 print(car.speed)
-                car.acc *= BLUE_PRCNT
+                car.acc = NORMAL * BLUE_PRCNT
             # print("Zone 1")
         elif car.x <= 40 and car.y >= 130:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
@@ -106,7 +108,7 @@ class Control:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
                 print(car.speed)
-                car.acc *= BLUE_PRCNT
+                car.acc = NORMAL * BLUE_PRCNT
             # print("Zone 2")
         elif car.x >= 120 and car.y >= 120:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
@@ -115,7 +117,7 @@ class Control:
                 car.checkpoints.append(RED)
                 print("New checkpoint")
                 print(car.speed)
-                car.acc *= RED_PRCNT
+                car.acc = NORMAL * RED_PRCNT
             # print("Zone 3")
         elif 40 <= car.x and car.x <= 90 and 40 <= car.y and car.y <= 150:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
@@ -124,7 +126,7 @@ class Control:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
                 print(car.speed)
-                car.acc *= BLUE_PRCNT
+                car.acc = NORMAL * BLUE_PRCNT
             # print("Zone 4")
         elif car.x >= 160 and car.y <= 60:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
@@ -133,7 +135,7 @@ class Control:
                 car.checkpoints.append(RED)
                 print("New checkpoint")
                 print(car.speed)
-                car.acc *= RED_PRCNT
+                car.acc = NORMAL * RED_PRCNT
             # print("Zone 5")
         else:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V)
@@ -142,7 +144,7 @@ class Control:
                 car.checkpoints.append(GREEN)
                 print("New checkpoint")
                 print(car.speed)
-                car.acc *= GREEN_PRCNT
+                car.acc = NORMAL * GREEN_PRCNT
             # print("Zone 6")
 
         if self.isOnFinishLine(car) and self.hasAllCheckpoints(car):
@@ -162,6 +164,25 @@ class Control:
             self.find_info_flowmap(car)
             self.calculateDeltaCar(car)
         # print(f"Coord: {car.x}, {car.y} {car.orientation} {car.fm_orientation}")
+        
+        if car.ai:
+            if car.started:
+                ovt.slowDown(car, self.cars)
+                return self.sendCarInfo(car, f"{int(car.delta)} {int(car.acc)}")
+            else:
+                self.sendCarInfo(car, "200 0")
+        else:
+            if car.started and car.joystick_connected:
+                acc = 0
+                if car.manette.forward == 1:
+                    acc = car.acc
+                elif car.manette.backward == 1:
+                    acc = -car.acc
+
+                self.sendCarInfo(car, f"{int(car.manette.horiz_move * 90 + 90)} {int(acc)}")
+            else:
+                self.sendCarInfo(car, "200 0")
+
 
 
         return 
@@ -206,24 +227,20 @@ class Control:
 
     def updatePowerUp(self, car: Car, pow):
         car.powerup = self.getPowerUp(pow)
-
+            
     def sendCarInfo(self, car: Car, toSend):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            # s.bind(('172.20.10.2', 7777))
-            s.connect(car.server)
-            print(f"Sent to {car.id}: {str(toSend)}")
-            s.sendall(str(toSend).encode())
-            s.close()
+        print(f"Sent to {car.id}: {str(toSend)}")
+        car.request.send((str(toSend) + "\n").encode())
 
 
-    def recvInfo(self, info, needToBeDecoded=True):
+    def recvInfo(self, info, request=None, needToBeDecoded=True):
         # print(info)
         # receiving coordinates from client
         if (needToBeDecoded):
             info = info.decode()
 
         info = [inf for inf in info.split('\n') if inf != ""]
-        return self.parseInfo(info)
+        return self.parseInfo(info, request)
 
 
     def parseJson(self, recv_data):
@@ -248,7 +265,7 @@ class Control:
         return result
 
 
-    def parseInfo(self, info):
+    def parseInfo(self, info, request):
         # print(self.cars)
         id = info[0]
         if id == calibrationID:
@@ -354,7 +371,12 @@ class Control:
         else:
             for car in self.cars:
                 # print(f"{car.id} {id}")
+                print(id)
                 if id == car.id:
+                    car.request = request
+                    if not(car.ai) and info[1] == OFF:
+                        print("Out of the map")
+                        self.sendCarInfo(car, "200 0")
                     # if info[1] == RED or info[1] == BLUE or info[1] == GREEN:
                     #     cur = info[1]
                     #     if len(car.checkpoints) == 0 or car.checkpoints[-1] != cur:
@@ -367,28 +389,7 @@ class Control:
                     #     print("BLUE ARD")
                     # elif info[1] == GREEN:
                     #     print("GREEN ARD")
-                    if not(car.ai) and info[1] == OFF:
-                        print("Out of the map")
-                        return "200 0"
                     
-                    if car.ai:
-                        if car.started:
-                            # ovt.slowDown(car, self.cars)
-                            return f"{int(car.delta)} {int(car.acc)}"
-                        else:
-                            return "200 0"
-                    else:
-                        if car.started and car.joystick_connected:
-                            acc = 0
-                            if car.manette.forward == 1:
-                                acc = car.acc
-                            elif car.manette.backward == 1:
-                                acc = -car.acc
-
-                            return f"{int(car.manette.horiz_move * 90 + 90)} {int(acc)}"
-                        else:
-                            return "200 0"
-
             # else:
             #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
 

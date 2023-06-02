@@ -868,3 +868,28 @@ for x in range(26, 30):
 for x in range(10, 11):
     for y in range(11, 29):
         directions[x][y] =  a1
+        
+        
+for x in range(31, 35):
+    for y in range(10, 14):
+        directions[x][y] =  a11
+        
+for x in range(30, 36):
+    for y in range(4, 6):
+        directions[x][y] =  a8
+        
+for x in range(8, 16):
+    for y in range(35, 36):
+        directions[x][y] =  a2
+        
+for x in range(4, 32):
+    for y in range(36, 38):
+        directions[x][y] =  a1
+        
+for x in range(30, 36):
+    for y in range(4, 6):
+        directions[x][y] =  a8
+        
+for x in range(28, 36):
+    for y in range(3, 6):
+        directions[x][y] =  a7

@@ -42,6 +42,10 @@ class Game:
                 if event.key == pygame.K_SPACE:
                     self.begin = 1
                     self.start_time_depart = pygame.time.get_ticks()
+            elif event.type == pygame.KEYDOWN and self.running == True:
+                if event.key == pygame.K_BACKSPACE:
+                    for car in self.car_list:
+                        car.started = False
             elif event.type == pygame.JOYDEVICEADDED:
                 # print(f"New Manette conneted!")
                 for car in self.car_list:
