@@ -77,17 +77,22 @@ class GridOccupation:
         y_grid = int(car_y // self.case_width)
         #print(x_grid)
         #print(y_grid)
+        if 0 <= x_grid <= 59 and 0 <= y_grid <= 59:
+            return True
 
-        return not (x_grid, y_grid) in self.busy_grid
+        else:
+            return not (x_grid, y_grid) in self.busy_grid
 
     def isGridFree2(self, car_x, car_y):
         x_grid = int(car_x // self.case_width)
         y_grid = int(car_y // self.case_width)
         #print(x_grid)
         #print(y_grid)
+        if 0 <= x_grid <= 59 and 0 <= y_grid <= 59:
+            return True
 
-
-        return self.old_busy_grid2[x_grid][y_grid] == 0
+        else:
+            return not self.old_busy_grid2[x_grid][y_grid] == 0
 
     def sameGrid(self, car_x, car_y, car2_x, car2_y):
         x_grid = car_x // self.case_width
