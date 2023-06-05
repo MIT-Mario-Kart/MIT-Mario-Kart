@@ -8,17 +8,17 @@ NORMAL = 200
 FAST = 220
 
 def speedup(mycar): 
-    mycar.a = FAST
+    mycar.acc = FAST
 
 # intensity can go from 0 to 0.9 (0 -> freeze)
 def slowdown(mycar, cars): 
     for car in cars :
         if car != mycar:
-            car.a = SLOW
+            car.acc = SLOW
         car.startTime = datetime.datetime.now()
 
 def stopCar(myCar):
-    myCar.a = STOP
+    myCar.acc = STOP
 
 def powerUp(myCar, cars):
     pu = random.randint(0,1)
