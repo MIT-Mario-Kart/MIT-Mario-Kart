@@ -256,7 +256,7 @@ void loop() {
 
     sprintf(toSend, "%s\n%d\n", CAR_ID, isPowerupd);
     client.write(toSend, 15);
-    client.flush();
+    client.write('\n');
     // Wait for a response from the server
       while (client.available()) {
         // Read data from the server

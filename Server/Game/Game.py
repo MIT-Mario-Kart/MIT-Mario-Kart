@@ -2,7 +2,7 @@ import pygame
 
 from Algo.GridOccupation import GridOccupation
 from GUI.GUI import GUI
-import Manette
+import Server.Controller as Controller
 
 
 class Game:
@@ -43,26 +43,25 @@ class Game:
                     self.begin = 1
                     self.start_time_depart = pygame.time.get_ticks()
             elif event.type == pygame.JOYDEVICEADDED:
-                # print(f"New Manette conneted!")
+                # Assigns each controller to a player driven car
                 for car in self.car_list:
                     if not (car.ai) and not (car.joystick_connected):
                         joystick = pygame.joystick.Joystick(event.device_index)
                         joystick.init()
-                        Manette.joysticks.append(joystick)
+                        Controller.joysticks.append(joystick)
 
-                        manette = Manette.Manette(joystick)
-                        car.manette = manette
-                        Manette.manettes.append(manette)
-                        print(f"Manette added to {car.id}")
+                        controller = Controller.Controller(joystick)
+                        car.controller = controller
+                        Controller.controllers.append(controller)
+                        print(f"Controller added to {car.id}")
                         car.joystick_connected = True
                         break
-            Manette.updateManette()
+            Controller.updateController()
 
         if self.running:
             self.elapsed_time = pygame.time.get_ticks() - self.start_time
             self.second = round(self.elapsed_time / 1000, 1)
 
-            # self.control.updateCarList(self.car_list)
 
             for car in self.car_list:
                 if car.lap_count == self.nb_lap + 1:

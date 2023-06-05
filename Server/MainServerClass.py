@@ -7,6 +7,8 @@ bufferSize = 4096
 class handler(BaseRequestHandler):
     clients = set()
 
+    # Handle method called for every new connection. It keeps track of every new client and calls the recvInfo
+    # method from Control.
     def handle(self):
         print(f'Connected: {self.client_address[0]}:{self.client_address[1]}')
         self.clients.add(self.request)
@@ -16,25 +18,16 @@ class handler(BaseRequestHandler):
             if not msg:
                 print(f'Disconnected: {self.client_address[0]}:{self.client_address[1]}')
                 break # exits handler, framework closes socket
-            # print(f'Received: {msg}')
             
-            # If the string contains CR_ID_PU then it's coming from the car
-            # We need to get rid of the end of the string
-            # 'CAR_ID_RESET\x00\x03\x00\x00\xe4\xe9\xfe?Z\x00\x00\x00\x0c\x00\x00\x00DS @\xc4\x88\xfe?\xfc\xff\xff\xff'
-            
-            if "CAR_ID_" in str(msg):
-                # msg = str(msg).split("\\n")[0][2:] + "\n" + str(msg).split("\\n")[1][0]
-                toSend = self.server.control.recvInfo(msg)
-            else:
-                toSend = self.server.control.recvInfo(msg)
+            toSend = self.server.control.recvInfo(msg)
 
             if toSend != None:
                 if toSend == "CAL":
                     self.sendToCameraAck()
                 else:
-                    # print(f"Sent {toSend}")
-                    self.request.send((str(toSend) + "\n").encode())
+                    self.request.send((str(toSend) + "\n").encode()) # sends the information needed by each car
 
+    #  Opens a UDP socket and acknowledges the calibration initiated by the camera
     def sendToCameraAck(self):
         # create a UDP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -48,8 +41,10 @@ class handler(BaseRequestHandler):
         sock.close()
 
             
-
+# Our MainServer class is a subclass of ThreadingTCPServer, meaning that it will open a thread for each new connection
+# and keep it as long as it is not closed either by the server itself or the other party.This class needs a handler 
+# (which will inherit from a BaseRequestHandler), this will determine the function that is called for every new connection.
 class MainServer(ThreadingTCPServer):
     def __init__(self, server_address, control_in):
         super().__init__(server_address, handler)
-        self.control = control_in
+        self.control = control_in # save the instance of control needed to update each car in the game

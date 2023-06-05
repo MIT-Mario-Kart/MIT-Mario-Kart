@@ -4,62 +4,23 @@ class Grid:
         self.top_right = None
         self.bot_right = None
         self.bot_left = None
-        self.top_left_color= 'yellow'
-        self.top_right_color = 'red'
-        self.bot_left_color = 'green'
-        self.bot_right_color = 'blue'
-        self.width = 193
-        self.height = 188.5
+        self.width = 193 # real life width between the triangles
+        self.height = 188.5 # real life height between the triangles
         self.calibrationColor = "yellow"
-        self.calibrated = True
-        self.calibratedLeft = False
-        self.calibratedRight = False
-
-        self.detect_point = False
-        self.point = [40, 100]
-        self.diff_x = 0
-        self.diff_y = 0
-
-        self.left = [40, 100]
-        self.top = [162, 42]
-        self.real_left = []
-        self.real_top = []
-        self.diff_x = 0
-        self.diff_y = 0
         self.coeff = 0.05
-        self.center = [100, 100]
-        self.newCoeff = 0.05
+        self.centerInIOSCoords = [990, 540]
 
-        #goal is to use this to convert
-        self.centerInIOSCoords = [990, 540];
-
-
-    # def getCircuitCoords(self, x, y):
-    #     x_diff = abs(self.real_left[0] - self.real_top[0]) # tel coords
-    #     y_diff = abs(self.real_left[1] - self.real_top[1])
-    #     scaleX = x_diff / abs(self.left[0] - self.top[0]) # tel coords / fm coords = size of 1 square
-    #     scaleY = y_diff / abs(self.left[1] - self.top[1])
-    #     tel_origin = [self.real_left[0] + (200 - self.left[0]) * scaleX , self.real_left[1] - (200 - self.left[1]) * scaleY] # tel coords
-    #     tel_origin_fm = [tel_origin[0] / scaleX , tel_origin[1] / scaleY] # fm coords
-    #     newX = tel_origin_fm[0] - x / scaleX # fm coords
-    #     newY = tel_origin_fm[1] + y / scaleY
-    #     return [newX, newY]
-    
+    # Method used to convert the coordinates from the camera to coordinates on the circuit
+    # We first use the center in the iOS coordinates system to apply a correction to the original coordinates
+    # and then we use the grid saved during the calibration period and the real life width and height between the triangles.
     def getCircuitCoords(self, x, y):
-        #new_X = ((self.bot_right[0] - x) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) + self.diff_x
-        #new_Y = ((y - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + self.diff_y
-        #new_X = (self.center[0] - new_X) * self.coeff + new_X
-        #new_Y = (self.center[1] - new_Y) * self.coeff + new_Y
-        
-        # print(f"{x} {y}")
-        patchedX = x + (self.centerInIOSCoords[0] - x) * self.newCoeff;
-        patchedY = y + (self.centerInIOSCoords[1] - y) * self.newCoeff;
-
-
-        new_X = ((self.bot_right[0] - patchedX) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) + self.diff_x
-        new_Y = ((patchedY - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) + self.diff_y
+        patchedX = x + (self.centerInIOSCoords[0] - x) * self.coeff
+        patchedY = y + (self.centerInIOSCoords[1] - y) * self.coeff
+        new_X = ((self.bot_right[0] - patchedX) / abs(self.bot_right[0] - self.bot_left[0]) * self.width) 
+        new_Y = ((patchedY - self.bot_right[1]) / abs(self.bot_right[1] - self.top_right[1]) * self.height) 
         return new_X, new_Y
     
+    # We set up a grid system based on the information sent by the camera (we save the position of each triangle).
     def setupGrid(self, coordinates):
         coordinates.sort(key= lambda p : (p[1], p[0]))
         top = coordinates[2:]

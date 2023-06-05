@@ -42,7 +42,7 @@ class Car:
         self.finished = False
         self.color = color
         self.joystick_connected = False
-        self.manette = None
+        self.controller = None
         self.started = False
         self.startTime = -1
         self.acc = 180
