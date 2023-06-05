@@ -19,7 +19,7 @@ class GUI:
     CIRCUIT_POS_X = 256
     CIRCUIT_POS_Y = 203
 
-    MOVE_MAP_X = -100
+    MOVE_MAP_X = -100 - 30
     MOVE_MAP_Y = 0
 
     x_feu = 210
@@ -49,20 +49,28 @@ class GUI:
     ralentir = pygame.image.load("../Image/PowerUp/ralentir.jpg")
     ralentir = pygame.transform.scale(ralentir, (30, 30))
 
+    speedup = pygame.image.load("../Image/PowerUp/speedup.jpg")
+    speedup = pygame.transform.scale(speedup, (30, 30))
+
     fenetre = None
     font = None
     # # Load the image
     image_circuit = pygame.image.load("../Image/circuit.jpeg")
-    # image_circuit_2 = pygame.image.load("../Image/circuit_2.jpg")
+    image_circuit_2 = pygame.image.load("../Image/circuit_2.png")
 
     image_x = 200  # 400 = screen center
     image_y = 150  # 300 = screen center
     image_circuit = pygame.transform.scale(image_circuit, (600, 600))
-    # image_circuit_2 = pygame.transform.scale(image_circuit_2, (600, 600))
+    image_circuit_2 = pygame.transform.scale(image_circuit_2, (515, 515))
 
     screen_info = None
     screen_width = None
     screen_height = None
+
+    image_flag = pygame.image.load("../Image/drapeau.jpeg")
+    image_flag = pygame.transform.scale(image_flag, (50, 30))
+
+    image_fond = pygame.image.load("../Image/image_fond.jpg")
 
     def __init__(self, nb_case_occupation, nb_lap):
         self.gui_init(nb_case_occupation)
@@ -80,15 +88,19 @@ class GUI:
         # # Set the window title
         pygame.display.set_caption("MIT KART")
 
+        self.image_fond = pygame.transform.scale(self.image_fond, (self.screen_width, self.screen_height))
+
         self.drawMap = GUI_FlowMaps(self.CIRCUIT_POS_X + self.MOVE_MAP_X, self.CIRCUIT_POS_Y + self.MOVE_MAP_Y, 532, self.fenetre, nb_case_occupation)
 
     def gui_update(self, begin, second, cars, busy_grid):
 
         # Effacement de l'écran
-        self.fenetre.fill(self.GREY)
+        #self.fenetre.fill(self.GREY)
+        self.fenetre.blit(self.image_fond, (0, 0))
 
         # Display the image on the screen
-        self.fenetre.blit(self.image_circuit, (self.image_x + self.MOVE_MAP_X, self.image_y + self.MOVE_MAP_Y))
+        #self.fenetre.blit(self.image_circuit, (self.image_x + self.MOVE_MAP_X, self.image_y + self.MOVE_MAP_Y))
+        self.fenetre.blit(self.image_circuit_2, (self.image_x + self.MOVE_MAP_X + 70, self.image_y + self.MOVE_MAP_Y + 60))
 
         # Affichage du feu de départ
         x_feu = 300
@@ -129,30 +141,38 @@ class GUI:
 
         for i, car in enumerate(cars):
             # Nom du joueur
-            nom_joueur = self.font.render(car.name, True, self.WHITE)
+            nom_joueur = self.font.render(car.name, True, self.BLACK)
             self.fenetre.blit(nom_joueur, (110 + x, y))
 
             # Position
-            position = self.font.render(str(car.rank), True, self.WHITE)
+            position = self.font.render(str(car.rank), True, self.BLACK)
             self.fenetre.blit(position, (50 + x, y))
             rect = pygame.Rect(40 + x, y - 5, 640, 40)
             pygame.draw.rect(self.fenetre, self.BLACK, rect, 2)
 
             # Temps au tour
-
-            temps_tour = self.font.render(str(car.curr_lap), True, self.WHITE)
+            temps_tour = self.font.render(str(round(car.curr_lap, 1)), True, self.BLACK)
             self.fenetre.blit(temps_tour, (290 + x, y))
 
             # Meilleure temps
-            temps_tour = self.font.render(str(car.best_lap), True, self.WHITE)
+            temps_tour = self.font.render(str(round(car.best_lap, 1)), True, self.BLACK)
             self.fenetre.blit(temps_tour, (410 + x, y))
 
             # Nombre de tours
-            tours = self.font.render(str(car.lap_count) + "/" + str(self.nb_lap), True, self.WHITE)
+            tours = self.font.render(str(car.lap_count) + "/" + str(self.nb_lap), True, self.BLACK)
             self.fenetre.blit(tours, (540 + x, y))
 
             # PowerUp
             #self.fenetre.blit(car.power, (635 + x, y))
+
+            if car.finished:
+                self.fenetre.blit(self.image_flag, (690 + x, y))
+            elif car.powerup == "slow":
+                self.fenetre.blit(self.ralentir, (635 + x, y))
+            elif car.powerup == "fast":
+                self.fenetre.blit(self.speedup, (635 + x, y))
+            elif car.powerup == "stop":
+                self.fenetre.blit(self.stop, (635 + x, y))
 
 
 
@@ -168,9 +188,9 @@ class GUI:
 
         #GridOccupation.resetBusy()
         #self.drawMap.drawGridFlow()
-        self.drawMap.drawGridFlow_2()
+        #self.drawMap.drawGridFlow_2()
         #self.drawMap.drawVector()
-        self.drawMap.drawVector_40()
+        #self.drawMap.drawVector_40()
         #self.drawMap.drawGridOccupation()
         #self.drawMap.drawBusyGrid(busy_grid)
         #self.drawMap.drawCarOrientation(cars)

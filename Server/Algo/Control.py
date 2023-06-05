@@ -1,18 +1,13 @@
-import random
-import socket
 import threading
 import json
 import re
-import copy
 import ast
 
 from Algo.Car import Car
-from Algo.Car import RED_C, BLUE_C, GREEN_C, BRUN_C, VIOLET_C, ROSE_C
 from Algo.FlowMaps.NewFlowMap import directions as fmdir
 import Algo.FlowMaps.powerups as pu
 from Algo.Grid import Grid
 import Algo.UpdateMovements as updateMov
-import GUI
 import datetime
 import Algo.overtake as ovt
 # constant definitions
@@ -27,154 +22,126 @@ OFF = '5'
 BLUE_PRCNT = 1.0
 RED_PRCNT = 0.8
 GREEN_PRCNT = 1.2
+
+colors = ["yellow", "green", "blue", "orange", "red", "pink"]
+powerups_list = [[[10, 20], [30, 40]]]
+
 # initialise IDs
 calibrationID = "CAL"
 camID = "CAM"
-stopID = "STOP"
-startID = "START"
-calibrationColor = "yellow"
-guiID = "GUI"
-calDeltaID = "CALDELTA"
-calDeltaLeftID = "CALDELTALeft"
-calDeltaRightID = "CALDELTARight"
-grid = Grid()
-launched = False
-dict_cars = {}
 
-powerups_list = [[[10, 20], [30, 40]]]
+
+
 class Control:
     def __init__(self, cars):
         self.cars = cars.copy()
+        self.dict_cars = {}
         for car in self.cars:         
-            dict_cars[car.color] = car
+            self.dict_cars[car.color] = car
+        # initialise Grid
+        self.grid = Grid()
 
-    # initialise car objects
-
-    #car3 = Car("CAR3", "Test", "Test", ("172.20.10.8", 9999), GREEN_C, x=120, y=20, orientation=180, rank=1)
-    #car4 = Car("CAR4", "Test", "Test", ("172.20.10.6", 9999), VIOLET_C, x=180, y=20, orientation=180, rank=4)
-    #car5 = Car("CAR5", "Test", "Test", ("172.20.10.8", 9999), ROSE_C, x=100, y=20, orientation=180, rank=6)
-    #car6 = Car("CAR6", "Test", "Test", ("172.20.10.8", 9999), BRUN_C, x=110, y=20, orientation=180, rank=5)
-
-    
-
-    def isOnPowerUp(self, car):
+    # Checks if a car is placed on a power up (when we are not using the information from the color sensor)
+    def isOnPowerUp(self, car : Car):
         for pu in powerups_list:
             if pu[0][0] <= car.x <= pu[0][1] and pu[1][0] <= car.y <= pu[1][1]:
                 return True
         return False
 
+    # Figure out if a car has reached the finish line
     def isOnFinishLine(self, car : Car):
         if ((150 <= car.x <160) and (10 <= car.y < 40)) :
             return True
         return False
 
+    # Checks if the car has collected all checkpoints in the circuit 
+    # (it is not necessary to check the order because of the disposition of the circuit and the way we add a checkpoint)
     def hasAllCheckpoints(self, car : Car):
         if len(car.checkpoints) >= 6:
             return True
         return False
     
     def moveCar(self, car: Car):
+        # save its previous coordinate (useful for updateCarMovement)
         car.old_x = car.x
         car.old_y = car.y
-        # car.x = car.predicted_x  # todo prevent errors because of threads
-        # car.y = car.predicted_y  # todo prevent errors because of threads
-        # if (car.started):
-        #     return car.delta
+        
+        # check if the car has finished a lap (without cheating)
+        if self.isOnFinishLine(car) and self.hasAllCheckpoints(car):
+            car.add_lap()
+            print(f"NEW LAP for {car.id}")
 
-        # if not(car.cam):
-            # car.x = car.predicted_x  # todo prevent errors because of threads
-            # car.y = car.predicted_y  # todo prevent errors because of threads
+        # check if a car has taken a powerup
+        if self.isOnPowerUp(car):
+            if car.startTime == -1: # we only apply a powerup if we are not currently using one
+                pu.powerUp(car, self.cars)
 
-        # coeff = 1.0
+        # check if a car has finished using a powerup and reset its current acceleration
+        if car.startTime != -1 and (datetime.datetime.now() - car.startTime).seconds >= POWERUP_TIME:
+            car.startTime = -1
+            car.acc = pu.NORMAL
+            print(f"STOP POWERUP {car.id}")
+        
+        # if the car is AI driven, calculate the delta that needs to be sent
+        if car.ai:
+            self.find_info_flowmap(car)
+            self.calculateDeltaCar(car)
 
-        # if car.id == self.cars[0].id:
-        #     coeff = 0.9
+        # get the acceleration that needs to be sent to the car
+        self.findCarAcc(car)
 
+        return 
+
+    # Get the car acceleration based on its zone in the circuit
+    # Previously was also used to call updateCarMovement when we were simulating the algorithm in GUI
+    # (calls are left in comments)
+    def findCarAcc(self, car : Car):
         if car.x <= 60 and car.y <= 30:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != BLUE:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
-                print(car.speed)
                 car.acc *= BLUE_PRCNT
-            # print("Zone 1")
         elif car.x <= 40 and car.y >= 130:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != BLUE:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
-                print(car.speed)
                 car.acc *= BLUE_PRCNT
-            # print("Zone 2")
         elif car.x >= 120 and car.y >= 120:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
             car.speed = "RED"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != RED:
                 car.checkpoints.append(RED)
                 print("New checkpoint")
-                print(car.speed)
                 car.acc *= RED_PRCNT
-            # print("Zone 3")
         elif 40 <= car.x and car.x <= 90 and 40 <= car.y and car.y <= 150:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.BLUE_V)
             car.speed = "BLUE"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != BLUE:
                 car.checkpoints.append(BLUE)
                 print("New checkpoint")
-                print(car.speed)
                 car.acc *= BLUE_PRCNT
-            # print("Zone 4")
         elif car.x >= 160 and car.y <= 60:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.RED_V)
             car.speed = "RED"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != RED:
                 car.checkpoints.append(RED)
                 print("New checkpoint")
-                print(car.speed)
-                car.acc *= RED_PRCNT
-            # print("Zone 5")
+                car.acc *= RED_PRCNT                      
         else:
             # list_occupation = updateMov.updateCarMovement(car, updateMov.GREEN_V)
             car.speed = "GREEN"
             if len(car.checkpoints) == 0 or car.checkpoints[-1] != GREEN:
                 car.checkpoints.append(GREEN)
                 print("New checkpoint")
-                print(car.speed)
                 car.acc *= GREEN_PRCNT
-            # print("Zone 6")
-
-        if self.isOnFinishLine(car) and self.hasAllCheckpoints(car):
-            car.add_lap()
-            print("NEW LAP")
-
-        if self.isOnPowerUp(car):
-            if car.startTime == -1:
-                pu.powerUp(car, self.cars)
-
-        if car.startTime != -1 and (datetime.datetime.now() - car.startTime).seconds >= POWERUP_TIME:
-            car.startTime = -1
-            car.acc = pu.NORMAL
-            print("STOP POWERUP")
-
-        if car.ai:
-            self.find_info_flowmap(car)
-            self.calculateDeltaCar(car)
-        # print(f"Coord: {car.x}, {car.y} {car.orientation} {car.fm_orientation}")
-
-
-        return 
-        # updateMov.updateCarMovement(car, updateMov.GREEN_V)
-
-        # print(f"Updated prediction coords ({car.predicted_x}, {car.predicted_y}), cur dir: {car.orientation}  velocity: {car.velocity} flowmap orientation: {car.fm_orientation} delta: {car.delta}and desired_orientation: {car.desired_orientation} for {car.id}")
-
 
     def updateCarMovement(self):
         threading.Timer(0.001, self.updateCarMovement).start()
-        # print(len(self.cars))
         for rank in range(1, 4):
-
             for rank_2 in range(0, 3):
                 if self.cars[rank_2].rank == rank:
                     car = self.cars[rank_2]
@@ -183,60 +150,23 @@ class Control:
         for car in self.cars:
             self.moveCar(car)
 
-
-    def updateCarList(self, carList: list):
-        self.cars = carList
-        for car in self.cars:
-            dict_cars[car.id] = car
-
-
-    def parseCoordFromLine(self, coordinates):
-        res = []
-        for coord in coordinates.split(','):
-            try:
-                res.append(int(coord.rstrip()))
-            except:
-                continue
-        return res
-
-
-    def getPowerUp(self, pow):
-        return int(pow.rstrip())
-
-
-    def updatePowerUp(self, car: Car, pow):
-        car.powerup = self.getPowerUp(pow)
-
-    def sendCarInfo(self, car: Car, toSend):
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            # s.bind(('172.20.10.2', 7777))
-            s.connect(car.server)
-            print(f"Sent to {car.id}: {str(toSend)}")
-            s.sendall(str(toSend).encode())
-            s.close()
-
-
-    def recvInfo(self, info, needToBeDecoded=True):
-        # print(info)
-        # receiving coordinates from client
-        if (needToBeDecoded):
-            info = info.decode()
-
+    # Receives information from the connections and splits it by the newline characters
+    # then parses the info and acts accordingly
+    def recvInfo(self, info):
+        # receiving coordinates from client 
         info = [inf for inf in info.split('\n') if inf != ""]
         return self.parseInfo(info)
 
-
+    # Parse information received by the camera and arranges it in a dictionary of the form:
+    # {'color1':[[x, y], ...], 'color1Angles':[[angle], ...], ...}
     def parseJson(self, recv_data):
-        colors = ["yellow", "green", "blue", "orange", "red", "pink"]
-        # print("received")
-        # print(recv_data)
         result = {}
         recv_data = recv_data.rstrip()
         data = json.loads(recv_data)
         point_regex = r"{(\d+), (\d+)}"
         
         for color in colors:
-            points_str= data.get(color)
+            points_str = data.get(color)
             if points_str:
                 points = []
                 for match in re.finditer(point_regex, points_str):
@@ -247,211 +177,75 @@ class Control:
                 result[f"{color}Angles"] = [int(x) for x in ast.literal_eval(angles_str)]
         return result
 
-
+    # Parses the information received by a connection and based on the id sent, reacts differently
     def parseInfo(self, info):
-        # print(self.cars)
         id = info[0]
-        if id == calibrationID:
+        if id == calibrationID: # enter calibration mode
             # all calibration points have the same color
-            calibrationPoints = self.parseJson(info[1])["yellow"]
-            calibrationPoints.sort(key=lambda p: (p[1], p[0]))  # order them along the y axis
+            calibrationPoints = self.parseJson(info[1])[self.grid.calibrationColor]
+            self.grid.setupGrid(calibrationPoints)
+            return "CAL" # tell MainServerClass to acknowledge calibration
 
-            # # if we implement the color system
-            # calibrationPoints = parseJson(info[1])
-            # top_left = calibrationPoints[grid.top_left_color][0]
-            # top_right = calibrationPoints[grid.top_right_color][0]
-            # bot_left = calibrationPoints[grid.bot_left_color][0]
-            # bot_right = calibrationPoints[grid.bot_right_color][0]
-
-            grid.setupGrid(calibrationPoints)
-
-            return "CAL"
-
-        elif id == camID:
-            # print(info)
+        elif id == camID: # saves the information sent by the camera for each car
             points = self.parseJson(info[1])
             for id, val in points.items():
-                # id will be the color of the car (green or blue for now)
-                # value will be an array of array
-                # [[687, 1248], [845, 639]]
-                if grid.calibrated:
-                    car = dict_cars.get(id)
+                if self.grid.calibrated:
+                    car = self.dict_cars.get(id)
                     if car:
-                        car.old_x = car.x
-                        car.old_y = car.y
-                        # if len(val) > 1:
-                        #     car.x = car.predicted_x # todo prevent errors because of threads
-                        #     car.y = car.predicted_y # todo prevent errors because of threads
-                        # else:
-
-                        if len(val) == 1:
-                            # print(f"COORDS {val[0]}")
-                            car.x, car.y = grid.getCircuitCoords(val[0][0], val[0][1])
-                            # find_velocity_and_orientation(car)
-                            # print(f"{id}Angles")
+                        if len(val) == 1: # we don't use the information when there are false positives
+                            car.x, car.y = self.grid.getCircuitCoords(val[0][0], val[0][1])
                             car.orientation = points.get(f"{id}Angles")[0]
                             if car.started:
                                 self.moveCar(car)
-                            car.cam = True
-                        else:
-                            car.cam = False
-                # else:
-                    # if grid.detect_point:
-                    #     if id == calibrationColor:
-                    #         if len(val) == 1:
-                    #             x, y = grid.getCircuitCoords(val[0][0], val[0][1])
-                    #             grid.diff_x = x - grid.point[0]
-                    #             grid.diff_y = y - grid.point[1]
-                    #             grid.calibrated = True
-                    # elif grid.calibratedLeft:
-                    #     if id == calibrationColor:
-                    #         if len(val) == 1:
-                    #             grid.real_left = val[0]
-                    #             print(grid.real_left)
-                    #             grid.calibratedLeft = False
-                    # elif grid.calibratedRight:
-                    #     if id == calibrationColor:
-                    #      w   if len(val) == 1:
-                    #             grid.real_top = val[0]
-                    #             print(grid.real_top)
-                    #             grid.calibratedRight = False
-                    #             grid.calibrated = True
-                            # print(f"{id}Angles")
-                            # car.orientation = points.get(f"{id}Angles")[0]
                         print(f"Coord: {car.x}, {car.y} {car.orientation}")
-                else:
-                    if grid.detect_point:
-                        if id == calibrationColor:
-                            if len(val) == 1:
-                                x, y = grid.getCircuitCoords(val[0][0], val[0][1])
-                                grid.diff_x = x - grid.point[0] + 10
-                                grid.diff_y = y - grid.point[1]
-                                grid.calibrated = True
-                    # ovt.calculateCircles(car)
-            # for car in self.cars:
-            # ovt.overtake(car, self.cars)
-            # for car in self.cars:
-            # moveCar(car)
-            # pass
-
-        elif id == calDeltaID:
-            grid.detect_point = True
-        elif id == calDeltaLeftID:
-            grid.calibratedLeft = True
-        elif id == calDeltaRightID:
-            grid.calibratedRight = True
-        elif id == stopID:
-            print(f"Stopped {self.cars[0].id}")
-            return "200"
-        elif id == startID:
-            # updateCarMovement()
-            print(f"Start moving self.cars")
-            for car in self.cars:
-                car.started = True
-            # updateCarMovement()
-        # elif id == guiID:
-        #     gui.launchGUI(self.cars)
         else:
             for car in self.cars:
-                # print(f"{car.id} {id}")
-                if id == car.id:
-                    # if info[1] == RED or info[1] == BLUE or info[1] == GREEN:
-                    #     cur = info[1]
-                    #     if len(car.checkpoints) == 0 or car.checkpoints[-1] != cur:
-                    #         car.checkpoints.append(cur)
-                    #         print("New checkpoint")
-                    #         print(cur)
-                    # if info[1] == RED:
-                    #     print("RED ARD")
-                    # elif info[1] == BLUE:
-                    #     print("BLUE ARD")
-                    # elif info[1] == GREEN:
-                    #     print("GREEN ARD")
+                # if the id corresponds to one of our cars we then reply with the information necessary to move the car
+                if id == car.id: 
                     if not(car.ai) and info[1] == OFF:
-                        print("Out of the map")
-                        return "200 0"
+                        print(f"{car.id} is out of the map")
+                        return "200 0" # we stop the car
                     
                     if car.ai:
                         if car.started:
-                            # ovt.slowDown(car, self.cars)
+                            # apply overtake to slow down the car if it's too close to other cars
+                            ovt.slowDown(car, self.cars) 
                             return f"{int(car.delta)} {int(car.acc)}"
                         else:
-                            return "200 0"
+                            return "200 0" # we don't move the car if the game hasn't started
                     else:
                         if car.started and car.joystick_connected:
                             acc = 0
-                            if car.manette.forward == 1:
+                            if car.controller.forward == 1:
                                 acc = car.acc
-                            elif car.manette.backward == 1:
+                            elif car.controller.backward == 1:
                                 acc = -car.acc
 
-                            return f"{int(car.manette.horiz_move * 90 + 90)} {int(acc)}"
+                            return f"{int(car.controller.horiz_move * 90 + 90)} {int(acc)}"
                         else:
-                            return "200 0"
+                            return "200 0" # we don't move the car if the game hasn't started
 
-            # else:
-            #     print(f"ERROR: Connection to server without or with incorrect ID, received: {id}")
-
-
-    def getCoordForCar(self, car: Car, coordinates):
-        car.old_x = car.x
-        car.old_y = car.y
-        car.x, car.y, car.orientation = self.parseCoordFromLine(coordinates)
-
-
+    # Calculates the delta information that should be sent to the car 
+    # and the desired orientation used by updateMovement
     def calculateDeltaCar(self, car: Car):
         right = car.orientation - car.fm_orientation
         right = right + 360 if right < 0 else right
         left = car.fm_orientation - car.orientation
         left = left + 360 if left < 0 else left
-
-
-
-
-        # old_delta = car.delta
-        # tmp_delta = car.delta
         if (left <= right):
 
             left = 90 if left > 90 else left
             car.desired_orientation = left
             car.delta = 90 + left
-
-        #     if (left <= 5):
-        #         car.delta = 90
-        #     elif (5 < left <= 40):
-        #         car.delta = 135
-        #     elif (left > 40):
-        #         car.delta = 180
-        #     print(f"LEFT {left}")
-            # car.delta = 180 if left <10 else 90
         else:
-
             right = 90 if right > 90 else right
             car.delta = 90 - right
-            # car.delta = 0 if right < 10 else 90
-            # if (right <= 5):
-            #     car.delta = 90
-            # elif (5 < right <= 40):
-            #     car.delta = 45
-            # elif (right > 40):
-            #     car.delta = 0
-
-            # if right == 0:
-            #     right = 0.1
             car.desired_orientation = -right
-            # print(f"RIGHT {right}")
 
-            # car.delta = 90 - (right / 180) * 90
-
-        # if abs(car.delta - car.old_delta) < 10:
-        #     car.delta = car.old_delta
-        # sendCarInfo(car, car.delta)
-
-    def find_velocity_and_orientation(self, car):
-        pass
-
+    # Looks for the orientation corresponding to the position of a given car in the flowmap
     def find_info_flowmap(self, car: Car):
-        # Assumes that coord x and y are between 0 and 199
+        # if the car is out of bounds, we give it an orientation that will make it 
+        # go back into the circuit 
         if car.x < 0:
             car.fm_orientation= 0
         elif car.x >= 200:

@@ -1,6 +1,3 @@
-from random import choice
-import PowerUp
-
 RED_C = (255, 0, 0)
 BLUE_C = (0, 0, 255)
 GREEN_C = (0, 255, 0)
@@ -8,6 +5,7 @@ VIOLET_C = (238, 130, 238)
 ROSE_C = (255, 29, 206)
 BRUN_C = (88, 41, 0)
 
+# Class representing our car objects
 class Car:
     def __init__(self, name, rank, id, colour, color, x=0, y=0, orientation=0, desired_velocity=0, ai=True):
         self.name = name
@@ -42,14 +40,11 @@ class Car:
         self.finished = False
         self.color = color
         self.joystick_connected = False
-        self.manette = None
+        self.controller = None
         self.started = False
         self.startTime = -1
         self.acc = 180
         self.checkpoints = []
-
-    def shuffle(self):
-        self.power = choice(PowerUp.list_power)
 
     def add_lap(self):
         self.on_the_line = True
@@ -67,6 +62,3 @@ class Car:
 
     def update(self, second):
         self.curr_lap = second - self.last_lap
-
-    #def not_on_the_line(self):
-      #  self.on_the_line = False
