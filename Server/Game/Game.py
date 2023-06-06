@@ -2,7 +2,7 @@ import pygame
 
 from Algo.GridOccupation import GridOccupation
 from GUI.GUI import GUI
-import Server.Controller as Controller
+import Controller as Controller
 
 
 class Game:
