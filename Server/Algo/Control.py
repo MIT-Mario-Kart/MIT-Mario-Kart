@@ -71,10 +71,10 @@ class Control:
             car.add_lap()
             print(f"NEW LAP for {car.id}")
 
-        # check if a car has taken a powerup
-        if self.isOnPowerUp(car):
-            if car.startTime == -1: # we only apply a powerup if we are not currently using one
-                pu.powerUp(car, self.cars)
+        # check if a car has taken a powerup when we are not using the color sensors
+        # if self.isOnPowerUp(car):
+        #     if car.startTime == -1: # we only apply a powerup if we are not currently using one
+        #         pu.powerUp(car, self.cars)
 
         # check if a car has finished using a powerup and reset its current acceleration
         if car.startTime != -1 and (datetime.datetime.now() - car.startTime).seconds >= POWERUP_TIME:
@@ -87,8 +87,8 @@ class Control:
             self.find_info_flowmap(car)
             self.calculateDeltaCar(car)
 
-        # get the acceleration that needs to be sent to the car
-        self.findCarAcc(car)
+        # get the acceleration that needs to be sent to the car when we are not using the color sensors
+        # self.findCarAcc(car)
 
         return 
 
@@ -202,10 +202,12 @@ class Control:
             for car in self.cars:
                 # if the id corresponds to one of our cars we then reply with the information necessary to move the car
                 if id == car.id: 
-                    if not(car.ai) and info[1] == OFF:
+                    if not(car.ai) and info[1] == OFF: # stop the players cars when going off the map
                         print(f"{car.id} is out of the map")
                         return "200 0" # we stop the car
-                    
+                    if info[1] == POWERUP:
+                        if car.startTime == -1: # we only apply a powerup if we are not currently using one
+                            pu.powerUp(car, self.cars)
                     if car.ai:
                         if car.started:
                             # apply overtake to slow down the car if it's too close to other cars
