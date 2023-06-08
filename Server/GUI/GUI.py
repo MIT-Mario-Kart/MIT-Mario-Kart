@@ -55,13 +55,13 @@ class GUI:
     fenetre = None
     font = None
     # # Load the image
-    image_circuit = pygame.image.load("../Image/circuit.jpeg")
-    # image_circuit_2 = pygame.image.load("../Image/circuit_2.png")
+    #image_circuit = pygame.image.load("../Image/circuit.jpeg")
+    image_circuit_2 = pygame.image.load("../Image/circuit_2.png")
 
     image_x = 200  # 400 = screen center
     image_y = 150  # 300 = screen center
-    image_circuit = pygame.transform.scale(image_circuit, (600, 600))
-    # image_circuit_2 = pygame.transform.scale(image_circuit_2, (515, 515))
+    #image_circuit = pygame.transform.scale(image_circuit, (600, 600))
+    image_circuit_2 = pygame.transform.scale(image_circuit_2, (515, 515))
 
     screen_info = None
     screen_width = None
@@ -99,8 +99,8 @@ class GUI:
         self.fenetre.blit(self.image_fond, (0, 0))
 
         # Display the image on the screen
-        self.fenetre.blit(self.image_circuit, (self.image_x + self.MOVE_MAP_X, self.image_y + self.MOVE_MAP_Y))
-        # self.fenetre.blit(self.image_circuit_2, (self.image_x + self.MOVE_MAP_X + 70, self.image_y + self.MOVE_MAP_Y + 60))
+        #self.fenetre.blit(self.image_circuit, (self.image_x + self.MOVE_MAP_X, self.image_y + self.MOVE_MAP_Y))
+        self.fenetre.blit(self.image_circuit_2, (self.image_x + self.MOVE_MAP_X + 70, self.image_y + self.MOVE_MAP_Y + 60))
 
         # Affichage du feu de départ
         x_feu = 300
