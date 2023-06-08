@@ -51,14 +51,14 @@ pygame.display.set_caption("Car Information")
 font = pygame.font.Font(None, 36)
 
 # # Load the image
-image = pygame.image.load("../Image/circuit.jpeg")
+image = pygame.image.load("../Image/circuit_2.png")
 # # Get the image size
 image_width = image.get_width()
 image_height = image.get_height()
 # # Set the image position
 image_x = 200  # 400 = screen center
 image_y = 150  # 300 = screen center
-image = pygame.transform.scale(image, (600, 600))
+image = pygame.transform.scale(image, (515, 515))
 
 # # Set up the clock to control the frame rate
 clock = pygame.time.Clock()
