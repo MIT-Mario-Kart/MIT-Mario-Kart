@@ -1,13 +1,12 @@
 import math
-""" import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Wedge """
+from matplotlib.patches import Wedge
 
 OVT_WIDTH = 6
 OVT_LENGTH = 30
 SLOW_DOWN = 500
 
-""" # leftCircle has to be claculated with claculateCircles()
+# leftCircle has to be claculated with claculateCircles()
 def isInLeftCircle(pos, leftCircle):
   transformed_pos = leftCircle.get_transform().transform(pos)
   return leftCircle.contains_point(transformed_pos)
@@ -31,16 +30,15 @@ def calculateCircles(mycar):
 
   return([semi_circle_left, semi_circle_right])
 
-  
-# input otherCars : list of [position, leftCircle, rightCircle]
+# changes mycar.delta if mycar is behind any other car so it can overtake it
 def overtake(mycar, otherCars):
 
   myPos = (mycar.x, mycar.y)
 
   for c in otherCars:
     pos = (c.x, c.y)
-    leftC = c[1]
-    rightC = c[2]    
+    leftC = calculateCircles(c)[0]
+    rightC = calculateCircles(c)[1]   
     distance = math.dist(myPos, pos)
     sensibility = 3 # to test
 
@@ -60,32 +58,8 @@ def overtake(mycar, otherCars):
             mycar.delta = 0
         else :
            mycar.delta = mycar.delta - derivation
-
-
-def slowDown2(mycar, otherCars):
-
-
-  for c in otherCars:
-    if (mycar.id != c.id):
-
-        myPos = (mycar.x, mycar.y)
-        pos = (c.x, c.y)
-
-        circles = calculateCircles(c)
-        leftC = circles[0]
-        rightC = circles[1]
-
-        distance = math.dist(myPos, pos)
-
-        sensibility = 500 # to test
-        slowDown = sensibility / distance 
-        if mycar.acc - slowDown < 0 :
-            mycar.acc = slowDown
         
-        if (isInLeftCircle(myPos, leftC) or isInRightCircle(myPos, rightC)):
-            mycar.acc -= slowDown
-        
- """
+
 # check if car2 is just behind car1
 def isInOvtZone(car1, car2):
   myX = car1.x
@@ -110,7 +84,6 @@ def isInOvtZone(car1, car2):
             return True
         
   return False
-
 
 # slows down mycar if it is just behind another car       
 def slowDown(mycar, otherCars):

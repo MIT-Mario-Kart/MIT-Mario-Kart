@@ -7,19 +7,22 @@ SLOW = 180
 NORMAL = 200
 FAST = 220
 
+# canges mycar.acc so it gets faster
 def speedup(mycar): 
     mycar.acc = FAST
 
-# intensity can go from 0 to 0.9 (0 -> freeze)
+# changes the acceleration of all the cars except mycar so they slow down
 def slowdown(mycar, cars): 
     for car in cars :
         if car != mycar:
             car.acc = SLOW
         car.startTime = datetime.datetime.now()
 
+# stops mycar
 def stopCar(myCar):
     myCar.acc = STOP
 
+# gets a random powerup for mycar (possibly impacting all cars)
 def powerUp(myCar, cars):
     pu = random.randint(0,2)
 
