@@ -60,7 +60,7 @@ But we had problems with Matplotlib (which we used for the semi circles) and the
 
 
 ### AI Simulation
-#### Update Movement - Daniel
+#### Update Movement
 Update movement is a method that we used in order to test the flowmap in a simulation. We made it possible to simulate the way a car would (in theory) follow the flowmap in the GUI. This method wasn't used in the final server, but it proved to be very useful in calibrating a first version of the flowmap. The "orientation" around the flowmap uses the classic trig circle: 0 degrees points to the right of the circuit, 90 degrees to the top, 180 to the left and 270 to the bottom.
 The way the method works is very simple - it takes a desired velocity and angle as parameters, and computes the next speed, acceleration and coordinates the car would have and stores them in the car's corresponding attributes. 
 At first the car's orientation is updated. If the desired angle is negative, this means that the car should turn right (think of it as a negative angle difference on the trig circle, so clockwise), otherwise it should turn left. If the absolute angle difference between the desired angle and the current angle is smaller than ANGLE_PRECISION (an aribitrarily defined constant, to be tweaked as you see fit), then the car won't turn. Whenever it turns, it does so by ANGLE_UNIT every time the method is called.
