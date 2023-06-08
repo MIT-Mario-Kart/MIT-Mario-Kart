@@ -41,7 +41,7 @@ SCALE = 2.75
 CIRCUIT_POS_X = 256
 CIRCUIT_POS_Y = 203
 
-MOVE_MAP_X = -100
+MOVE_MAP_X = -100 - 30
 MOVE_MAP_Y = 0
 
 # # Set the window title
