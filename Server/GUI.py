@@ -122,8 +122,8 @@ while not done:
     pygame.draw.rect(screen, BLACK, rect)
 
     # Draw checkpoint
-    rect = pygame.Rect(350, 630, 20, 80)
-    pygame.draw.rect(screen, BLACK, rect)
+    #rect = pygame.Rect(350, 630, 20, 80)
+    #pygame.draw.rect(screen, BLACK, rect)
     # Loop through the cars and draw them and their information
     # Create a text string with the car's information
     Y_DISPLACEMENT = 25
@@ -162,7 +162,7 @@ while not done:
         if 340 < MOVE_MAP_X + CIRCUIT_POS_X + car.x * SCALE < 380 and 610 < MOVE_MAP_Y + CIRCUIT_POS_Y + car.y * SCALE < 730 and \
                 players[count].on_the_line == False:
 
-            players[count].add_lap()
+            #players[count].add_lap()
 
             game.rank_update()
             i = 0
@@ -180,8 +180,8 @@ while not done:
 
     #drawMap.drawGridFlow()
     #drawMap.drawVector()
-    drawMap.drawGridOccupation()
-    drawMap.drawBusyGrid(GridOccupation.busy_grid)
+    #drawMap.drawGridOccupation()
+    #drawMap.drawBusyGrid(GridOccupation.busy_grid)
     GridOccupation.busy_grid = []
 
     y = 47
