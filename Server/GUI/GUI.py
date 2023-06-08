@@ -10,21 +10,23 @@ class GUI:
     WHITE = (255, 255, 255)
     GREY = (120, 120, 120)
 
-    #
     SCALE = 2.75
 
+    # Size of the car on the GUI
     CAR_SIZE = 25
 
-    # CIRCUIT_POS_X = 285
+    # Position of the circuit
     CIRCUIT_POS_X = 256
     CIRCUIT_POS_Y = 203
 
+    # Map coordinate offset
     MOVE_MAP_X = -100 - 30
     MOVE_MAP_Y = 0
 
+    # Coordinates of the start light
     x_feu = 210
     y_feu = 70
-    # Image du feu de départ
+    # Load the images of the start light
     feu1 = pygame.image.load("../Image/Feu_Depart/Feu_1.png")
     feu1 = pygame.transform.scale(feu1, (x_feu, y_feu))
     feu2 = pygame.image.load("../Image/Feu_Depart/Feu_2.png")
@@ -36,7 +38,7 @@ class GUI:
     feu5 = pygame.image.load("../Image/Feu_Depart/Feu_5.png")
     feu5 = pygame.transform.scale(feu5, (x_feu, y_feu))
 
-    # Image PowerUp
+    # Load the images of the PowerUp
     random = pygame.image.load("../Image/PowerUp/random.png")
     random = pygame.transform.scale(random, (30, 30))
 
@@ -54,12 +56,14 @@ class GUI:
 
     fenetre = None
     font = None
-    # # Load the image
+
+    # Load the image of the circuit (image_circuit is used for debugging)
     #image_circuit = pygame.image.load("../Image/circuit.jpeg")
     image_circuit_2 = pygame.image.load("../Image/circuit_2.png")
 
     image_x = 200  # 400 = screen center
     image_y = 150  # 300 = screen center
+
     #image_circuit = pygame.transform.scale(image_circuit, (600, 600))
     image_circuit_2 = pygame.transform.scale(image_circuit_2, (515, 515))
 
@@ -67,9 +71,11 @@ class GUI:
     screen_width = None
     screen_height = None
 
+    # Load the image of the end flag
     image_flag = pygame.image.load("../Image/drapeau.jpeg")
     image_flag = pygame.transform.scale(image_flag, (50, 30))
 
+    # Load the background image
     image_fond = pygame.image.load("../Image/image_fond.jpg")
 
     def __init__(self, nb_case_occupation, nb_lap):
