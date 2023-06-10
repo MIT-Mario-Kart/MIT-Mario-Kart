@@ -395,8 +395,12 @@ It looked like this:
 ## Final takeaway
 
 [Video Link](https://drive.google.com/file/d/1U7BNgFku9bf5cgFWT6QTgowsCUX8AMdn/view?usp=share_link)
-A few hours before the demonstration, we had finally got the flow map calibration and the corrective camera distortion right and reduced the latency enough to make it playable with 2 cars. 
-Unfortunately, there was one important element we had not anticipated: wireless interference. A few hours after our project was working well, 
-everything stopped working because the Arduino boards used in the cars refused to connect to the main server (and we think that this is due to increased interference when everyone starting demonstrating their project around us at the same time). 
-In fact, the boards were successfully connecting to the hotspot we were using (which was also a problem sometimes, the boards didn’t always detect the hotspot and we lost a lot of time because of this), but they couldn’t then connect to the server.
-The general takeaway from this
+
+
+On avait qq choses qui marchait correctement avec 3/4 voitures en conditions normales malgré un AI encore quelque peu imprécis.
+Malhheuresement, le jour de la démonstration on a été pris de cours par des soucis de communciations (intéférences) qui ont fait qu'il a été impossible de démontrer que notre projet était fonctionnel ce jour là. Néanmoins vous trouverez attaché une vidéo montrant le projet fonctionnel.
+Nous nous n'avions malheuresement pas anticipé ces problemes de latence du aux intérférences/soucis de communication qui ont été excacerbés le jour de la démonstration du à la grand concentration de personnes. 
+
+C'est surement le point qui nous a le plus ralenti car il a été dans un premier temps difficile à identifier, puis à régler, (limite pas réglable avec ce genre de board, probleme deja rencontré par d'autres groupes les années précédentes, freeze de board).
+
+Un autre point que l'on a sous estimé est la mise en commun des différents composants qui marchaient individuellement les uns les autres.
