@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mario Kart</title>
+    <style>
+        body {
+            background-image: url('https://rare-gallery.com/mocahbig/1335806-Mario-Kart-8-Deluxe-4k-Ultra-HD-Wallpaper.jpg');
+            background-size: cover;
+        }
+
+        h1 {
+            font-family: Arial, sans-serif;
+            font-size: 40px;
+        }
+
+        .image-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Create a 2-column grid layout */
+            grid-gap: 10px; /* Set a smaller gap between the columns */
+            justify-items: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .image-wrapper {
+            position: relative;
+            border: 5px solid white;
+            border-radius: 10px;
+        }
+
+        .image-wrapper .image {
+            width: 100%;
+        }
+
+        .image-wrapper .text {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            font-family: 'Arial', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>MIT Kart</h1>
+    <div class="image-container">
+        <div class="image-wrapper">
+            <img class="image" src="http://192.168.2.3/">
+            <span class="text">Car 1</span>
+        </div>
+        <div class="image-wrapper">
+            <img class="image" src="http://192.168.2.6/">
+            <span class="text">Car 2</span>
+        </div>
+        <div class="image-wrapper">
+            <img class="image" src="http://192.168.2.4/">
+            <span class="text">Car 3</span>
+        </div>
+        <div class="image-wrapper">
+            <img class="image" src="http://192.168.2.2/">
+            <span class="text">Car 4</span>
+        </div>
+    </div>
+</body>
+</html>
