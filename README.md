@@ -256,10 +256,8 @@ One drawback is that to avoid false positives, the color calibration had to be v
 
 ## AI Algorithm
 ### Overview
-#### Flowmap
-
 The main goal of this project is having cars controlled by players and cars running by themselves (AI controlled cars). In order for the autonomous cars to do a complete lap, they have to follow predetermined directions i.e a flowmap.
-
+#### Flowmap
 A flowmap is a map of desired orientation across the circuit, which we separated into a 40x40 grid. For greater clarity in the code, we chose to represent these orientation as hours on a watch (h3 => 0 deg, h12 => 90 deg, h6 => 270 deg, etc...). At each step the car's orientation (the attribute Car.orientation) is compared to its desired one indicated by the flowmap and a change of direction is applied accordingly.
 
 We then calculate the desired steering angle to send to the Arduino which lies between 0 and 180, 90 meaning going straight.
@@ -347,25 +345,17 @@ The boards then received all movement data straight from the server, in the form
 To separate these two integers from the received string, we used strtok() to separate the string and atoi() to convert the numbers in the string to the int type.
 Two important elements we overlooked that probably greatly contributed to server-board latency were the heat produced by the motor on the car (which probably greatly slowed the board down) and the interference caused by other electronic devices in the near vicinity. There were never that many people around us before the demo day, but when people started arriving the day of the demo, the cars connected to the personal hotspot but never to the server.
 
-## Controller
-
-For the controller, we first wanted to make a joystick on our phones. But with touch-sensitive joysticks, it was difficult
-to be precise with the controls, and it was not that fun to play with. We then looked for a way to integrate physical controllers. 
-and we found out that Pygame directly supports them. Since our server is coded in python, it was very easy to integrate 
-the controllers using pygame. We simply use the module joystick from pygame. Note that this module supports xbox one and 
-pro Switch controllers perfectly, but for reasons unknown we were unable to get ps4 controllers to work. 
-
-
-[Video contoller_1](https://drive.google.com/file/d/1reOZbyJa6JoQu1c-rn_mInbwud_DtXWd/view?usp=sharing)
-
-[Video contoller_2](https://drive.google.com/file/d/1dASTlvPD5uQj2d0VwFhFrCf5u4_w9qwt/view?usp=sharing)
-
 #### Joystick
 We faced more challenges than we had anticipated for the joystick controlling the car. First, we tried using Blynk, except that we couldn't get the Arduino to connect to Blynk's servers and to our server both at once, and we still don't know why. 
 Next, we tried reusing and adapting the code one of us had written to control the cars we each made for the personal project (different cars to this project). It worked by hosting a webserver directly on the Arduino using the ESP8266WebServer.h library and then connecting to that webserver using a phone (with the Arduino connected to that phone's personal hotspot). The joystick worked perfectly while not connected to the server, but had terrible latency issues when connected to the server at the same time as hosting the webserver.
 In an attempt to fix this, we tried using the car's second board (the ESP32-Cam-AI-Thinker). The idea was to have the ESP8266 host the webserver and have the ESP32 communicate with the main server, and then transmit any data received from the main server over the two boards' Serial ports, using the RX/TX pins and the SoftwareSerial.h library. Unfortunately, we again ran into high latency issues. Anyone who wants to use the SoftwareSerial.h library should know that it takes a lot of processing power and therefore slows the board down. In theory, it's possible to communicate over Serial without using this library, but by this point we were running out of time. Serial communication is painful and long to debug, because you can't send messages to another board over Serial and print received messages to the console at the same time, so you need to be a little creative (to test it out, we connected both boards to a dummy server that just prints messages and had each board transmit any received from the other board). Therefore, we were forced to downgrade to a system where powerups could only affect one car at a time until we came up with our final solution: console controllers connecting to the computer hosting the main server, and the main server sending on the movement data the the ESP8266.
 
-This final solution was implemented using pygame because it already had a way of detecting a controller once it has been connected to the computer using bluetooth. So what we ended up assigning to our car object a controller from the Controller class if a JOYDEVICEADDED event from pygame was added and if the car was a player driven car. Then we updated each car object constantly by looking at the joystick position to figure out the angle to send to the car and if the forward or backwards button were pressed, to figure out what acceleration to send the car. As described above, the same arduino code was used for player and AI cars so we send that information to the cars in the same way as we did for the AI car. This lets us decide for a given round what cars will be AI or player driven without reuploading arduino code, this is done by simply changing the `ai` attribute of the car when initialising the car object.
+This final solution was implemented using pygame because it already had a way of detecting a controller once it has been connected to the computer using bluetooth (Note that this module supports xbox one and 
+pro Switch controllers perfectly, but for reasons unknown we were unable to get ps4 controllers to work). So what we ended up assigning to our car object a controller from the Controller class if a JOYDEVICEADDED event from pygame was added and if the car was a player driven car. Then we updated each car object constantly by looking at the joystick position to figure out the angle to send to the car and if the forward or backwards button were pressed, to figure out what acceleration to send the car. As described above, the same arduino code was used for player and AI cars so we send that information to the cars in the same way as we did for the AI car. This lets us decide for a given round what cars will be AI or player driven without reuploading arduino code, this is done by simply changing the `ai` attribute of the car when initialising the car object.
+
+[Video contoller_1](https://drive.google.com/file/d/1reOZbyJa6JoQu1c-rn_mInbwud_DtXWd/view?usp=sharing)
+
+[Video contoller_2](https://drive.google.com/file/d/1dASTlvPD5uQj2d0VwFhFrCf5u4_w9qwt/view?usp=sharing)
 
 ## GUI
 
