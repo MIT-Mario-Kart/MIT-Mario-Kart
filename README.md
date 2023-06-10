@@ -1,5 +1,12 @@
 # MIT - Mario Kart
 
+## Intro
+In this project, we planned on creating our own adapted version of Mario Kart in real life. 
+The goal was to create a circuit on which we would have 6 small remote-controlled cars, each car controlled either by an AI or by a player. 
+We had imagined a few powerups that cars could collect, that would either affect the car collecting it or the other cars. 
+There are three main parts to this project: an overhead camera that extracts simple shapes and colours from an image in order to be able to track each car’s position, 
+the track and cars themselves, and lastly the main server controlling each individual car.
+
 ## Cars
 
 ### 3D-design
