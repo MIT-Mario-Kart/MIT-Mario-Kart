@@ -393,6 +393,8 @@ It looked like this:
 <img width="1439" alt="Screenshot 2023-06-04 at 17 28 08" src="https://github.com/albertfares/MIT/assets/91048303/599bd4b7-c59d-471f-a2c6-52deefd130a8">
 
 ## Final takeaway
+
+[Video Link](https://drive.google.com/file/d/1U7BNgFku9bf5cgFWT6QTgowsCUX8AMdn/view?usp=share_link)
 A few hours before the demonstration, we had finally got the flow map calibration and the corrective camera distortion right and reduced the latency enough to make it playable with 2 cars. 
 Unfortunately, there was one important element we had not anticipated: wireless interference. A few hours after our project was working well, 
 everything stopped working because the Arduino boards used in the cars refused to connect to the main server (and we think that this is due to increased interference when everyone starting demonstrating their project around us at the same time). 
