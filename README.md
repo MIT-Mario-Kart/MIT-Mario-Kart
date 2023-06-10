@@ -8,6 +8,78 @@ There are three main parts to this project: an overhead camera that extracts sim
 the track and cars themselves, and lastly the main server controlling each individual car.  
 You can find our initial project proposal [here](MIT_Team_Proposal.pdf).
 
+## Summary 
+
+- [Cars](#cars)
+
+  - [Electrical Components](#electrical-components)
+
+  - [Connections and circuitry](#connections-and-circuitry)
+
+  - [Color sensor calibration](#color-sensor-calibration)
+
+  - [3D-design](#3d-design)
+
+- [Circuit Design](#circuit-design)
+
+- [Phone Holder](#phone-holder)
+
+  - [MDF structure](#mdf-structure)
+
+  - [3D printed holder](#3d-printed-holder)
+
+- [iOS Application for Cars Detection](#ios-application-for-cars-detection)
+
+  - [Reliable Coordinate System](#reliable-coordinate-system)
+
+  - [Calibrating the circuit](#calibrating-the-circuit)
+
+  - [Detecting cars and their orientation](#detecting-cars-and-their-orientation)
+
+  - [Performance](#performance)
+
+  - [Potential Drawback](#potential-drawback)
+
+- [AI Algorithm](#ai-algorithm)
+
+  - [Overview](#overview)
+
+    - [Flowmap](#flowmap)
+
+    - [Acceleration](#acceleration)
+
+    - [Powerups](#powerups)
+
+    - [Overtake](#overtake)
+
+  - [AI Simulation](#ai-simulation)
+
+- [Server](#server)
+
+  - [Overview](#overview-1)
+
+  - [Camera connection](#camera-connection)
+
+    - [ID system](#id-system)
+
+    - [Updating the cars based on the information from the camera](#updating-the-cars-based-on-the-information-from-the-camera)
+
+    - [Grid system](#grid-system)
+
+  - [Car connection](#car-connection)
+
+    - [Boards connection to the server](#boards-connection-to-the-server)
+
+    - [Remote controllers](#remote-controllers-joysticks)
+
+- [GUI](#gui)
+
+  - [Interface](#interface)
+
+  - [Streaming Server](#streaming-server)
+
+- [Final Takeaway](#final-takeaway)
+
 ## Cars
 
 ### Electrical Components
@@ -130,9 +202,7 @@ Here is a video of the car driving:
 For more details about the 3d model of the car, you can download the file LEGO - car.f3z from the repository.
 
 
-## Circuit
-
-### Design
+## Circuit Design
 
 The design of the circuit was made using Fusion360.
 The main design of the circuit is shown below.
@@ -301,7 +371,7 @@ With POWERUP_TIME = 5.
 
 Note: since there were times when testing where the color sensors weren't fully calibrated or times where they produced false positives, we added on the server the same logic described above for powerups and acceleration to use if we wanted to disregard the input from the color sensor. However, in the final version of the project we didn't need to do so but still we left this code commented out (so you could see what how we used it).
 
-##### Overtake
+#### Overtake
 
 With the powerups and the zone system, cars can have different speed across the map. We didn't want them to bump each other (at least not the AI ones) so we had to implement an overtake system.
 
@@ -311,8 +381,7 @@ But we had problems with Matplotlib (which we used for the semi circles) and the
 
 
 ### AI Simulation
-#### Update Movement
-Update movement is a method that we used in order to test the flowmap in a simulation. We made it possible to simulate the way a car would (in theory) follow the flowmap in the GUI. This method wasn't used in the final server, but it proved to be very useful in calibrating a first version of the flowmap. The "orientation" around the flowmap uses the classic trig circle: 0 degrees points to the right of the circuit, 90 degrees to the top, 180 to the left and 270 to the bottom.
+When it comes to AI Simulation the main component was update movement. This is a method that we used in order to test the flowmap. We made it possible to simulate the way a car would (in theory) follow the flowmap in the GUI. This method wasn't used in the final server, but it proved to be very useful in calibrating a first version of the flowmap. The "orientation" around the flowmap uses the classic trig circle: 0 degrees points to the right of the circuit, 90 degrees to the top, 180 to the left and 270 to the bottom.
 The way the method works is very simple - it takes a desired velocity and angle as parameters, and computes the next speed, acceleration and coordinates the car would have and stores them in the car's corresponding attributes. 
 At first the car's orientation is updated. If the desired angle is negative, this means that the car should turn right (think of it as a negative angle difference on the trig circle, so clockwise), otherwise it should turn left. If the absolute angle difference between the desired angle and the current angle is smaller than ANGLE_PRECISION (an aribitrarily defined constant, to be tweaked as you see fit), then the car won't turn. Whenever it turns, it does so by ANGLE_UNIT every time the method is called.
 Next, the method checks which is the desired velocity and updates the car's acceleration and velocity accordingly using basic kinematic equations, implemented in a very naive way. Technically, the way it's coded you can simulate the car's acceleration changing over time, but we tweaked the constants to give it an almost constant acceleration because we didn't need the added precision (if ACC_UNIT = MAX_ACC, then you will get a constant acceleration). Next, the car's speed gets updated according to its acceleration. Both the acceleration and speed are upper bounded (respectively MAX_ACC and MAX_VELOCITY).
@@ -337,7 +406,7 @@ Since the coordinates sent by the camera are originally within 1080x1920, we nee
 
 ### Car Connection
 Each car connects to the server with a car id. The server uses this id to get its corresponding car object on the server and sends back to the car, the correct information. Either the orientation and acceleration found using the algorithm if it's an AI driven car or the information processed using the controllers for player cars.
-#### Server connection
+#### Boards connection to the server
 The ESP8266 boards each connect to the main server over wifi, which must all be connected to the same wifi. For this we used the personal hotspot of the phone acting as the camera, which proved a little unreliable as it sometimes decided to become undiscoverable on its own. We often had to resort to yelling "hey Siri, open hotspot settings" while standing on a chair in order to be closer to the phone. 
 Once the boards were connected to wifi, we had them connect to the server using WifiClient from the ESP8266WiFi.h library. The boards would send colour sensor information in the form of an integer between 0 and 5, indicating what kind of checkpoint the car has passed (while it isn't passing a checkpoint, it perpetually sends a 0):
 0 = circuit, 1 = powerup, 2 = red tape, 3 = green tape, 4 = blue tape, 5 = car is off the circuit
@@ -345,8 +414,8 @@ The boards then received all movement data straight from the server, in the form
 To separate these two integers from the received string, we used strtok() to separate the string and atoi() to convert the numbers in the string to the int type.
 Two important elements we overlooked that probably greatly contributed to server-board latency were the heat produced by the motor on the car (which probably greatly slowed the board down) and the interference caused by other electronic devices in the near vicinity. There were never that many people around us before the demo day, but when people started arriving the day of the demo, the cars connected to the personal hotspot but never to the server.
 
-#### Joystick
-We faced more challenges than we had anticipated for the joystick controlling the car. First, we tried using Blynk, except that we couldn't get the Arduino to connect to Blynk's servers and to our server both at once, and we still don't know why. 
+#### Remote controllers (joysticks)
+We faced more challenges than we had anticipated for the joysticks controlling the car. First, we tried using Blynk, except that we couldn't get the Arduino to connect to Blynk's servers and to our server both at once, and we still don't know why. 
 Next, we tried reusing and adapting the code one of us had written to control the cars we each made for the personal project (different cars to this project). It worked by hosting a webserver directly on the Arduino using the ESP8266WebServer.h library and then connecting to that webserver using a phone (with the Arduino connected to that phone's personal hotspot). The joystick worked perfectly while not connected to the server, but had terrible latency issues when connected to the server at the same time as hosting the webserver.
 In an attempt to fix this, we tried using the car's second board (the ESP32-Cam-AI-Thinker). The idea was to have the ESP8266 host the webserver and have the ESP32 communicate with the main server, and then transmit any data received from the main server over the two boards' Serial ports, using the RX/TX pins and the SoftwareSerial.h library. Unfortunately, we again ran into high latency issues. Anyone who wants to use the SoftwareSerial.h library should know that it takes a lot of processing power and therefore slows the board down. In theory, it's possible to communicate over Serial without using this library, but by this point we were running out of time. Serial communication is painful and long to debug, because you can't send messages to another board over Serial and print received messages to the console at the same time, so you need to be a little creative (to test it out, we connected both boards to a dummy server that just prints messages and had each board transmit any received from the other board). Therefore, we were forced to downgrade to a system where powerups could only affect one car at a time until we came up with our final solution: console controllers connecting to the computer hosting the main server, and the main server sending on the movement data the the ESP8266.
 
@@ -392,7 +461,7 @@ It looked like this:
 
 <img width="1439" alt="Screenshot 2023-06-04 at 17 28 08" src="https://github.com/albertfares/MIT/assets/91048303/599bd4b7-c59d-471f-a2c6-52deefd130a8">
 
-## Final takeaway
+## Final Takeaway
 
 The final project state was a working racing game with 3/4 of the previously planned cars even though the AI lacked a little in precision.
 Unfortunately, there was one important element we had not anticipated: wireless interference. The day of the demonstration, 
