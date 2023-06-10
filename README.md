@@ -22,7 +22,7 @@ We then imported the LEGO pieces. A good way of doing this is to use [BrinkLink 
 
 Once all the parts have been imported. We were able to start designing the car. Design is a long and sometimes complicated process. The right solution doesn't come out on the first try, and sometimes you have to try again and again to get it right. There are a number of factors to take into account. In our case, we wanted the car to turn quickly. Which implies to have a small turning radius. One way of calculating it (approximately) is to measure the wheelbase (Wb), the steer angle (Sa) and the wheel width (Ww). The wheelbase is the distant beetween the front wheels and the rear wheels. The steering angle is the maximum angle at which the wheels can turn. 
 
-![Image_of_one_Car](Images/image_tr.png)
+![Image_of_one_Car](Report/Cars_GUI/image_tr.png)
 
 [Image source](https://www.theautopian.com/the-engineering-behind-why-some-cars-can-turn-tighter-than-others/)
 
@@ -55,9 +55,9 @@ Here is a short animation showing how to assemble the car:
 
 Here are some photos:
 
-![Image_of_one_Car](Images/IMG_0516.jpeg)
+![Image_of_one_Car](Report/Cars_GUI/IMG_0516.jpeg)
 
-![Image_of_the_6_Cars](Images/IMG_0515.jpeg)
+![Image_of_the_6_Cars](Report/Cars_GUI/IMG_0515.jpeg)
 
 Here is a video of the car driving:
 
@@ -72,7 +72,7 @@ our server was already coded in python, using pygame seemed to be the best solut
 ### Interface
 The interface is fairly simplistic. 
 
-![Image_of_the_GUI](Images/image_GUI_1.png)
+![Image_of_the_GUI](Report/Cars_GUI/image_GUI_1.png)
 
 On the left, there is a map of the circuit. On this map, a colored square indicates the position of each car, and a color 
 is associated with each car. Above the circuit is the start light. It is red at the first, and turns green when the race begins.
@@ -86,7 +86,7 @@ the player crosses the start line and has passed all checkpoints. Next, the powe
 a power-up, it is diplayed here with an image associated with each power-up. Finally, when the player has finished the race. 
 That is, when he has completed the correct number of laps, a small flag is displayed, showing that the player has finished.
 
-![Image_of_one_the_GUI_with_legends](Images/image_GUI_2.jpeg)
+![Image_of_one_the_GUI_with_legends](Report/Cars_GUI/image_GUI_2.jpeg)
 
 Here is a video showing the GUI with a game (without power_up):
 
@@ -242,7 +242,7 @@ The first challenge was to establish a reliable and precise coordinate system, w
 Fortunately, OpenCV makes it easy to correct this distortion, and the hardest part was calibrating the camera and finding its distortion coefficients. For those curious about this, the [OpenCV Calibration](https://docs.opencv.org/4.x/dc/dbb/tutorial_py_calibration.html) page is very well documented.
 
 <p align="center">
-  <img src="img1.jpg" alt="Illustration of lens distorsion" width="288" height="384" />
+  <img src="Report/Camera/img1.jpg" alt="Illustration of lens distorsion" width="288" height="384" />
   <br>
   Image illustrating the effects of lens distortion at a height of 2.50 m above the circuit where the phone was fixed. The circuit forms a rectangle, but you don't get this impression when you look at the photo because of the distortion. 
 </p>
@@ -265,7 +265,7 @@ If we detect exactly 4 triangles and the positions have been the same for 5 seco
 Once the server has confirmed that it has received the positions, the application switches to car detection mode. The application also retains the points it used to calibrate, so that any potential false positives outside the rectangle formed by the calibration points are filtered out and not sent to the server.
 
 <p align="center">
-  <img src="img3.jpg" alt="Calibrating the circuit" width="262" height="349" />
+  <img src="Report/Camera/img3.jpg" alt="Calibrating the circuit" width="262" height="349" />
   <br>
   Each of the yellow triangles is placed in one of the corners of the rectangle formed by the circuit. They are used for calibrating the coordinate system.
 </p>
@@ -288,7 +288,7 @@ Here's the technical process for detecting cars and their orientation:
 - Send to the server the position of each car and its orientation.
 
 <p align="center">
-  <img src="img2.jpg" alt="Detecting cars" width="231" height="325" />
+  <img src="Report/Camera/img2.jpg" alt="Detecting cars" width="231" height="325" />
   <br>
   Screenshot of the application in cars detection mode. Each car is detected by the application and indicated on the screen by a rectangle of the corresponding color. The information is sent to the server.
 </p>
