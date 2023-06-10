@@ -5,7 +5,8 @@ In this project, we planned on creating our own adapted version of Mario Kart in
 The goal was to create a circuit on which we would have 6 small remote-controlled cars, each car controlled either by an AI or by a player. 
 We had imagined a few powerups that cars could collect, that would either affect the car collecting it or the other cars. 
 There are three main parts to this project: an overhead camera that extracts simple shapes and colours from an image in order to be able to track each car’s position, 
-the track and cars themselves, and lastly the main server controlling each individual car.
+the track and cars themselves, and lastly the main server controlling each individual car.  
+You can find our initial project proposal here: .
 
 ## Cars
 
@@ -121,7 +122,7 @@ H([Antenna]) --- G
 
 ### Color sensor calibration
 
-The color sensor being sensible to the lightning conditions and itss distance to its target, it needed to be calibrated to be as precise as possible. The code of the calibration is available on the repo.
+The color sensor being sensible to the lightning conditions and its distance to its target, it needed to be calibrated to be as precise as possible. The code of the calibration is available on the repo.
 
 A dediacated server was made at the beginning of testing and showed the performace of the sensor as seen below.
 
@@ -403,7 +404,7 @@ We faced more challenges than we had anticipated for the joystick controlling th
 Next, we tried reusing and adapting the code one of us had written to control the cars we each made for the personal project (different cars to this project). It worked by hosting a webserver directly on the Arduino using the ESP8266WebServer.h library and then connecting to that webserver using a phone (with the Arduino connected to that phone's personal hotspot). The joystick worked perfectly while not connected to the server, but had terrible latency issues when connected to the server at the same time as hosting the webserver.
 In an attempt to fix this, we tried using the car's second board (the ESP32-Cam-AI-Thinker). The idea was to have the ESP8266 host the webserver and have the ESP32 communicate with the main server, and then transmit any data received from the main server over the two boards' Serial ports, using the RX/TX pins and the SoftwareSerial.h library. Unfortunately, we again ran into high latency issues. Anyone who wants to use the SoftwareSerial.h library should know that it takes a lot of processing power and therefore slows the board down. In theory, it's possible to communicate over Serial without using this library, but by this point we were running out of time. Serial communication is painful and long to debug, because you can't send messages to another board over Serial and print received messages to the console at the same time, so you need to be a little creative (to test it out, we connected both boards to a dummy server that just prints messages and had each board transmit any received from the other board). Therefore, we were forced to downgrade to a system where powerups could only affect one car at a time until we came up with our final solution: console controllers connecting to the computer hosting the main server, and the main server sending on the movement data the the ESP8266.
 
-This final solution was implemnted using pygame because it already had a way of detecting a controller once it has been connected to the computer using bluetooth. So what we ended up assigning to our car object a controller from the Controller class if a JOYDEVICEADDED event from pygame was added and if the car was a player driven car. Then we updated each car object constantly by looking at the joystick position to figure out the angle to send to the car and if the forward or backwards button were pressed, to figure out what acceleration to send the car. As described above, the same arduino code was used for player and AI cars so we send that information to the cars in the same way as we did for the AI car. This lets us decide for a given round what cars will be AI or player driven without reuploading arduino code, this is done by simply changing the `ai` attribute of the car when initialising the car object.
+This final solution was implemented using pygame because it already had a way of detecting a controller once it has been connected to the computer using bluetooth. So what we ended up assigning to our car object a controller from the Controller class if a JOYDEVICEADDED event from pygame was added and if the car was a player driven car. Then we updated each car object constantly by looking at the joystick position to figure out the angle to send to the car and if the forward or backwards button were pressed, to figure out what acceleration to send the car. As described above, the same arduino code was used for player and AI cars so we send that information to the cars in the same way as we did for the AI car. This lets us decide for a given round what cars will be AI or player driven without reuploading arduino code, this is done by simply changing the `ai` attribute of the car when initialising the car object.
 
 ## Final takeaway
 A few hours before the demonstration, we had finally got the flow map calibration and the corrective camera distortion right and reduced the latency enough to make it playable with 2 cars. 
