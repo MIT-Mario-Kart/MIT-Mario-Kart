@@ -10,6 +10,62 @@ You can find our initial project proposal [here](MIT_Team_Proposal.pdf).
 
 ## Cars
 
+### Electrical Components
+
+One challenge was making the cars small enough so that we can have multiple ones driving on the same circuit while still having a fast and precise drive. For that, we decided to use basic but effective electronic components. The list of the components used for each car is as follows:
+
+>- [ESP8266 board](https://www.conrad.ch/fr/p/carte-de-developpement-sbc-nodemcu-esp8266-1613301.html)
+>- [ESP32-CAM board](https://www.conrad.ch/fr/p/joy-it-sbc-esp32-cam-module-camera-1-pc-s-2332111.html?gclid=EAIaIQobChMIupPEp_an_wIVFwSLCh3cpACiEAQYBCABEgKRkvD_BwE&utm_source=google-shopping-fr&utm_medium=search&utm_campaign=shopping-online-fr&utm_content=shopping-ad_cpc&WT.srch=1&ef_id=EAIaIQobChMIupPEp_an_wIVFwSLCh3cpACiEAQYBCABEgKRkvD_BwE%3AG%3As)
+>- [L298N motor driver](https://www.conrad.ch/fr/p/joy-it-motormodul-2-u-4-phasen-6-bis-12v-carte-de-developpement-1573541.html?utm_source=google-shopping-fr&utm_medium=search&utm_campaign=shopping-online-fr&utm_content=shopping-ad_cpc&WT.srch=1&ef_id=EAIaIQobChMIhq2tifen_wIVz_dRCh251QydEAQYASABEgK3X_D_BwE%3AG%3As&gclid=EAIaIQobChMIhq2tifen_wIVz_dRCh251QydEAQYASABEgK3X_D_BwE)
+>- External antenna [(connector](https://www.digitec.ch/fr/s1/product/delock-cable-dantenne-sma-mhf-4-20cm-pour-linstallation-cable-dantenne-cable-dantenne-13123653?dbq=1&gclid=EAIaIQobChMIw-aUuPan_wIV1Pl3Ch0ynAiqEAQYBSABEgKyePD_BwE&gclsrc=aw.ds) & [antenna)](https://www.play-zone.ch/en/wlan-wifi-antenne-2-4ghz-mit-knickgelenk-sma-male.html?gad=1&gclid=EAIaIQobChMIw-aUuPan_wIV1Pl3Ch0ynAiqEAQYAyABEgJRwvD_BwE&___from_store=de)
+>- [Motor](https://www.conrad.ch/fr/p/joy-it-com-motor01-moto-reducteur-jaune-noir-adapte-pour-ordinateur-monocarte-arduino-banana-pi-cubieboard-raspber-1573543.html)
+>- [Servo](https://www.conrad.ch/fr/p/reely-mini-servomoteur-analogique-materiau-entrainement-plastique-systeme-de-connecteur-jr-2148502.html?gclid=EAIaIQobChMI8rjYpbj3_QIVkeR3Ch2lFAX7EAQYASABEgKR8_D_BwE&utm_source=google-shopping-fr&utm_medium=search&utm_campaign=shopping-online-fr&utm_content=shopping-ad_cpc&WT.srch=1&ef_id=EAIaIQobChMI8rjYpbj3_QIVkeR3Ch2lFAX7EAQYASABEgKR8_D_BwE%3AG%3As)
+>- [Color sensor](https://www.conrad.ch/de/p/joy-it-sen-color-arduino-erweiterungs-platine-schwarz-passend-fuer-einplatinen-computer-arduino-1-st-1503748.html?gclid=EAIaIQobChMIocb197v3_QIVl7PVCh0icgzwEAQYASABEgIbVfD_BwE&utm_source=google-shopping-de&utm_medium=search&utm_campaign=shopping-online-de&utm_content=shopping-ad_cpc&WT.srch=1&ef_id=EAIaIQobChMIocb197v3_QIVl7PVCh0icgzwEAQYASABEgIbVfD_BwE%3AG%3As)
+>- [7.4V Lipo battery](https://www.conrad.ch/fr/p/pack-de-batterie-lipo-7-4-v-1000-mah-conrad-energy-1344143-25-c-softcase-fiche-bec-femelle-1344143.html)
+
+The ESP8266 board was used to connect every other component and to make a connection to the server used to control the cars while the ESP32-CAM board was used to stream the point of view of each car on a dedicated server.
+
+### Connections and circuitry 
+
+The electrical components were connected as follows:
+
+```mermaid
+graph LR
+A[[Battery]] -- 12V --- B{Driver}
+A -- GRD --- B
+B -- 5V--- D(Motor)
+B -- OUT1 --- D
+B -- OUT2 --- D
+B -- 5V ---E[ESP8266] 
+B -- GND ---E
+E --IN1 ---B
+E --IN2 --- B
+C((Color sensor)) -- OUT --- E
+E -- S0 --- C
+E -- S1 --- C
+E -- S2 --- C
+E -- S3 --- C
+E -- 3V3 --- C
+E -- GND--- C
+C -- LED-GND --- C
+B -- 5V --- F(Servo)
+E -- GND --- F
+E -- IN --- F
+B -- 5V --- G[ESP32CAM]
+E -- GND --- G
+H([Antenna]) --- G
+```
+
+### Color sensor calibration
+
+The color sensor being sensible to the lightning conditions and its distance to its target, it needed to be calibrated to be as precise as possible. The code of the calibration is available on the repo.
+
+A dedicated server was made at the beginning of testing and showed the performace of the sensor as seen below.
+
+
+
+https://github.com/albertfares/MIT/assets/91048303/5f766e19-ce79-4871-9765-ed46f7992c80
+
 ### 3D-design
 We have designed our cars using the software [Fusion 360](https://www.autodesk.fr/products/fusion-360/overview?term=1-YEAR&tab=subscription). The cars are composed of electronics, 3d printed parts and LEGO pieces. The first step was to import all the components into Fusion 360. For the electronic components, we have downloaded some existing models from the library [Crabcad](https://grabcad.com/library), listed below:
 
@@ -74,104 +130,6 @@ Here is a video of the car driving:
 For more details about the 3d model of the car, you can download the file LEGO - car.f3z from the repository.
 
 
-### Electrical Components
-
-One challenge was making the cars small enough so that we can have multiple ones driving on the same circuit while still having a fast and precise drive. For that, we decided to use basic but effective electronic components. The list of the components used for each car is as follows:
-
->- [ESP8266 board](https://www.conrad.ch/fr/p/carte-de-developpement-sbc-nodemcu-esp8266-1613301.html)
->- [ESP32-CAM board](https://www.conrad.ch/fr/p/joy-it-sbc-esp32-cam-module-camera-1-pc-s-2332111.html?gclid=EAIaIQobChMIupPEp_an_wIVFwSLCh3cpACiEAQYBCABEgKRkvD_BwE&utm_source=google-shopping-fr&utm_medium=search&utm_campaign=shopping-online-fr&utm_content=shopping-ad_cpc&WT.srch=1&ef_id=EAIaIQobChMIupPEp_an_wIVFwSLCh3cpACiEAQYBCABEgKRkvD_BwE%3AG%3As)
->- [L298N motor driver](https://www.conrad.ch/fr/p/joy-it-motormodul-2-u-4-phasen-6-bis-12v-carte-de-developpement-1573541.html?utm_source=google-shopping-fr&utm_medium=search&utm_campaign=shopping-online-fr&utm_content=shopping-ad_cpc&WT.srch=1&ef_id=EAIaIQobChMIhq2tifen_wIVz_dRCh251QydEAQYASABEgK3X_D_BwE%3AG%3As&gclid=EAIaIQobChMIhq2tifen_wIVz_dRCh251QydEAQYASABEgK3X_D_BwE)
->- External antenna [(connector](https://www.digitec.ch/fr/s1/product/delock-cable-dantenne-sma-mhf-4-20cm-pour-linstallation-cable-dantenne-cable-dantenne-13123653?dbq=1&gclid=EAIaIQobChMIw-aUuPan_wIV1Pl3Ch0ynAiqEAQYBSABEgKyePD_BwE&gclsrc=aw.ds) & [antenna)](https://www.play-zone.ch/en/wlan-wifi-antenne-2-4ghz-mit-knickgelenk-sma-male.html?gad=1&gclid=EAIaIQobChMIw-aUuPan_wIV1Pl3Ch0ynAiqEAQYAyABEgJRwvD_BwE&___from_store=de)
->- [Motor](https://www.conrad.ch/fr/p/joy-it-com-motor01-moto-reducteur-jaune-noir-adapte-pour-ordinateur-monocarte-arduino-banana-pi-cubieboard-raspber-1573543.html)
->- [Servo](https://www.conrad.ch/fr/p/reely-mini-servomoteur-analogique-materiau-entrainement-plastique-systeme-de-connecteur-jr-2148502.html?gclid=EAIaIQobChMI8rjYpbj3_QIVkeR3Ch2lFAX7EAQYASABEgKR8_D_BwE&utm_source=google-shopping-fr&utm_medium=search&utm_campaign=shopping-online-fr&utm_content=shopping-ad_cpc&WT.srch=1&ef_id=EAIaIQobChMI8rjYpbj3_QIVkeR3Ch2lFAX7EAQYASABEgKR8_D_BwE%3AG%3As)
->- [Color sensor](https://www.conrad.ch/de/p/joy-it-sen-color-arduino-erweiterungs-platine-schwarz-passend-fuer-einplatinen-computer-arduino-1-st-1503748.html?gclid=EAIaIQobChMIocb197v3_QIVl7PVCh0icgzwEAQYASABEgIbVfD_BwE&utm_source=google-shopping-de&utm_medium=search&utm_campaign=shopping-online-de&utm_content=shopping-ad_cpc&WT.srch=1&ef_id=EAIaIQobChMIocb197v3_QIVl7PVCh0icgzwEAQYASABEgIbVfD_BwE%3AG%3As)
->- [7.4V Lipo battery](https://www.conrad.ch/fr/p/pack-de-batterie-lipo-7-4-v-1000-mah-conrad-energy-1344143-25-c-softcase-fiche-bec-femelle-1344143.html)
-
-The ESP8266 board was used to connect every other component and to make a connection to the server used to control the cars while the ESP32-CAM board was used to stream the point of view of each car on a dedicated server.
-
-### Connections and circuitry 
-
-The electrical components were connected as follows:
-
-```mermaid
-graph LR
-A[[Battery]] -- 12V --- B{Driver}
-A -- GRD --- B
-B -- 5V--- D(Motor)
-B -- OUT1 --- D
-B -- OUT2 --- D
-B -- 5V ---E[ESP8266] 
-B -- GND ---E
-E --IN1 ---B
-E --IN2 --- B
-C((Color sensor)) -- OUT --- E
-E -- S0 --- C
-E -- S1 --- C
-E -- S2 --- C
-E -- S3 --- C
-E -- 3V3 --- C
-E -- GND--- C
-C -- LED-GND --- C
-B -- 5V --- F(Servo)
-E -- GND --- F
-E -- IN --- F
-B -- 5V --- G[ESP32CAM]
-E -- GND --- G
-H([Antenna]) --- G
-```
-
-### Color sensor calibration
-
-The color sensor being sensible to the lightning conditions and its distance to its target, it needed to be calibrated to be as precise as possible. The code of the calibration is available on the repo.
-
-A dediacated server was made at the beginning of testing and showed the performace of the sensor as seen below.
-
-
-
-https://github.com/albertfares/MIT/assets/91048303/5f766e19-ce79-4871-9765-ed46f7992c80
-
-## GUI
-
-To make our project more complete, but also more fun to play, we decided to add a GUI (Graphical User Interface). Since
-our server was already coded in python, using pygame seemed to be the best solution. 
-### Interface
-The interface is fairly simplistic. 
-
-![Image_of_the_GUI](Report/Cars_GUI/image_GUI_1.png)
-
-On the left, there is a map of the circuit. On this map, a colored square indicates the position of each car, and a color 
-is associated with each car. Above the circuit is the start light. It is red at the first, and turns green when the race begins.
-
-On the right, there's a classification. In the upper right-hand corner is a timer. The timer starts when the race begins. 
-Below this is the ranking for each player. The number on the left corresponds to the player's position. Then the player's name. 
-To the right of this is the player's lap time. This is a measure of the time it takes the player to complete a turn. This 
-time resets to 0 each time the starting line is crossed, provided all checkpoints have been passed.  Then there's the player's 
-best lap time. On the right is a lap counter. This shows the player the number of laps remaining. A lap is added each time 
-the player crosses the start line and has passed all checkpoints. Next, the power-up is displayed. Each time the player has
-a power-up, it is diplayed here with an image associated with each power-up. Finally, when the player has finished the race. 
-That is, when he has completed the correct number of laps, a small flag is displayed, showing that the player has finished.
-
-![Image_of_one_the_GUI_with_legends](Report/Cars_GUI/image_GUI_2.jpeg)
-
-Here is a video showing the GUI with a game (without power_up):
-
-[Video Link](https://drive.google.com/file/d/1Wopnna9PGnGgz63frg08rsFXboGv2CES/view?usp=sharing)
-
-## Controller
-
-For the controller, we first wanted to make a joystick on our phones. But with touch-sensitive joysticks, it was difficult
-to be precise with the controls, and it was not that fun to play with. We then looked for a way to integrate physical controllers. 
-and we found out that Pygame directly supports them. Since our server is coded in python, it was very easy to integrate 
-the controllers using pygame. We simply use the module joystick from pygame. Note that this module supports xbox one and 
-pro Switch controllers perfectly, but for reasons unknown we were unable to get ps4 controllers to work. 
-
-
-[Video contoller_1](https://drive.google.com/file/d/1reOZbyJa6JoQu1c-rn_mInbwud_DtXWd/view?usp=sharing)
-
-[Video contoller_2](https://drive.google.com/file/d/1dASTlvPD5uQj2d0VwFhFrCf5u4_w9qwt/view?usp=sharing)
-
-
-
 ## Circuit
 
 ### Design
@@ -211,17 +169,6 @@ The .f3d file available on the repo was made for an iPhone 14 Pro Max.
 <img width="814" alt="Screenshot 2023-05-02 at 23 26 18" src="https://github.com/albertfares/MIT/assets/91048303/d1c9ad13-9b1d-4fc5-b86a-61a3a9c408d6">
 
 <img width="500" alt="Screenshot 2023-05-03 at 00 00 28" src="https://github.com/albertfares/MIT/assets/91048303/21e8f230-68fd-46d9-ae8a-90a7625ebbf0">
-
-
-## Car's view point
-
-### Streaming server
-
-To stream each car's pov, we used an esp32 cam on each car which streams continually on a custom server. The code used to enable the streaming on the boards allows to chose the quality and format of the video output. We personally went with the SVGA format and a quality of 63 (to have a fluid stream). All the videos are then combined on a streaming server which can handle up to 6 cars' povs. The code for the server and the html design are both on the repo.
-
-It looked like this:
-
-<img width="1439" alt="Screenshot 2023-06-04 at 17 28 08" src="https://github.com/albertfares/MIT/assets/91048303/599bd4b7-c59d-471f-a2c6-52deefd130a8">
 
 
 ## iOS Application for Cars Detection
@@ -307,7 +254,7 @@ In terms of performance, the application was able to recalculate car positions a
 
 One drawback is that to avoid false positives, the color calibration had to be very precise, and is only accurate for a certain time slot (depending on the amount of sunlight entering the building where we calibrated it). As a result, there were occasional false positives on certain colors, particularly in the evening when there was no sun. This can of course be adjusted by recalibrating.
 
-## AI algorithm
+## AI Algorithm
 ### Overview
 #### Flowmap
 
@@ -399,12 +346,61 @@ Once the boards were connected to wifi, we had them connect to the server using 
 The boards then received all movement data straight from the server, in the form of 2 integers. The first received integer indicated the value to be weitten to the car's servo (between 0 and 180, inclusive). The second indicated the car's speed: a negative integer meant that the car should drive backwards, a positive integer meant that the car should drive forwards and 0 meant stop. 
 To separate these two integers from the received string, we used strtok() to separate the string and atoi() to convert the numbers in the string to the int type.
 Two important elements we overlooked that probably greatly contributed to server-board latency were the heat produced by the motor on the car (which probably greatly slowed the board down) and the interference caused by other electronic devices in the near vicinity. There were never that many people around us before the demo day, but when people started arriving the day of the demo, the cars connected to the personal hotspot but never to the server.
+
+## Controller
+
+For the controller, we first wanted to make a joystick on our phones. But with touch-sensitive joysticks, it was difficult
+to be precise with the controls, and it was not that fun to play with. We then looked for a way to integrate physical controllers. 
+and we found out that Pygame directly supports them. Since our server is coded in python, it was very easy to integrate 
+the controllers using pygame. We simply use the module joystick from pygame. Note that this module supports xbox one and 
+pro Switch controllers perfectly, but for reasons unknown we were unable to get ps4 controllers to work. 
+
+
+[Video contoller_1](https://drive.google.com/file/d/1reOZbyJa6JoQu1c-rn_mInbwud_DtXWd/view?usp=sharing)
+
+[Video contoller_2](https://drive.google.com/file/d/1dASTlvPD5uQj2d0VwFhFrCf5u4_w9qwt/view?usp=sharing)
+
 #### Joystick
 We faced more challenges than we had anticipated for the joystick controlling the car. First, we tried using Blynk, except that we couldn't get the Arduino to connect to Blynk's servers and to our server both at once, and we still don't know why. 
 Next, we tried reusing and adapting the code one of us had written to control the cars we each made for the personal project (different cars to this project). It worked by hosting a webserver directly on the Arduino using the ESP8266WebServer.h library and then connecting to that webserver using a phone (with the Arduino connected to that phone's personal hotspot). The joystick worked perfectly while not connected to the server, but had terrible latency issues when connected to the server at the same time as hosting the webserver.
 In an attempt to fix this, we tried using the car's second board (the ESP32-Cam-AI-Thinker). The idea was to have the ESP8266 host the webserver and have the ESP32 communicate with the main server, and then transmit any data received from the main server over the two boards' Serial ports, using the RX/TX pins and the SoftwareSerial.h library. Unfortunately, we again ran into high latency issues. Anyone who wants to use the SoftwareSerial.h library should know that it takes a lot of processing power and therefore slows the board down. In theory, it's possible to communicate over Serial without using this library, but by this point we were running out of time. Serial communication is painful and long to debug, because you can't send messages to another board over Serial and print received messages to the console at the same time, so you need to be a little creative (to test it out, we connected both boards to a dummy server that just prints messages and had each board transmit any received from the other board). Therefore, we were forced to downgrade to a system where powerups could only affect one car at a time until we came up with our final solution: console controllers connecting to the computer hosting the main server, and the main server sending on the movement data the the ESP8266.
 
 This final solution was implemented using pygame because it already had a way of detecting a controller once it has been connected to the computer using bluetooth. So what we ended up assigning to our car object a controller from the Controller class if a JOYDEVICEADDED event from pygame was added and if the car was a player driven car. Then we updated each car object constantly by looking at the joystick position to figure out the angle to send to the car and if the forward or backwards button were pressed, to figure out what acceleration to send the car. As described above, the same arduino code was used for player and AI cars so we send that information to the cars in the same way as we did for the AI car. This lets us decide for a given round what cars will be AI or player driven without reuploading arduino code, this is done by simply changing the `ai` attribute of the car when initialising the car object.
+
+## GUI
+
+To make our project more complete, but also more fun to play, we decided to add a GUI (Graphical User Interface). Since
+our server was already coded in python, using pygame seemed to be the best solution. 
+### Interface
+The interface is fairly simplistic. 
+
+![Image_of_the_GUI](Report/Cars_GUI/image_GUI_1.png)
+
+On the left, there is a map of the circuit. On this map, a colored square indicates the position of each car, and a color 
+is associated with each car. Above the circuit is the start light. It is red at the first, and turns green when the race begins.
+
+On the right, there's a classification. In the upper right-hand corner is a timer. The timer starts when the race begins. 
+Below this is the ranking for each player. The number on the left corresponds to the player's position. Then the player's name. 
+To the right of this is the player's lap time. This is a measure of the time it takes the player to complete a turn. This 
+time resets to 0 each time the starting line is crossed, provided all checkpoints have been passed.  Then there's the player's 
+best lap time. On the right is a lap counter. This shows the player the number of laps remaining. A lap is added each time 
+the player crosses the start line and has passed all checkpoints. Next, the power-up is displayed. Each time the player has
+a power-up, it is diplayed here with an image associated with each power-up. Finally, when the player has finished the race. 
+That is, when he has completed the correct number of laps, a small flag is displayed, showing that the player has finished.
+
+![Image_of_one_the_GUI_with_legends](Report/Cars_GUI/image_GUI_2.jpeg)
+
+Here is a video showing the GUI with a game (without power_up):
+
+[Video Link](https://drive.google.com/file/d/1Wopnna9PGnGgz63frg08rsFXboGv2CES/view?usp=sharing)
+
+### Streaming server
+
+To stream each car's pov, we used an esp32 cam on each car which streams continually on a custom server. The code used to enable the streaming on the boards allows to chose the quality and format of the video output. We personally went with the SVGA format and a quality of 63 (to have a fluid stream). All the videos are then combined on a streaming server which can handle up to 6 cars' povs. The code for the server and the html design are both on the repo.
+
+It looked like this:
+
+<img width="1439" alt="Screenshot 2023-06-04 at 17 28 08" src="https://github.com/albertfares/MIT/assets/91048303/599bd4b7-c59d-471f-a2c6-52deefd130a8">
 
 ## Final takeaway
 A few hours before the demonstration, we had finally got the flow map calibration and the corrective camera distortion right and reduced the latency enough to make it playable with 2 cars. 
