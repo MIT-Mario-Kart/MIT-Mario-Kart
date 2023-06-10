@@ -353,9 +353,9 @@ In an attempt to fix this, we tried using the car's second board (the ESP32-Cam-
 This final solution was implemented using pygame because it already had a way of detecting a controller once it has been connected to the computer using bluetooth (Note that this module supports xbox one and 
 pro Switch controllers perfectly, but for reasons unknown we were unable to get ps4 controllers to work). So what we ended up assigning to our car object a controller from the Controller class if a JOYDEVICEADDED event from pygame was added and if the car was a player driven car. Then we updated each car object constantly by looking at the joystick position to figure out the angle to send to the car and if the forward or backwards button were pressed, to figure out what acceleration to send the car. As described above, the same arduino code was used for player and AI cars so we send that information to the cars in the same way as we did for the AI car. This lets us decide for a given round what cars will be AI or player driven without reuploading arduino code, this is done by simply changing the `ai` attribute of the car when initialising the car object.
 
-[Video contoller_1](https://drive.google.com/file/d/1reOZbyJa6JoQu1c-rn_mInbwud_DtXWd/view?usp=sharing)
+[Video controller_1](https://drive.google.com/file/d/1reOZbyJa6JoQu1c-rn_mInbwud_DtXWd/view?usp=sharing)
 
-[Video contoller_2](https://drive.google.com/file/d/1dASTlvPD5uQj2d0VwFhFrCf5u4_w9qwt/view?usp=sharing)
+[Video controller_2](https://drive.google.com/file/d/1dASTlvPD5uQj2d0VwFhFrCf5u4_w9qwt/view?usp=sharing)
 
 ## GUI
 
