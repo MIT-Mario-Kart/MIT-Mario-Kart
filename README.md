@@ -394,25 +394,16 @@ It looked like this:
 
 ## Final takeaway
 
-[Video Link](https://drive.google.com/file/d/1U7BNgFku9bf5cgFWT6QTgowsCUX8AMdn/view?usp=share_link)
-
 The final project state was a working racing game with 3/4 of the previously planned cars even though the AI lacked a little in precision.
 Unfortunately, there was one important element we had not anticipated: wireless interference. The day of the demonstration, 
-we were unable to demonstrate that our project was in fact functional, because the Arduino boards used in the cars refused to connect to the main server 
-(and we think that this is due to increased interference when everyone starting demonstrating their project around us at the same time).
-nevertheless, you will find a video attached showing the project in a functional state.
+we were unable to demonstrate that our project was in fact functional, because the Arduino boards used in the cars refused to connect to the main server. This is due to increased interference when everyone starting demonstrating their project around us at the same time.
+Nevertheless, you will find a video attached showing the project in a functional state, using AI cars.
 
-The problem that slowed us down the most was certainly latency in general, because it was at first very hard to pinpoint the problem,
-then it took a while to solve it (the problem has no know solutions so far, other groups had the same problem and were unable to solve it).
+[Video Link](https://drive.google.com/file/d/1U7BNgFku9bf5cgFWT6QTgowsCUX8AMdn/view?usp=share_link)
 
-We also underestimated the time necessary to put all of the different components of the project together. Of course, they all worked
-fine alone, but once we put them together a lot of new bugs started popping up, probably because we started putting elements together 
-only at an advanced stage of the project.
+The problem that slowed us down the most was certainly latency in general, because it was at first very hard to pinpoint the problem, then it took a while to try to resolve it (the problem has no known solutions so far, other groups had the same problem and were unable to solve it).
 
-On avait qq choses qui marchait correctement avec 3/4 voitures en conditions normales malgré un AI encore quelque peu imprécis.
-Malhheuresement, le jour de la démonstration on a été pris de cours par des soucis de communciations (intéférences) qui ont fait qu'il a été impossible de démontrer que notre projet était fonctionnel ce jour là. Néanmoins vous trouverez attaché une vidéo montrant le projet fonctionnel.
-Nous nous n'avions malheuresement pas anticipé ces problemes de latence du aux intérférences/soucis de communication qui ont été excacerbés le jour de la démonstration du à la grand concentration de personnes. 
+We also underestimated the time necessary to put all of the different components of the project together. They all worked
+fine alone, but once we put them together a lot of new bugs started popping up, probably because we did so only at an advanced stage of the project.
 
-C'est surement le point qui nous a le plus ralenti car il a été dans un premier temps difficile à identifier, puis à régler, (limite pas réglable avec ce genre de board, probleme deja rencontré par d'autres groupes les années précédentes, freeze de board).
-
-Un autre point que l'on a sous estimé est la mise en commun des différents composants qui marchaient individuellement les uns les autres.
+At the end of the day, it was a complex project and we learned a lot from hardware to software and the link between the two, with TCP connections, computer vision, 3D printing, handling wood and other materials. Don't hesitate to reach out to us if you have any questions.
