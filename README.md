@@ -234,7 +234,7 @@ The first challenge was to establish a reliable and precise coordinate system, w
 
 <br>
 <p align="center">
-  <img src="https://uploads-ssl.webflow.com/5fff85e7f613e35edb5806ed/610c73a8a023cf1746b56833_pincushion_radial_distortion.png" alt="Radial Distorsion" width="300" height="300" />
+  <img src="Report/Camera/radial_distortion.png" alt="Radial Distorsion" width="300" height="300" />
   <br>
   Illustration of theorical radial lens distorsion
 </p>
@@ -311,7 +311,7 @@ A flowmap is a map of desired orientation across the circuit, which we separated
 
 We then calculate the desired steering angle to send to the Arduino which lies between 0 and 180, 90 meaning going straight.
 
-(===== ADD PICTURE OF THE FLOW MAP =====)
+<img width="340" src="https://github.com/therokdaba/MIT-Algo/assets/79508203/162e2477-a2dd-4280-bd74-0bd1bdb9371e">
 
 
 #### Acceleration
