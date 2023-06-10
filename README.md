@@ -311,7 +311,7 @@ A flowmap is a map of desired orientation across the circuit, which we separated
 
 We then calculate the desired steering angle to send to the Arduino which lies between 0 and 180, 90 meaning going straight.
 
-<img width="340" src="https://github.com/therokdaba/MIT-Algo/assets/79508203/162e2477-a2dd-4280-bd74-0bd1bdb9371e">
+<img width="500" src="https://github.com/therokdaba/MIT-Algo/assets/79508203/162e2477-a2dd-4280-bd74-0bd1bdb9371e">
 
 
 #### Acceleration
